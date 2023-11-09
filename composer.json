@@ -1,0 +1,29 @@
+{
+    "name": "weap/laravel-junction",
+    "description": "Easily create a REST API with extended functionality, such as eager loading, searching, filtering, and more.",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Robin",
+            "email": "robin@weap.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "prefer-stable": true,
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^8.0 || ^9.0 || ^10.0"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Weap\\Junction\\": "src/"
+        }
+    }
+}
