@@ -105,12 +105,14 @@ class Items extends Response
             $idToFind = (int) $idToFind;
         }
 
+        $keyName = $this->query->getModel()->getKeyName();
+
         $index = $this->query->toBase()
             ->clone()
-            ->select([$this->query->getModel()->getTable() . '.' . $this->query->getModel()->getKeyName()])
+            ->select([$this->query->getModel()->getTable() . '.' . $keyName])
             ->cursor()
-            ->search(function ($data) use ($idToFind) {
-                return $data->id == $idToFind;
+            ->search(function ($data) use ($idToFind, $keyName) {
+                return $data->$keyName == $idToFind;
             });
 
         if ($index === false) {
