@@ -35,10 +35,11 @@ trait HasUpdate
 
         $request = app($this->formRequest);
 
-        $validAttributes = $this->saveValidatedOnly || empty($model->getFillable()) ? $request->validated() : $request->only($model->getFillable());
+        $validAttributes = empty($request->rules()) ? $request->only($model->getFillable()) : $request->validated();
+        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
         $model->fill(
-            $this->beforeUpdate($model, $validAttributes, array_diff_key($request->all(), $validAttributes))
+            $this->beforeUpdate($model, $validAttributes, $invalidAttributes)
         );
 
         $model->save();
@@ -46,26 +47,28 @@ trait HasUpdate
         $this->storeFiles($request->allFiles(), $model);
 
         return response()->json(
-            $this->afterUpdate($model)
+            $this->afterUpdate($model, $validAttributes, $invalidAttributes)
         );
     }
 
     /**
      * @param Model $model
-     * @param array $attributes
+     * @param array $validAttributes
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeUpdate(Model $model, array $attributes, array $invalidAttributes = [])
+    public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes)
     {
-        return $attributes;
+        return $validAttributes;
     }
 
     /**
      * @param Model $model
+     * @param array $validAttributes
+     * @param array $invalidAttributes
      * @return Model
      */
-    public function afterUpdate(Model $model)
+    public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes)
     {
         return $model;
     }

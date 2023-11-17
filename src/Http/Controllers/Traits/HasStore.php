@@ -23,39 +23,40 @@ trait HasStore
         }
 
         $request = app($this->formRequest);
-
         $model = new $this->model();
 
-        $validAttributes = $this->saveValidatedOnly || empty($model->getFillable()) ? $request->validated() : $request->only($model->getFillable());
+        $validAttributes = empty($request->rules()) ? $request->only($model->getFillable()) : $request->validated();
+        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
         $model->fill(
-            $this->beforeStore($validAttributes, array_diff_key($request->all(), $validAttributes))
+            $this->beforeStore($validAttributes, $invalidAttributes)
         );
 
         $model->save();
-
         $this->storeFiles($request->allFiles(), $model);
 
         return response()->json(
-            $this->afterStore($model)
+            $this->afterStore($model, $validAttributes, $invalidAttributes)
         );
     }
 
     /**
-     * @param array $attributes
+     * @param array $validAttributes
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeStore(array $attributes, array $invalidAttributes = [])
+    public function beforeStore(array $validAttributes, array $invalidAttributes)
     {
-        return $attributes;
+        return $validAttributes;
     }
 
     /**
      * @param Model $model
+     * @param array $validAttributes
+     * @param array $invalidAttributes
      * @return Model
      */
-    public function afterStore(Model $model)
+    public function afterStore(Model $model, array $validAttributes, array $invalidAttributes)
     {
         return $model;
     }

@@ -52,14 +52,6 @@ class Controller extends BaseController
     protected $resource = BaseResource::class;
 
     /**
-     * By default, all fillable attributes are saved in store/update requests.
-     * Set this to true to only save validated attributes.
-     *
-     * @var bool
-     */
-    protected $saveValidatedOnly = false;
-
-    /**
      * @param null $model
      * @throws Exception
      */

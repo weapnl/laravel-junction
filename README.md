@@ -306,15 +306,3 @@ public function messages()
     ];
 }
 ```
-
-#### Save attributes
-By default, all fillable attributes are saved in store/update requests. To only save validated attributes, define this in your controller:
-```php
-/**
- * By default, all fillable attributes are saved in store/update requests.
- * Set this to true to only save validated attributes.
- *
- * @var bool
- */
-protected $saveValidatedOnly = true;
-```
