@@ -55,22 +55,22 @@ trait HasUpdate
 
     /**
      * @param Model $model
-     * @param array $attributes
+     * @param array $validAttributes
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeUpdate(Model $model, array $attributes, array $invalidAttributes): array
+    public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes): array
     {
-        return $attributes;
+        return $validAttributes;
     }
 
     /**
      * @param Model $model
-     * @param array $attributes
+     * @param array $validAttributes
      * @param array $invalidAttributes
      * @return Model
      */
-    public function afterUpdate(Model $model, array $attributes, array $invalidAttributes): Model
+    public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes): Model
     {
         return $model;
     }

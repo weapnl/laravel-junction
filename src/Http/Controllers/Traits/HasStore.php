@@ -43,22 +43,22 @@ trait HasStore
     }
 
     /**
-     * @param array $attributes
+     * @param array $validAttributes
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeStore(array $attributes, array $invalidAttributes): array
+    public function beforeStore(array $validAttributes, array $invalidAttributes): array
     {
-        return $attributes;
+        return $validAttributes;
     }
 
     /**
      * @param Model $model
-     * @param array $attributes
+     * @param array $validAttributes
      * @param array $invalidAttributes
      * @return Model
      */
-    public function afterStore(Model $model, array $attributes, array $invalidAttributes): Model
+    public function afterStore(Model $model, array $validAttributes, array $invalidAttributes): Model
     {
         return $model;
     }
