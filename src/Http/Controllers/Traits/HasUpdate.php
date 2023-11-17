@@ -5,17 +5,15 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 trait HasUpdate
 {
     /**
      * @param int|string $id
-     * @return JsonResponse
-     * @throws Exception
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update($id): JsonResponse
+    public function update($id)
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -59,7 +57,7 @@ trait HasUpdate
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes): array
+    public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes)
     {
         return $validAttributes;
     }
@@ -70,7 +68,7 @@ trait HasUpdate
      * @param array $invalidAttributes
      * @return Model
      */
-    public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes): Model
+    public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes)
     {
         return $model;
     }

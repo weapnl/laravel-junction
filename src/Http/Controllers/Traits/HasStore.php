@@ -5,14 +5,12 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 trait HasStore
 {
     /**
-     * @return JsonResponse
-     * @throws Exception
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store()
     {
@@ -47,7 +45,7 @@ trait HasStore
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeStore(array $validAttributes, array $invalidAttributes): array
+    public function beforeStore(array $validAttributes, array $invalidAttributes)
     {
         return $validAttributes;
     }
@@ -58,7 +56,7 @@ trait HasStore
      * @param array $invalidAttributes
      * @return Model
      */
-    public function afterStore(Model $model, array $validAttributes, array $invalidAttributes): Model
+    public function afterStore(Model $model, array $validAttributes, array $invalidAttributes)
     {
         return $model;
     }
