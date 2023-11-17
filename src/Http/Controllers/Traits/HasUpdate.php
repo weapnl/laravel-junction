@@ -5,15 +5,17 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 trait HasUpdate
 {
     /**
      * @param int|string $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function update($id)
+    public function update($id): JsonResponse
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -35,10 +37,11 @@ trait HasUpdate
 
         $request = app($this->formRequest);
 
-        $validAttributes = $this->saveValidatedOnly || empty($model->getFillable()) ? $request->validated() : $request->only($model->getFillable());
+        $validAttributes = empty($request->rules()) ? $request->only($model->getFillable()) : $request->validated();
+        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
         $model->fill(
-            $this->beforeUpdate($model, $validAttributes, array_diff_key($request->all(), $validAttributes))
+            $this->beforeUpdate($model, $validAttributes, $invalidAttributes)
         );
 
         $model->save();
@@ -46,7 +49,7 @@ trait HasUpdate
         $this->storeFiles($request->allFiles(), $model);
 
         return response()->json(
-            $this->afterUpdate($model)
+            $this->afterUpdate($model, $validAttributes, $invalidAttributes)
         );
     }
 
@@ -56,16 +59,18 @@ trait HasUpdate
      * @param array $invalidAttributes
      * @return array
      */
-    public function beforeUpdate(Model $model, array $attributes, array $invalidAttributes = [])
+    public function beforeUpdate(Model $model, array $attributes, array $invalidAttributes): array
     {
         return $attributes;
     }
 
     /**
      * @param Model $model
+     * @param array $attributes
+     * @param array $invalidAttributes
      * @return Model
      */
-    public function afterUpdate(Model $model)
+    public function afterUpdate(Model $model, array $attributes, array $invalidAttributes): Model
     {
         return $model;
     }
