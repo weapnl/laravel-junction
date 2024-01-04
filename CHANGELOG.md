@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v4.1.1
+- Fixed bug where you couldn't use a scope without a parameter.
+
 ## v4.1.0
 - Added ability to only save validated attributes in store/update requests.
 
