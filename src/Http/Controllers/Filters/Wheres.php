@@ -73,7 +73,7 @@ class Wheres extends Filter
      */
     protected static function applyWhere($query, string $column, string $operator, ?string $value): void
     {
-        if ($value === null || $value === 'null') {
+        if ($value === null) {
             if (in_array($operator, ['!=', 'IS NOT'], true)) {
                 $query->whereNotNull($column);
             } else {
