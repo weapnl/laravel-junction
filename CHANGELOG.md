@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.0.5
+- Added support for whereNotIn.
+
 ## v0.0.4
 - Fixed bug where you couldn't use a scope without a parameter.
 

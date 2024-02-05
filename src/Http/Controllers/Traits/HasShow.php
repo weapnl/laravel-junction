@@ -11,6 +11,7 @@ use Weap\Junction\Http\Controllers\Filters\Count;
 use Weap\Junction\Http\Controllers\Filters\Relations;
 use Weap\Junction\Http\Controllers\Filters\Scopes;
 use Weap\Junction\Http\Controllers\Filters\WhereIn;
+use Weap\Junction\Http\Controllers\Filters\WhereNotIn;
 use Weap\Junction\Http\Controllers\Filters\Wheres;
 use Weap\Junction\Http\Controllers\Modifiers\Appends;
 use Weap\Junction\Http\Controllers\Modifiers\HiddenFields;
@@ -38,6 +39,7 @@ trait HasShow
         Scopes::apply($this, $query);
         Wheres::apply($this, $query);
         WhereIn::apply($this, $query);
+        WhereNotIn::apply($this, $query);
         Count::apply($this, $query);
 
         $model = $query->find($id);
