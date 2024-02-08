@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.0.6
 - Count class bugfix.
 - Added support for whereNotIn.
 
