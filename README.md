@@ -153,6 +153,7 @@ Filters are applied to the query. Filters are defined using array keys. Availabl
 | `search_columns` | `search_columns[]=id&search_columns[]=name`                                                        | The columns to search in. (optional: defaults to the searchable variable on your controller.) |
 | `wheres`         | `wheres[0][column]=name&wheres[0][operator]=%3D&wheres[0][value]=John (%3D = '=', ASCII Encoding)` | Apply where clauses.                                                                          |
 | `where_in`       | `where_in[0][column]=id&where_in[0][values][0]=1&where_in[0][values][1]=2`                         | Apply where in clause. (Where id is 1 or 2)                                                   |
+| `where_not_in`   | `where_not_in[0][column]=id&where_not_in[0][values][0]=1&where_not_in[0][values][1]=2`             | Apply where not in clause. (Where id is not 1 or 2)                                           |
 
 #### Modifiers
 Modifiers are applied after the query has run. Available modifiers:
