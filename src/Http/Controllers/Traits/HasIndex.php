@@ -14,6 +14,7 @@ use Weap\Junction\Http\Controllers\Filters\Relations;
 use Weap\Junction\Http\Controllers\Filters\Scopes;
 use Weap\Junction\Http\Controllers\Filters\Search;
 use Weap\Junction\Http\Controllers\Filters\WhereIn;
+use Weap\Junction\Http\Controllers\Filters\WhereNotIn;
 use Weap\Junction\Http\Controllers\Filters\Wheres;
 use Weap\Junction\Http\Controllers\Modifiers\Appends;
 use Weap\Junction\Http\Controllers\Modifiers\HiddenFields;
@@ -41,6 +42,7 @@ trait HasIndex
         Search::apply($this, $query);
         Wheres::apply($this, $query);
         WhereIn::apply($this, $query);
+        WhereNotIn::apply($this, $query);
         Limit::apply($this, $query);
         Order::apply($this, $query);
         Count::apply($this, $query);
