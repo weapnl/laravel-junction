@@ -17,22 +17,12 @@ class Count extends Filter
     {
         $relations = request()?->input('count');
 
-        if (! $relations) {
+        if (! $relations || ! is_array($relations)) {
             return;
         }
 
-        $relations = collect($relations)->mapWithKeys(function ($relation) {
-            $split = explode('|', $relation);
-
-            return [
-                $split[0] => function ($query) use ($split) {
-                    return isset($split[1]) ? $query->where('id', $split[1]) : $query;
-                }
-            ];
-        });
-
         $query->withCount(
-            RelationsValidator::validate($controller, $relations->all())
+            RelationsValidator::validate($controller, $relations)
         );
     }
 }
