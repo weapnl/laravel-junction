@@ -143,17 +143,17 @@ The response always contains the properties `items`, `total` and `page`, even if
 #### Filters
 Filters are applied to the query. Filters are defined using array keys. Available filters:
 
-| Key              | Example                                                                                            | Description                                                                                   |
-|------------------|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `limit`          | `limit=10`                                                                                         | Limit the maximum amount of results.                                                          |
-| `orders`         | `orders[][column]=name,orders[][direction]=asc`                                                    | Columns to order on.                                                                          |
-| `with`           | `with=[orders,comments]`                                                                           | Relations to load.                                                                            |
-| `scopes`         | `scopes[0][name]=forName&scopes[0][params][0]=John`                                                | Scopes to apply with the given parameters.                                                    |
-| `search_value`   | `search_value=john`                                                                                | Search for the given value.                                                                   |
-| `search_columns` | `search_columns[]=id&search_columns[]=name`                                                        | The columns to search in. (optional: defaults to the searchable variable on your controller.) |
+| Key              | Example                                                                                           | Description                                                                                   |
+|------------------|---------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `limit`          | `limit=10`                                                                                        | Limit the maximum amount of results.                                                          |
+| `orders`         | `orders[][column]=name,orders[][direction]=asc`                                                   | Columns to order on.                                                                          |
+| `with`           | `with=[orders,comments]`                                                                          | Relations to load.                                                                            |
+| `scopes`         | `scopes[0][name]=hasName&scopes[0][params][0]=John`                                               | Scopes to apply with the given parameters.                                                    |
+| `search_value`   | `search_value=john`                                                                               | Search for the given value.                                                                   |
+| `search_columns` | `search_columns[]=id&search_columns[]=name`                                                       | The columns to search in. (optional: defaults to the searchable variable on your controller.) |
 | `wheres`         | `wheres[0][column]=name&wheres[0][operator]=%3D&wheres[0][value]=John (%3D = '=', ASCII Encoding)` | Apply where clauses.                                                                          |
-| `where_in`       | `where_in[0][column]=id&where_in[0][values][0]=1&where_in[0][values][1]=2`                         | Apply where in clause. (Where id is 1 or 2)                                                   |
-| `where_not_in`   | `where_not_in[0][column]=id&where_not_in[0][values][0]=1&where_not_in[0][values][1]=2`             | Apply where not in clause. (Where id is not 1 or 2)                                           |
+| `where_in`       | `where_in[0][column]=id&where_in[0][values][0]=1&where_in[0][values][1]=2`                        | Apply where in clause. (Where id is 1 or 2)                                                   |
+| `where_not_in`   | `where_not_in[0][column]=id&where_not_in[0][values][0]=1&where_not_in[0][values][1]=2`            | Apply where not in clause. (Where id is not 1 or 2)                                           |
 
 #### Modifiers
 Modifiers are applied after the query has run. Available modifiers:
