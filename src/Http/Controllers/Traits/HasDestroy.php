@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 trait HasDestroy
 {
     /**
-     * @param int|string $id
+     * @param int|string|Model $id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */

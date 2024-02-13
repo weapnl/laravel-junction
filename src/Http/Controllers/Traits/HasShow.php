@@ -21,7 +21,7 @@ use Weap\Junction\Http\Controllers\Response\Item;
 trait HasShow
 {
     /**
-     * @param int|string $id
+     * @param int|string|Model $id
      * @return BaseResource
      * @throws Exception
      */
