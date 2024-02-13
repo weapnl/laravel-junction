@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.0.8
+- Added option to save fillable instead of validated attributes.
+
 ## v0.0.7
 - Fixed PHPDoc.
 - Fixed readme example for scopes.

@@ -25,7 +25,7 @@ trait HasStore
         $request = app($this->formRequest);
         $model = new $this->model();
 
-        $validAttributes = empty($request->rules()) ? $request->only($model->getFillable()) : $request->validated();
+        $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
         $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
         $model->fill(

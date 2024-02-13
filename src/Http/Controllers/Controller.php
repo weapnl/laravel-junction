@@ -52,6 +52,13 @@ class Controller extends BaseController
     protected $resource = BaseResource::class;
 
     /**
+     * Set to true to save fillable instead of validated attributes in store/update methods.
+     *
+     * @var bool
+     */
+    protected $saveFillable = false;
+
+    /**
      * @param null $model
      * @throws Exception
      */
