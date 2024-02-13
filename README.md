@@ -307,3 +307,14 @@ public function messages()
     ];
 }
 ```
+
+#### Save fillable attributes
+By default, only validated attributes are saved when calling store/update routes. To save fillable attributes instead, set the following on your controller:
+```php
+/**
+ * Set to true to save fillable instead of validated attributes in store/update methods.
+ *
+ * @var bool
+ */
+protected $saveFillable = true;
+```
