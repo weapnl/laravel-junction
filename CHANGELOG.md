@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v0.0.7
+- Fixed PHPDoc.
+- Fixed readme example for scopes.
+
 ## v0.0.6
 - Count class bugfix.
 - Added support for whereNotIn.

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 trait HasUpdate
 {
     /**
-     * @param int|string $id
+     * @param int|string|Model $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function update($id)
