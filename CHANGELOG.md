@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.0.9
+- Added license file.
+
 ## v0.0.8
 - Added option to save fillable instead of validated attributes.
 
