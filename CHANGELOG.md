@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.0.10
+- Fixed license in composer file.
+
 ## v0.0.9
 - Added license file.
 
