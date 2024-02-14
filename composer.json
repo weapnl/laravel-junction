@@ -1,6 +1,8 @@
 {
     "name": "weapnl/laravel-junction",
     "description": "Easily create a REST API with extended functionality, such as eager loading, searching, filtering, and more.",
+    "homepage": "https://github.com/weapnl/laravel-junction",
+    "license": "MIT",
     "type": "library",
     "authors": [
         {
