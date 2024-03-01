@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added support for post.
 
 ## v0.0.10
 - Fixed license in composer file.
