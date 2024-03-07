@@ -40,9 +40,9 @@ class Wheres extends Filter
      * @param Builder|Relation $query
      * @param string $column
      * @param string $operator
-     * @param string|null $value
+     * @param mixed $value
      */
-    protected static function traverse(Builder|Relation $query, string $column, string $operator, ?string $value): void
+    protected static function traverse(Builder|Relation $query, string $column, string $operator, mixed $value): void
     {
         $columnParts = explode('.', $column);
 
@@ -68,10 +68,10 @@ class Wheres extends Filter
      * @param $query
      * @param string $column
      * @param string $operator
-     * @param string|null $value
+     * @param mixed $value
      * @return void
      */
-    protected static function applyWhere($query, string $column, string $operator, ?string $value): void
+    protected static function applyWhere($query, string $column, string $operator, mixed $value): void
     {
         if ($value === null) {
             if (in_array($operator, ['!=', 'IS NOT'], true)) {
