@@ -14,7 +14,9 @@ class Junction
     public static function resource($uri, $controller): void
     {
         Route::get($uri, [$controller, 'index']);
+        Route::post($uri . '/index', [$controller, 'index']);
         Route::get($uri . '/{id}', [$controller, 'show']);
+        Route::post($uri . '/{id}/show', [$controller, 'show']);
         Route::post($uri, [$controller, 'store']);
         Route::put($uri . '/{id}', [$controller, 'update']);
         Route::delete($uri . '/{id}', [$controller, 'destroy']);
