@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- Added support for post.
+- Added support for post requests.
 - Updated the routing, works with only controller names now.
 
 ## v0.0.10
