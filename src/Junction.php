@@ -27,11 +27,4 @@ class Junction
             Route::put($uri, $controller . '@action');
         }
     }
-
-    public function only($methods)
-    {
-        $this->options['only'] = is_array($methods) ? $methods : func_get_args();
-
-        return $this;
-    }
 }
