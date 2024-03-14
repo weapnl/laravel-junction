@@ -39,10 +39,10 @@ class ResourceRegistrar extends BaseResourceRegistrar
     /**
      * Add the show method for a resourceful route.
      *
-     * @param  string  $name
-     * @param  string  $base
-     * @param  string  $controller
-     * @param  array  $options
+     * @param string $name
+     * @param string $base
+     * @param string $controller
+     * @param array $options
      * @return Route
      */
     protected function addResourceShowPost(string $name, string $base, string $controller, array $options): Route
