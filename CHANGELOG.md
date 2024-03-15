@@ -1,9 +1,9 @@
 # Changelog
 
 ## Unreleased
-- Added route registrar.
 
 ## v0.0.12
+- Added route registrar.
 - Search columns bugfix.
 
 ## v0.0.11
