@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added route registrar.
 
 ## v0.0.11
 - Added support for post requests.
