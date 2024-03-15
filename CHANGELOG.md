@@ -3,6 +3,9 @@
 ## Unreleased
 - Added route registrar.
 
+## v0.0.12
+- Search columns bugfix.
+
 ## v0.0.11
 - Added support for post requests.
 - Updated the routing, works with only controller names now.

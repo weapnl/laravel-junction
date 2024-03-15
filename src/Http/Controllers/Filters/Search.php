@@ -22,8 +22,8 @@ class Search extends Filter
         /** @var Model $model */
         $model = app($controller->model);
 
-        $searchValue = request()?->input('search_value');
-        $columns = request()?->input('search_columns') ?? $controller->searchable();
+        $searchValue = request()->input('search_value');
+        $columns = empty(request()->input('search_columns')) ? $controller->searchable() : request()->input('search_columns');
 
         if (empty($searchValue) || empty($columns)) {
             return;
