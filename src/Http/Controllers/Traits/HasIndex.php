@@ -47,7 +47,9 @@ trait HasIndex
         Order::apply($this, $query);
         Count::apply($this, $query);
 
-        $items = Items::query($query)->get();
+        $items = Items::query($query)
+            ->useSimplePagination($this->useSimplePagination)
+            ->get();
 
         HiddenFields::apply($this, $items);
         Appends::apply($this, $items);
