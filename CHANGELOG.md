@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Duplicate route names bug resolved.
 
 ## v0.0.12
 - Added route registrar.
