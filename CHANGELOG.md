@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Laravel 11 support.
 
 ## v0.0.12
 - Added route registrar.
