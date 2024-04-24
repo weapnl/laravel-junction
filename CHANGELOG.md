@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.0.13
 - Duplicate route names bug resolved.
 - Laravel 11 support.
 
