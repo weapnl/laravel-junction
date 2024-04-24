@@ -4,6 +4,7 @@ namespace Weap\Junction;
 
 use Illuminate\Routing\ResourceRegistrar as BaseResourceRegistrar;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Str;
 
 class ResourceRegistrar extends BaseResourceRegistrar
 {
@@ -31,7 +32,8 @@ class ResourceRegistrar extends BaseResourceRegistrar
 
         unset($options['missing']);
 
-        $action = $this->getResourceAction($name, $controller, 'index', $options);
+        $action = $this->getResourceAction($name, $controller, 'indexPost', $options);
+        $action['uses'] = Str::replaceLast('Post', '', $action['uses']);
 
         return $this->router->post($uri, $action);
     }
@@ -51,7 +53,8 @@ class ResourceRegistrar extends BaseResourceRegistrar
 
         $uri = $this->getResourceUri($name) . '/{' . $base . '}/show';
 
-        $action = $this->getResourceAction($name, $controller, 'show', $options);
+        $action = $this->getResourceAction($name, $controller, 'showPost', $options);
+        $action['uses'] = Str::replaceLast('Post', '', $action['uses']);
 
         return $this->router->post($uri, $action);
     }
