@@ -59,6 +59,13 @@ class Controller extends BaseController
     protected $saveFillable = false;
 
     /**
+     * Set to true to force simple pagination in index method.
+     *
+     * @var bool
+     */
+    protected bool $forceSimplePagination = false;
+
+    /**
      * @param null $model
      * @throws Exception
      */
