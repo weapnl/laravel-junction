@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- Added support for simple pagination
+- Added support for simple pagination.
 
 ## v0.0.13
 - Duplicate route names bug resolved.
