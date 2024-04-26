@@ -32,8 +32,7 @@ trait HasIndex
             abort(403, 'Unauthorized');
         }
 
-        $simplePagination = request()?->input('simplePagination');
-        $simplePagination = $simplePagination === 'true' || $simplePagination === true;
+        $simplePagination = request()->boolean('simple_pagination');
 
         if ($this->forceSimplePagination === true && ! $simplePagination) {
             abort(400, 'Simple pagination is required for this resource.');
@@ -55,7 +54,7 @@ trait HasIndex
         Count::apply($this, $query);
 
         $items = Items::query($query)
-            ->simplePagination($this->forceSimplePagination || $simplePagination)
+            ->simplePagination($simplePagination)
             ->get();
 
         HiddenFields::apply($this, $items);
