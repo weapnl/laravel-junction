@@ -3,6 +3,7 @@
 namespace Weap\Junction\Http\Controllers\Response;
 
 use Closure;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Enumerable;
@@ -20,9 +21,14 @@ class Items extends Response
     protected Enumerable $models;
 
     /**
-     * @var LengthAwarePaginator
+     * @var Paginator|null
      */
-    protected $paginator;
+    protected ?Paginator $paginator = null;
+
+    /**
+     * @var bool
+     */
+    protected bool $simplePagination = false;
 
     /**
      * @param Builder $query
@@ -38,6 +44,17 @@ class Items extends Response
     }
 
     /**
+     * @param bool $simplePagination
+     * @return $this
+     */
+    public function simplePagination(bool $simplePagination): Items
+    {
+        $this->simplePagination = $simplePagination;
+
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function get(): self
@@ -48,7 +65,11 @@ class Items extends Response
         if ($perPage) {
             $page = $this->page($perPage);
 
-            $this->paginator = $this->query->paginate($perPage, $columns, 'page', $page);
+            if ($this->simplePagination) {
+                $this->paginator = $this->query->simplePaginate($perPage, $columns, 'page', $page);
+            } else {
+                $this->paginator = $this->query->paginate($perPage, $columns, 'page', $page);
+            }
 
             $this->models = collect($this->paginator->items());
 
@@ -80,9 +101,9 @@ class Items extends Response
     }
 
     /**
-     * @return LengthAwarePaginator|null
+     * @return Paginator|null
      */
-    public function paginator(): ?LengthAwarePaginator
+    public function paginator(): ?Paginator
     {
         return $this->paginator;
     }

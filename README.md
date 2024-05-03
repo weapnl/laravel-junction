@@ -173,6 +173,13 @@ Pagination is applied on database-level (after applying all filters). The follow
 | `page`        | `page=1`        | The page to get. Defaults to 1. Requires `paginate` to be set.                                                                                               |
 | `page_for_id` | `page_for_id=1` | This will search the correct page based on the given model id. `page` is used as a fallback if the given id can not be found. Requires `paginate` to be set. |
 
+#### Simple pagination
+Simple pagination almost the same as the pagination above. But the simple pagination doesn't return the total amount of items or a page number. This is useful for large database tables where the normal pagination is too slow.
+
+| Key                 | Example                  | Description                                         |
+|---------------------|--------------------------|-----------------------------------------------------|
+| `paginate`          | `paginate=25`            | This specifies the amount of items per page.        |
+| `simple_pagination` | `simple_pagination=true` | This defines that simple pagination should be used. |
 
 ### Relations
 To limit the relations which can be loaded using the `with` filter, you can override the `relations` method on your controller.

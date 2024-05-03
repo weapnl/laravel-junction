@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Weap\Junction\Http\Controllers\Response\Items;
@@ -41,9 +42,12 @@ class BaseResource extends JsonResource
 
         $resourceCollection->resource->each->pluckFields($pluckAttributes, $pluckAccessors, $pluckRelations);
 
+        $paginator = $items->paginator();
+
         return $resourceCollection->additional([
-            'total' => $items->paginator() ? $items->paginator()->total() : $items->models()->count(),
-            'page' => $items->paginator() ? $items->paginator()->currentPage() : null,
+            'total' => $paginator instanceof LengthAwarePaginator ? $paginator->total() : null,
+            'page' => $paginator?->currentPage(),
+            'has_next_page' => $paginator?->hasMorePages(),
         ]);
     }
 
