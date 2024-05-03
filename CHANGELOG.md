@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.0.14
 - Added support for simple pagination.
 
 ## v0.0.13
