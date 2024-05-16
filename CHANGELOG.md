@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Return only the pagination keys if the request is paginated.
 
 ## v0.0.14
 - Added support for simple pagination.
