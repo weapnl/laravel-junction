@@ -66,7 +66,7 @@ trait HasIndex
         $accessors = request()?->input('appends');
         $relations = request()?->input('with');
 
-        return $this->resource::paginated(
+        return $this->resource::items(
             $items,
             pluckAttributes: $pluckFields !== null ? Arr::undot(array_flip($pluckFields)) : null,
             pluckAccessors: $accessors !== null ? Arr::undot(array_flip($accessors)) : null,
