@@ -34,7 +34,7 @@ class BaseResource extends JsonResource
      * @param array|null $pluckRelations
      * @return AnonymousResourceCollection
      */
-    public static function paginated(Items $items, ?array $pluckAttributes = null, ?array $pluckAccessors = null, ?array $pluckRelations = null): AnonymousResourceCollection
+    public static function items(Items $items, ?array $pluckAttributes = null, ?array $pluckAccessors = null, ?array $pluckRelations = null): AnonymousResourceCollection
     {
         static::wrap('items');
 
@@ -42,13 +42,15 @@ class BaseResource extends JsonResource
 
         $resourceCollection->resource->each->pluckFields($pluckAttributes, $pluckAccessors, $pluckRelations);
 
-        $paginator = $items->paginator();
+        if ($paginator = $items->paginator()) {
+            $resourceCollection->additional([
+                'total' => $paginator instanceof LengthAwarePaginator ? $paginator->total() : null,
+                'page' => $paginator?->currentPage(),
+                'has_next_page' => $paginator?->hasMorePages(),
+            ]);
+        }
 
-        return $resourceCollection->additional([
-            'total' => $paginator instanceof LengthAwarePaginator ? $paginator->total() : null,
-            'page' => $paginator?->currentPage(),
-            'has_next_page' => $paginator?->hasMorePages(),
-        ]);
+        return $resourceCollection;
     }
 
     /**
