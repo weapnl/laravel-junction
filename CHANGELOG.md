@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.0.15
 - Return only the pagination keys if the request is paginated.
 
 ## v0.0.14
