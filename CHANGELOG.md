@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Print any invalid relation names in the exception.
 
 ## v0.0.15
 - Return only the pagination keys if the request is paginated.
