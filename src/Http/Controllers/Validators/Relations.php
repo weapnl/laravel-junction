@@ -30,14 +30,14 @@ class Relations
             return $relations->all();
         }
 
-        $relationsAreValid = $relations->every(function ($callback, $relation) use ($availableRelations) {
+        $invalidRelations = $relations->filter(function ($callback, $relation) use ($availableRelations) {
             $key = is_string($callback) ? $callback : $relation;
 
-            return array_key_exists($key, $availableRelations) || in_array($key, $availableRelations);
+            return ! array_key_exists($key, $availableRelations) && ! in_array($key, $availableRelations);
         });
 
-        throw_if(! $relationsAreValid, ValidationException::withMessages([
-            'relations' => 'Invalid relations'
+        throw_if($invalidRelations->isNotEmpty(), ValidationException::withMessages([
+            'relations' => "Invalid relation(s): {$invalidRelations->join(', ')}",
         ]));
 
         return $relations->all();
