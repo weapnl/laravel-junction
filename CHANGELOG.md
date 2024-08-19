@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add local development instructions for composer and docker.
 
 ## v0.0.15
 - Return only the pagination keys if the request is paginated.
