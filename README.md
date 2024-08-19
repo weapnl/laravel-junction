@@ -4,8 +4,10 @@ This project allows you to easily create a REST API with Laravel. It has extende
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-  - [JS support](#js-support)
+  - [Js Support](#js-support)
+  - [Development](#development)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
   - [Setting up the Controller](#setting-up-the-controller)
@@ -14,6 +16,7 @@ This project allows you to easily create a REST API with Laravel. It has extende
     - [Filters](#filters)
     - [Modifiers](#modifiers)
     - [Pagination](#pagination)
+    - [Simple pagination](#simple-pagination)
   - [Relations](#relations)
   - [Search](#search)
   - [Resources](#resources)
@@ -21,7 +24,7 @@ This project allows you to easily create a REST API with Laravel. It has extende
   - [Validation](#validation)
     - [FormRequest validation](#formrequest-validation)
     - [Standard validation](#standard-validation)
-    - [Save attributes](#save-attributes)
+    - [Save fillable attributes](#save-fillable-attributes)
 
 ## Installation
 ```bash
@@ -30,6 +33,39 @@ composer require weapnl/laravel-junction
 
 ### Js Support
 We're excited to announce that this Laravel-Junction package now has a companion JavaScript/TS library! This addition extends the functionality of our Laravel package to the front end, offering a seamless integration for your web applications.
+
+### Development
+In order to easily work on this package locally and use it in another local project, do the following:
+
+1. Add a repository in the `composer.json` file of the project you want to include Laravel-Junction in:
+
+```json
+"repositories": {
+    "laravel-junction": {
+        "type": "path",
+        "url": "./laravel-junction",
+        "options": {
+            "symlink": true
+        }
+    }
+}
+```
+
+2. If your other project runs in docker, add a volume referencing the folder where Laravel-Junction resides:
+
+```yaml
+services:
+  api:
+    image: ...
+    volumes:
+      - ../laravel-junction:/var/www/laravel-junction
+```
+
+3. Install the local package. The `symlink` option you set on the repository earlier makes sure that you only need to do this once as opposed to every code change.
+
+```bash
+composer require weapnl/laravel-junction dev-main
+```
 
 
 ## Quick Start
