@@ -25,12 +25,8 @@ class Scopes extends Filter
 
         foreach ($scopes as $scope) {
             $scopeName = $scope['name'];
-
-            if (empty($scope['params'])) {
-                $query->$scopeName();
-            } else {
-                $query->$scopeName(...$scope['params']);
-            }
+            $params = $scope['params'] ?? [];
+            $query->$scopeName(...$params);
         }
     }
 }
