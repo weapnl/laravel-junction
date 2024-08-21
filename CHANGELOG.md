@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Add local development instructions for composer and docker.
+- Refactor scope calls to be more DRY.
 
 ## v0.0.15
 - Return only the pagination keys if the request is paginated.
