@@ -12,6 +12,7 @@ class Junction
     /**
      * @param $uri
      * @param $controller
+     * @param array<string> $only
      * @return void
      */
     public static function resource($uri, $controller, $only = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action']): void

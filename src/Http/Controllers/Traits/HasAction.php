@@ -17,7 +17,7 @@ trait HasAction
             'action' => [
                 'required',
                 Rule::in($this->getActions()),
-            ]
+            ],
         ]);
 
         $model = null;
@@ -43,7 +43,7 @@ trait HasAction
      */
     protected function getActionMethod($name)
     {
-        $exists = !! $this->getActions()->first(function ($action) use ($name) {
+        $exists = (bool) $this->getActions()->first(function ($action) use ($name) {
             return $action == $name;
         });
 

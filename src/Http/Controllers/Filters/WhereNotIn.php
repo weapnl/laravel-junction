@@ -13,6 +13,7 @@ class WhereNotIn extends Filter
     /**
      * @param Controller $controller
      * @param Builder|Relation $query
+     *
      * @throws Exception
      */
     public static function apply(Controller $controller, Builder|Relation $query): void

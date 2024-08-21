@@ -14,6 +14,7 @@ class Relations
      * @param Controller $controller
      * @param array $relations
      * @return array
+     *
      * @throws ValidationException
      */
     public static function validate(Controller $controller, array $relations)
@@ -37,7 +38,7 @@ class Relations
         });
 
         throw_if(! $relationsAreValid, ValidationException::withMessages([
-            'relations' => 'Invalid relations'
+            'relations' => 'Invalid relations',
         ]));
 
         return $relations->all();

@@ -5,7 +5,6 @@ namespace Weap\Junction\Http\Controllers\Response;
 use Closure;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Enumerable;
 
 class Items extends Response

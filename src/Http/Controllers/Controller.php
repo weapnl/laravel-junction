@@ -47,7 +47,7 @@ class Controller extends BaseController
     /**
      * The class name of Resource to be used for the show and index methods.
      *
-     * @var string $resource
+     * @var string
      */
     protected $resource = BaseResource::class;
 
@@ -67,6 +67,7 @@ class Controller extends BaseController
 
     /**
      * @param null $model
+     *
      * @throws Exception
      */
     public function __construct($model = null)
