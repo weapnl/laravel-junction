@@ -31,7 +31,7 @@ class Appends
                     return true;
                 }
 
-                return $model->hasGetMutator($append);
+                return $model->hasGetMutator($append) || $model->hasAttributeGetMutator($append);
             })->count();
 
         if ($check) {
