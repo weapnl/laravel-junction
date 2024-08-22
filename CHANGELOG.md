@@ -4,6 +4,7 @@
 - Add local development instructions for composer and docker.
 - Refactor scope calls to be more DRY.
 - Fix checking if an attribute exists.
+- Create a hook for the controller to mutate search values (e.g. for date formatting) (https://hitower.atlassian.net/browse/WEAP-187).
 
 ## v0.0.15
 - Return only the pagination keys if the request is paginated.

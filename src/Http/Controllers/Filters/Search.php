@@ -29,6 +29,8 @@ class Search extends Filter
             return;
         }
 
+        $searchValue = $controller->mutateSearchValue($searchValue);
+        
         $query->where(function (Builder $query) use ($searchValue, $model, $columns) {
             $columns = Arr::undot(array_flip($columns));
 

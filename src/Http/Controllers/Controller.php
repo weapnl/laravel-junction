@@ -150,4 +150,15 @@ class Controller extends BaseController
 
         $model->save();
     }
+
+    /**
+     * Mutate the search value from the client for this particular model.
+     *
+     * @param string $searchValue The value the user searched for.
+     * @return string The mutated search value.
+     */
+    public function mutateSearchValue(string $searchValue): string
+    {
+        return $searchValue;
+    }
 }
