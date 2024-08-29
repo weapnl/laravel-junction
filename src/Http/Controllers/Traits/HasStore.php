@@ -33,7 +33,7 @@ trait HasStore
         );
 
         $model->save();
-        $this->storeFiles($request->allFiles(), $model);
+        $this->attachMedia($model, $validAttributes);
 
         return response()->json(
             $this->afterStore($model, $validAttributes, $invalidAttributes)

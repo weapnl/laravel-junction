@@ -44,7 +44,7 @@ trait HasUpdate
 
         $model->save();
 
-        $this->storeFiles($request->allFiles(), $model);
+        $this->attachMedia($model, $validAttributes);
 
         return response()->json(
             $this->afterUpdate($model, $validAttributes, $invalidAttributes)

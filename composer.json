@@ -10,6 +10,9 @@
             "email": "robin@weap.nl"
         }
     ],
+    "suggest": {
+        "spatie/laravel-medialibrary": "For using the temporary media upload functionality."
+    },
     "minimum-stability": "dev",
     "config": {
         "optimize-autoloader": true,

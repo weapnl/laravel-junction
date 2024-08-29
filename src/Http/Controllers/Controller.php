@@ -3,13 +3,13 @@
 namespace Weap\Junction\Http\Controllers;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Controller as BaseController;
 use Weap\Junction\Http\Controllers\Requests\DefaultFormRequest;
 use Weap\Junction\Http\Controllers\Resources\BaseResource;
 use Weap\Junction\Http\Controllers\Traits\HasAction;
 use Weap\Junction\Http\Controllers\Traits\HasDestroy;
 use Weap\Junction\Http\Controllers\Traits\HasIndex;
+use Weap\Junction\Http\Controllers\Traits\HasMedia;
 use Weap\Junction\Http\Controllers\Traits\HasShow;
 use Weap\Junction\Http\Controllers\Traits\HasStore;
 use Weap\Junction\Http\Controllers\Traits\HasUpdate;
@@ -21,7 +21,8 @@ class Controller extends BaseController
         HasStore,
         HasUpdate,
         HasDestroy,
-        HasAction;
+        HasAction,
+        HasMedia;
 
     /**
      * The class name of the model for which the controller should implement CRUD actions.
@@ -116,39 +117,6 @@ class Controller extends BaseController
     public function messages()
     {
         return [];
-    }
-
-    /**
-     * @param Model $model
-     * @param string $key
-     * @return string
-     */
-    public function getFilePath(Model $model, string $key)
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getFileDisk()
-    {
-        return null;
-    }
-
-    /**
-     * @param array $files
-     * @param Model $model
-     */
-    public function storeFiles($files, Model $model)
-    {
-        foreach ($files as $key => $value) {
-            $path = $value->store($this->getFilePath($model, $key), $this->getFileDisk());
-
-            $model->$key = $path;
-        }
-
-        $model->save();
     }
 
     /**
