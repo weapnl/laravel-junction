@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
-class MediaTemporaryUploadsClean extends Command
+class CleanMediaTemporaryUploads extends Command
 {
     /**
      * The name and signature of the console command.

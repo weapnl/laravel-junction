@@ -5,6 +5,8 @@ namespace Weap\Junction;
 use Illuminate\Routing\PendingResourceRegistration;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Weap\Junction\Commands\CleanMediaTemporaryUploads;
 
 class JunctionServiceProvider extends ServiceProvider
 {
@@ -21,7 +23,11 @@ class JunctionServiceProvider extends ServiceProvider
             __DIR__ . '/../config/junction.php' => config_path('junction.php'),
         ]);
 
-        if (class_exists(\Spatie\MediaLibrary\MediaCollections\Models\Media::class)) {
+        $this->commands([
+            CleanMediaTemporaryUploads::class,
+        ]);
+
+        if (class_exists(Media::class)) {
             Route::middleware(config('junction.route.middleware', ['api']))
                 ->prefix(config('junction.route.prefix', ''))
                 ->group(__DIR__ . '/../routes/media_library.php');
