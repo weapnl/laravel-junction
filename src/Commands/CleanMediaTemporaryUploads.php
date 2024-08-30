@@ -2,8 +2,8 @@
 
 namespace Weap\Junction\Commands;
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
