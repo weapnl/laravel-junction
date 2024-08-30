@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
 class MediaTemporaryUploadController extends Controller
@@ -21,7 +22,7 @@ class MediaTemporaryUploadController extends Controller
      */
     public function upload(): JsonResponse
     {
-        abort_if(! class_exists(\Spatie\MediaLibrary\MediaCollections\Models\Media::class), 404);
+        abort_if(! class_exists(Media::class), 404);
 
         $validated = request()->validate([
             'files' => ['required', 'array', 'min:1'],

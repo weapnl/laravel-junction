@@ -4,6 +4,7 @@ namespace Weap\Junction\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
 class MediaTemporaryUploadsClean extends Command
@@ -13,7 +14,7 @@ class MediaTemporaryUploadsClean extends Command
      *
      * @var string
      */
-    protected $signature = 'media:clean-media-temporary-uploads';
+    protected $signature = 'media:clean-media-temporary-uploads {hours=24 : (optional) Records older than this number of hours will be cleaned.}';
 
     /**
      * Execute the console command.
@@ -22,6 +23,10 @@ class MediaTemporaryUploadsClean extends Command
      */
     public function handle(): int
     {
+        if (! class_exists(Media::class)) {
+            return static::FAILURE;
+        }
+
         $maxAgeInHours = $this->argument('hours');
         $cutOffDate = Carbon::now()->subHours((int) $maxAgeInHours)->format('Y-m-d H:i:s');
 
