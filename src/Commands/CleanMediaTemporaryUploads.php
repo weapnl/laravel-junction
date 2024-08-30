@@ -35,7 +35,7 @@ class CleanMediaTemporaryUploads extends Command
             ->get();
 
         foreach ($mediaTemporaryUploads as $mediaTemporaryUpload) {
-            $mediaTemporaryUpload->forceDelete();
+            $mediaTemporaryUpload->delete();
         }
 
         $this->info("Deleted {$mediaTemporaryUploads->count()} record(s) from the media temporary uploads.");

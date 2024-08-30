@@ -52,7 +52,7 @@ trait HasMedia
                     $media->save();
 
                     if ($oldMediaTemporaryUpload->media->isEmpty()) {
-                        $oldMediaTemporaryUpload->forceDelete();
+                        $oldMediaTemporaryUpload->delete();
                     }
                 }
             }

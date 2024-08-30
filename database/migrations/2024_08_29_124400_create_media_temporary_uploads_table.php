@@ -16,7 +16,6 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('created_by_user_id')->index()->constrained(app(config('auth.providers.users.model'))->tableName())->cascadeOnDelete();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
