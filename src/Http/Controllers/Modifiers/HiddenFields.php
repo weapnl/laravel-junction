@@ -46,7 +46,7 @@ class HiddenFields extends Modifier
                 } elseif ($model->$relation instanceof Model) {
                     self::traverse($model->$relation, [$traversed->join('.')]);
                 }
-            } else if ($model instanceof Enumerable) {
+            } elseif ($model instanceof Enumerable) {
                 $model->each->makeHidden($field);
             } else {
                 $model->makeHidden($field);

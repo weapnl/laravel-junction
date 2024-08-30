@@ -4,9 +4,9 @@ namespace Weap\Junction\Http\Controllers\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
-use Illuminate\Support\Arr;
 use Weap\Junction\Http\Controllers\Filters\Count;
 use Weap\Junction\Http\Controllers\Filters\Limit;
 use Weap\Junction\Http\Controllers\Filters\Order;
@@ -24,6 +24,7 @@ trait HasIndex
 {
     /**
      * @return AnonymousResourceCollection
+     *
      * @throws Throwable
      */
     public function index()

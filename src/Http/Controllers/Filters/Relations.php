@@ -37,7 +37,7 @@ class Relations extends Filter
      */
     protected static function addWith(Builder|Relation $query, Controller $controller, string $relation): void
     {
-        $query->with($relation, $controller->relations()[$relation] ?? function(){});
+        $query->with($relation, $controller->relations()[$relation] ?? function () {});
 
         $splitRelation = Str::of($relation)->explode('.');
 

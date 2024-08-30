@@ -2,6 +2,7 @@
 
 namespace Weap\Junction\Http\Controllers\Traits;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,7 +11,8 @@ trait HasDestroy
     /**
      * @param int|string|Model $id
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function destroy($id)
     {
