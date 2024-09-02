@@ -67,12 +67,22 @@ class DefaultFormRequest extends FormRequest
      */
     private function isValidMediaArray(array $array): bool
     {
+        $hasNonEmptyValue = false;
+
         foreach ($array as $key => $value) {
-            if (empty($value) || ! is_string($key) || array_values($value) !== $value || array_filter($value, 'is_int') !== $value) {
+            if (! is_string($key)) {
                 return false;
+            }
+
+            if (! empty($value)) {
+                $hasNonEmptyValue = true;
+
+                if (array_values($value) !== $value || array_filter($value, 'is_int') !== $value) {
+                    return false;
+                }
             }
         }
 
-        return true;
+        return $hasNonEmptyValue;
     }
 }
