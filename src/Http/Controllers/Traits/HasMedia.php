@@ -51,6 +51,15 @@ trait HasMedia
                     $media->collection_name = $collectionName;
                     $media->save();
 
+                    // This is to respect the `singleFile` prop on the media model.
+                    if ($collectionSizeLimit = optional($model->getMediaCollection($media->collection_name))->collectionSizeLimit) {
+                        $collectionMedia = $model->getMedia($media->collection_name);
+
+                        if ($collectionMedia->count() > $collectionSizeLimit) {
+                            $model->clearMediaCollectionExcept($media->collection_name, $media);
+                        }
+                    }
+
                     if ($oldMediaTemporaryUpload->media->isEmpty()) {
                         $oldMediaTemporaryUpload->delete();
                     }

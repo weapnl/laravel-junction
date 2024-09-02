@@ -40,8 +40,6 @@ class DefaultFormRequest extends FormRequest
             $mediaArray = [];
 
             foreach ($value as $collectionName => $mediaItems) {
-                $mediaArray[$collectionName] ??= [];
-
                 foreach ($mediaItems as $mediaId) {
                     $media = config('media-library.media_model')::find($mediaId);
 
