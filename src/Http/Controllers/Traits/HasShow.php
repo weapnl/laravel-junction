@@ -23,6 +23,7 @@ trait HasShow
     /**
      * @param int|string|Model $id
      * @return BaseResource
+     *
      * @throws Exception
      */
     public function show($id)

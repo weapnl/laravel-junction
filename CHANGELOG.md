@@ -6,6 +6,7 @@
 - Fix checking if an attribute exists.
 - Create a hook for the controller to mutate search values (e.g. for date formatting) (https://hitower.atlassian.net/browse/WEAP-187).
 - Print any invalid relation names in the exception.
+- Laravel Pint integrated.
 - Added the Temporary Media Upload functionality.
 
 ## v0.0.15

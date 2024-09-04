@@ -14,6 +14,7 @@ class Relations
      * @param Controller $controller
      * @param array $relations
      * @return array
+     *
      * @throws ValidationException
      */
     public static function validate(Controller $controller, array $relations)

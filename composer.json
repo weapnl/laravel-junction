@@ -35,5 +35,8 @@
         "psr-4": {
             "Weap\\Junction\\": "src/"
         }
+    },
+    "require-dev": {
+        "laravel/pint": "^1.17"
     }
 }

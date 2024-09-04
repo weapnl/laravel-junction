@@ -12,6 +12,7 @@ class Appends
      * @param Controller $controller
      * @param array $appends
      * @return array
+     *
      * @throws ValidationException
      */
     public static function validate(Controller $controller, array $appends)
@@ -25,21 +26,21 @@ class Appends
         $model = new $controller->model();
 
         $check = $appends->count() == $appends->filter(function ($append) use ($model) {
-                if (Str::contains($append, '.')) {
-                    // TODO Validate relation appends
+            if (Str::contains($append, '.')) {
+                // TODO Validate relation appends
 
-                    return true;
-                }
+                return true;
+            }
 
-                return $model->hasGetMutator($append) || $model->hasAttributeGetMutator($append);
-            })->count();
+            return $model->hasGetMutator($append) || $model->hasAttributeGetMutator($append);
+        })->count();
 
         if ($check) {
             return $appends->toArray();
         }
 
         throw ValidationException::withMessages([
-            'appends' => 'Invalid appends'
+            'appends' => 'Invalid appends',
         ]);
     }
 }

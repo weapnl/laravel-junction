@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use RuntimeException;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Helpers\Table;
 
@@ -13,6 +14,7 @@ class Wheres extends Filter
     /**
      * @param Controller $controller
      * @param Builder|Relation $query
+     *
      * @throws Exception
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
@@ -29,7 +31,7 @@ class Wheres extends Filter
             $value = $where['value'] ?? null;
 
             if ($column === null || $operator === null) {
-                throw new \RuntimeException('A "where" string must contain a column and a operator.');
+                throw new RuntimeException('A "where" string must contain a column and a operator.');
             }
 
             self::traverse($query, $column, $operator, $value);
