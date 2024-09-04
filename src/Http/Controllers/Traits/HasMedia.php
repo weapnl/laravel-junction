@@ -13,13 +13,15 @@ trait HasMedia
     /**
      * @param Model $model
      * @param array<string, mixed> $validAttributes
-     * @return void
+     * @return array<Media>
      */
-    public function attachMedia(Model $model, array $validAttributes): void
+    public function attachMedia(Model $model, array $validAttributes): array
     {
         if (! class_exists(Media::class) || ! config('media-library.media_model')) {
-            return;
+            return [];
         }
+
+        $mediaFiles = [];
 
         foreach ($validAttributes as $key => $value) {
             if (! is_array($value)) {
@@ -51,6 +53,8 @@ trait HasMedia
                     $media->collection_name = $collectionName;
                     $media->save();
 
+                    $mediaFiles[] = $media;
+
                     // This is to respect the `singleFile` prop on the media model.
                     if ($collectionSizeLimit = optional($model->getMediaCollection($media->collection_name))->collectionSizeLimit) {
                         $collectionMedia = $model->getMedia($media->collection_name);
@@ -66,6 +70,8 @@ trait HasMedia
                 }
             }
         }
+
+        return $mediaFiles;
     }
 
     /**
