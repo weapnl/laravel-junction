@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use RuntimeException;
 use Weap\Junction\Http\Controllers\Controller;
 
 class Order extends Filter
@@ -25,7 +26,7 @@ class Order extends Filter
             $direction = $order['direction'] ?? null;
 
             if ($column === null || $direction === null) {
-                throw new \RuntimeException('A "order" array must contain a column and a direction.');
+                throw new RuntimeException('A "order" array must contain a column and a direction.');
             }
 
             $query->orderBy($column, $direction);

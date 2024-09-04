@@ -11,6 +11,6 @@ trait HasDefaultAppends
      */
     public static function defaultAppends(): array
     {
-        return (new static)->appends;
+        return (new static())->appends;
     }
 }

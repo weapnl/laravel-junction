@@ -1,0 +1,93 @@
+{
+    "preset": "psr12",
+    "rules": {
+        "array_indentation": true,
+        "blank_lines_before_namespace": true,
+        "cast_spaces": true,
+        "clean_namespace": true,
+        "concat_space": {
+            "spacing": "one"
+        },
+        "global_namespace_import": {
+            "import_functions": false
+        },
+        "method_chaining_indentation": true,
+        "native_function_invocation": {
+            "include": []
+        },
+        "new_with_braces": {
+            "anonymous_class": false,
+            "named_class": true
+        },
+        "no_blank_lines_after_phpdoc": true,
+        "no_break_comment": false,
+        "no_short_bool_cast": true,
+        "not_operator_with_successor_space": true,
+        "ordered_imports": {
+            "sort_algorithm": "alpha"
+        },
+        "phpdoc_add_missing_param_annotation": {
+            "only_untyped": false
+        },
+        "phpdoc_indent": true,
+        "phpdoc_inline_tag_normalizer": true,
+        "phpdoc_no_access": true,
+        "phpdoc_no_package": true,
+        "phpdoc_no_useless_inheritdoc": true,
+        "phpdoc_order": {
+            "order": [
+                "param",
+                "return",
+                "throws"
+            ]
+        },
+        "phpdoc_param_order": true,
+        "phpdoc_scalar": true,
+        "phpdoc_separation": {
+            "groups": [
+                [
+                    "deprecated",
+                    "link",
+                    "see",
+                    "since"
+                ],
+                [
+                    "author",
+                    "copyright",
+                    "license"
+                ],
+                [
+                    "category",
+                    "package",
+                    "subpackage"
+                ],
+                [
+                    "property",
+                    "property-read",
+                    "property-write"
+                ],
+                [
+                    "param",
+                    "return"
+                ]
+            ]
+        },
+        "phpdoc_single_line_var_spacing": true,
+        "phpdoc_trim": true,
+        "phpdoc_types": true,
+        "phpdoc_types_order": {
+            "null_adjustment": "always_last",
+            "sort_algorithm": "none"
+        },
+        "phpdoc_var_without_name": true,
+        "single_line_after_imports": true,
+        "single_space_around_construct": true,
+        "single_quote": {
+            "strings_containing_single_quote_chars": true
+        },
+        "single_trait_insert_per_statement": false,
+        "trailing_comma_in_multiline": true,
+        "whitespace_after_comma_in_array": true
+    }
+}
+

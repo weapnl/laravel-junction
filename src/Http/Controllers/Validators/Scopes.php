@@ -11,6 +11,7 @@ class Scopes
      * @param Controller $controller
      * @param array $scopes
      * @return array
+     *
      * @throws ValidationException
      */
     public static function validate(Controller $controller, array $scopes): array
@@ -27,7 +28,7 @@ class Scopes
 
         if ($filteredScopes->count() !== $scopeCollection->count()) {
             throw ValidationException::withMessages([
-                'scopes' => 'Invalid scopes'
+                'scopes' => 'Invalid scopes',
             ]);
         }
 
