@@ -18,7 +18,6 @@ class MediaTemporaryUploadController extends Controller
 
     /**
      * @return JsonResponse
-     *
      */
     public function upload(): JsonResponse
     {
