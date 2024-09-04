@@ -19,8 +19,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^8.0 || ^9.0 || ^10.0 || ^11.0",
-        "laravel/pint": "^1.17"
+        "laravel/framework": "^8.0 || ^9.0 || ^10.0 || ^11.0"
     },
     "extra": {
         "laravel": {
@@ -33,5 +32,8 @@
         "psr-4": {
             "Weap\\Junction\\": "src/"
         }
+    },
+    "require-dev": {
+        "laravel/pint": "^1.17"
     }
 }
