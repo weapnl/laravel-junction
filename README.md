@@ -319,12 +319,18 @@ protected function actionSomeName($model = null)
 #### FormRequest validation
 To validate the incoming request, you can create a `FormRequest` and extend the `Weap\Junction\Http\Controllers\Requests\DefaultFormRequest` class. This class extends the default Laravel `FormRequest` class, and adds some extra functionality.
 
-Optionally add authorization and/or validation methods (all methods are optional!).
-By default, The `rules()` and `messages()` methods use the `rules()` and `messages()` methods from the controller.
-
 #### Standard validation
-You can also do the validation rules and messages directly in the controller.
-- Add rules to the `rules()` method in a controller
+To validate the request, create a request file for your model and add this to the controller.
+```php
+/**
+ * The class name of FormRequest to be used for the store and update methods.
+ *
+ * @var string
+ */
+public $formRequest = ModelRequest::class;
+```
+
+- Add rules to the `rules()` method in the `ModelRequest`.
 ```php
 /**
  * Get the validation rules that apply to the request.
@@ -361,3 +367,66 @@ By default, only validated attributes are saved when calling store/update routes
  */
 protected $saveFillable = true;
 ```
+
+### Using Temporary Media Files with [Spatie Medialibrary](https://spatie.be/docs/laravel-medialibrary/v11/introduction)
+
+#### Step 1: Uploading Files via the API
+To upload files through the API, use the `/media/upload` endpoint. Include an array of files under the `files` key in the request body. These files will be temporarily stored in the media library and linked to a `MediaTemporaryUpload` model.
+
+**Example Upload Request:**
+```json
+{
+    "files": [<uploaded file here>, ...]
+}
+```
+
+#### Step 2: Attaching Files to a Model
+
+##### Example A: Updating an Existing Model
+To attach files to an existing model, include the media IDs in a `PUT` request. For instance, if you want to attach an identity document to an employee, your `PUT` request to `/employees/3` might look like this, assuming the identity files are stored in the `IdentityFiles` [collection](https://spatie.be/docs/laravel-medialibrary/v11/working-with-media-collections/simple-media-collections) on the `Employee` model:
+
+```json
+{
+    "first_name": "John",
+    "last_name": "Doe",
+    "_media": {
+        "IdentityFiles": [1]
+    }
+}
+```
+
+The API will search the request body for the `_media` key and associate the specified media IDs with the correct collection. In this example, media ID 1 will be attached to the `IdentityFiles` collection of the `Employee` with ID 3.
+
+##### Example B: Creating a New Model
+You can also attach files when creating a new model using a `POST` request. For example, if you are creating a new `Employee` and want to attach a profile picture, your `POST` request to `/employees` might look like this:
+
+```json
+{
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "_media": {
+        "ProfilePicture": [2]
+    }
+}
+```
+
+This will attach media ID 2 to the `ProfilePicture` collection of the newly created `Employee`.
+
+#### Using the `_media` Key in Nested Structures
+The `_media` key can also be nested within the request body, for example, inside a `contact` key. In this case, the API will attach the media files to the `contact` relationship of the `Employee`, whether you are creating a new model or updating an existing one.
+
+**Example Request with Nested `_media` Key (for creation):**
+```json
+{
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "contact": {
+        "phone": "123-456-7890",
+        "_media": {
+            "ProfilePicture": [3]
+        }
+    }
+}
+```
+
+In this example, when creating a new `Employee`, media ID 3 will be attached to the `ProfilePicture` collection within the `contact` relationship of the new `Employee`.
