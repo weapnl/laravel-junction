@@ -25,14 +25,14 @@ class Appends
 
         $model = new $controller->model();
 
-        $check = $appends->count() == $appends->filter(function ($append) use ($model) {
+        $check = $appends->count() === $appends->filter(function ($append) use ($model) {
             if (Str::contains($append, '.')) {
                 // TODO Validate relation appends
 
                 return true;
             }
 
-            return $model->hasGetMutator($append) || $model->hasAttributeGetMutator($append);
+            return $model->hasAttribute($append);
         })->count();
 
         if ($check) {
