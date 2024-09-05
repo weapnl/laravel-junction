@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.1.0
 - Add local development instructions for composer and docker.
 - Refactor scope calls to be more DRY.
 - Fix checking if an attribute exists.
