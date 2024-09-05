@@ -13,7 +13,7 @@ class DefaultFormRequest extends FormRequest
     /**
      * @return void
      */
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         if (class_exists(Media::class) && config('media-library.media_model')) {
             $this->merge($this->prepareMedia($this->request->all()));
