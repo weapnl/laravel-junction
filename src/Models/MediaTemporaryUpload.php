@@ -16,6 +16,6 @@ class MediaTemporaryUpload extends Model implements HasMedia
      */
     public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(app(config('auth.providers.users.model')), 'created_by_user_id');
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by_user_id');
     }
 }

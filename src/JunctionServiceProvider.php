@@ -27,9 +27,9 @@ class JunctionServiceProvider extends ServiceProvider
             CleanMediaTemporaryUploads::class,
         ]);
 
-        if (class_exists(Media::class) && config('junction.route.enabled', true)) {
-            Route::middleware(config('junction.route.middleware', ['api']))
-                ->prefix(config('junction.route.prefix', ''))
+        if (class_exists(Media::class) && config('junction.route.media.enabled', true)) {
+            Route::middleware(config('junction.route.media.middleware', ['api']))
+                ->prefix(config('junction.route.media.prefix', ''))
                 ->group(__DIR__ . '/../routes/media_library.php');
         }
 

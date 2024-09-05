@@ -49,7 +49,7 @@ class DefaultFormRequest extends FormRequest
                         continue;
                     }
 
-                    abort_if(Auth::user()->id !== $media->model->created_by_user_id, 404);
+                    abort_if(Auth::id() !== $media->model->created_by_user_id, 404);
 
                     $mediaArray[$collectionName][] = new MediaFile($media->getPath(), $mediaId);
                 }

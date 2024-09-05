@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Schema::create('media_temporary_uploads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('created_by_user_id')->index()->constrained(app(config('auth.providers.users.model'))->tableName())->cascadeOnDelete();
+            $table->foreignId('created_by_user_id')->index()->constrained(app(config('auth.providers.users.model'))->getTable())->cascadeOnDelete();
             $table->timestamps();
         });
     }

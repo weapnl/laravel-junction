@@ -43,26 +43,13 @@ trait HasMedia
             foreach ($value as $collectionName => $uploadedFiles) {
                 /** @var MediaFile $uploadedFile */
                 foreach ($uploadedFiles as $uploadedFile) {
+                    /** @var Media $media */
                     $media = config('media-library.media_model')::findOrFail($uploadedFile->mediaId);
 
-                    abort_if($media->model_type !== MediaTemporaryUpload::class || Auth::user()->id !== $media->model->created_by_user_id, 404);
+                    abort_if($media->model_type !== MediaTemporaryUpload::class || Auth::id() !== $media->model->created_by_user_id, 404);
 
                     $oldMediaTemporaryUpload = $media->model;
-
-                    $media->model()->associate($model);
-                    $media->collection_name = $collectionName;
-                    $media->save();
-
-                    $mediaFiles[] = $media;
-
-                    // This is to respect the `singleFile` prop on the media model.
-                    if ($collectionSizeLimit = optional($model->getMediaCollection($media->collection_name))->collectionSizeLimit) {
-                        $collectionMedia = $model->getMedia($media->collection_name);
-
-                        if ($collectionMedia->count() > $collectionSizeLimit) {
-                            $model->clearMediaCollectionExcept($media->collection_name, $media);
-                        }
-                    }
+                    $media->move($model, $collectionName);
 
                     if ($oldMediaTemporaryUpload->media->isEmpty()) {
                         $oldMediaTemporaryUpload->delete();
