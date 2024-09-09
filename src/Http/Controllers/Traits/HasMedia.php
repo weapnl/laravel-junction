@@ -88,7 +88,7 @@ trait HasMedia
      * @param string $collectionName
      * @return Media
      */
-    public function beforeMediaUpload(Media $media, Model $model, string $collectionName)
+    public function beforeMediaUpload(Media $media, Model $model, string $collectionName): Media
     {
         return $media;
     }
@@ -98,5 +98,5 @@ trait HasMedia
      * @param Model $model
      * @return void
      */
-    public function afterMediaUpload(Media $media, Model $model) {}
+    public function afterMediaUpload(Media $media, Model $model): void {}
 }
