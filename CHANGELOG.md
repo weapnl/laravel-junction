@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.1.1
 - Media temporary upload `beforeMediaUpload` & `afterMediaUpload` hooks.
 - Media temporary upload bugfix, `$mediaFiles` was not being filled.
 
