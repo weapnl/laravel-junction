@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Media temporary upload `beforeMediaUpload` & `afterMediaUpload` hooks.
+- Media temporary upload bugfix, `$mediaFiles` was not being filled.
 
 ## v0.1.0
 - Add local development instructions for composer and docker.

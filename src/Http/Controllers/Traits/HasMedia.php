@@ -48,12 +48,18 @@ trait HasMedia
 
                     abort_if($media->model_type !== MediaTemporaryUpload::class || Auth::id() !== $media->model->created_by_user_id, 404);
 
+                    $media = $this->beforeMediaUpload($media, $model, $collectionName);
+
                     $oldMediaTemporaryUpload = $media->model;
-                    $media->move($model, $collectionName);
+                    $media = $media->move($model, $collectionName);
+
+                    $mediaFiles[] = $media;
 
                     if ($oldMediaTemporaryUpload->media->isEmpty()) {
                         $oldMediaTemporaryUpload->delete();
                     }
+
+                    $this->afterMediaUpload($media, $model);
                 }
             }
         }
@@ -75,4 +81,22 @@ trait HasMedia
 
         return true;
     }
+
+    /**
+     * @param Media $media
+     * @param Model $model
+     * @param string $collectionName
+     * @return Media
+     */
+    public function beforeMediaUpload(Media $media, Model $model, string $collectionName)
+    {
+        return $media;
+    }
+
+    /**
+     * @param Media $media
+     * @param Model $model
+     * @return void
+     */
+    public function afterMediaUpload(Media $media, Model $model) {}
 }
