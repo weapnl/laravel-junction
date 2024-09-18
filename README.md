@@ -17,6 +17,7 @@ This project allows you to easily create a REST API with Laravel. It has extende
     - [Modifiers](#modifiers)
     - [Pagination](#pagination)
     - [Simple pagination](#simple-pagination)
+    - [Sorting on primary key by default](#sorting-on-primary-key-by-default)
   - [Relations](#relations)
   - [Search](#search)
   - [Resources](#resources)
@@ -25,6 +26,12 @@ This project allows you to easily create a REST API with Laravel. It has extende
     - [FormRequest validation](#formrequest-validation)
     - [Standard validation](#standard-validation)
     - [Save fillable attributes](#save-fillable-attributes)
+  - [Using Temporary Media Files with Spatie Medialibrary](#using-temporary-media-files-with-spatie-medialibrary)
+    - [Step 1: Uploading Files via the API](#step-1-uploading-files-via-the-api)
+    - [Step 2: Attaching Files to a Model](#step-2-attaching-files-to-a-model)
+      - [Example A: Updating an Existing Model](#example-a-updating-an-existing-model)
+      - [Example B: Creating a New Model](#example-b-creating-a-new-model)
+    - [Using the `_media` Key in Nested Structures](#using-the-_media-key-in-nested-structures)
 
 ## Installation
 ```bash
@@ -216,6 +223,16 @@ Simple pagination almost the same as the pagination above. But the simple pagina
 |---------------------|--------------------------|-----------------------------------------------------|
 | `paginate`          | `paginate=25`            | This specifies the amount of items per page.        |
 | `simple_pagination` | `simple_pagination=true` | This defines that simple pagination should be used. |
+
+#### Sorting on primary key by default
+
+Junction has the option to always sort on the primary key of a model, unless it is already explicitly defined in the `order` clause. This can be usefull with pagination when using PostgreSQL, as not sorting on a unique field can give unexpected results (duplicate and missing data rows across pages). This is [intenden behaviour](https://www.postgresql.org/docs/12/queries-limit.html) from PostgreSQL.
+
+To enable this automatic sorting, set the `junction.route.index.always_order_on_primary_key` config value to `true`.
+
+When the flag is enabled, Junction will check on every `index` request if any `orders` are passed to the request. If the primary key is not added to that list (or the list is empty), it will add the primary key at the end of the `orders` list with a direction of `'asc'`. This way, all `orders` explicitly passed will still be more important than the primary key.
+
+To make sure this behaviour has no unwanted side effects, make sure that the `orders` passed to a request already result in a unique ordering. If it is desired to sort on the primary key with greater importance, simply pass it as part of the `orders` in the desired order: junction will not add it again if it is already present. If it is desired to sort on the primary key descending, simply pass it to the `orders` array with a direction of `'desc'`.
 
 ### Relations
 To limit the relations which can be loaded using the `with` filter, you can override the `relations` method on your controller.
