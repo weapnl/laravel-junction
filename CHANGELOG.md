@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add option to always sort Junction queries on id to fix unpredictable behaviour with PostgreSQL and pagination.
 
 ## v0.1.1
 - Media temporary upload `beforeMediaUpload` & `afterMediaUpload` hooks.
