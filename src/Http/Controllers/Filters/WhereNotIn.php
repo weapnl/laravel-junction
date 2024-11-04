@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Helpers\Table;
@@ -45,16 +46,19 @@ class WhereNotIn extends Filter
         // Directly on the main model (no relation)
         if (count($relationParts) === 1) {
             $query->whereNotIn($query->getModel()->getTable() . '.' . $column, $values);
+
             return;
         }
 
         // Treatment for columns in a relationship
         $actualColumn = array_pop($relationParts);
         $relationPath = implode('.', $relationParts);
-        $tableName = Table::getRelationTableName($query->getModel()::class, $relationParts);
+        $relation = Table::getRelation($query->getModel()::class, $relationParts);
 
-        $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $tableName) {
+        $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $relation) {
+            $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $subQuery->from;
             $fullColumn = $tableName . '.' . $actualColumn;
+
             $subQuery->whereNotIn($fullColumn, $values);
         });
     }
