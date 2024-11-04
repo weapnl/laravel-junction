@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -50,18 +51,17 @@ class Search extends Filter
         $connection = DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
         $likeOperator = $connection === 'pgsql' ? 'ILIKE' : 'LIKE';
 
-        foreach ($columns as $relation => $relationColumns) {
+        foreach ($columns as $relationName => $relationColumns) {
             if (! is_array($relationColumns)) {
-                $query->orWhere($tableName . '.' . $relation, $likeOperator, '%' . $searchValue . '%');
+                $query->orWhere($tableName . '.' . $relationName, $likeOperator, '%' . $searchValue . '%');
             } else {
-                $relationTable = Table::getRelationTableName(
-                    $query->getModel()::class,
-                    [$relation],
-                );
+                $relation = Table::getRelation($query->getModel()::class, [$relationName]);
 
-                $query->orWhereHas($relation, function (Builder $query) use ($relationColumns, $relationTable, $searchValue) {
-                    $query->where(function (Builder $query) use ($relationColumns, $relationTable, $searchValue) {
-                        self::searchColumnQuery($query, $relationColumns, $relationTable, $searchValue);
+                $query->orWhereHas($relationName, function (Builder $query) use ($relationColumns, $relation, $searchValue) {
+                    $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $query->from;
+
+                    $query->where(function (Builder $query) use ($relationColumns, $tableName, $searchValue) {
+                        self::searchColumnQuery($query, $relationColumns, $tableName, $searchValue);
                     });
                 });
             }

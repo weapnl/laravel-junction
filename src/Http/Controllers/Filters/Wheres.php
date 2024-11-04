@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use RuntimeException;
 use Weap\Junction\Http\Controllers\Controller;
@@ -57,10 +58,11 @@ class Wheres extends Filter
 
         $actualColumn = array_pop($columnParts);
         $relationPath = implode('.', $columnParts);
-        $tableName = Table::getRelationTableName($query->getModel()::class, $columnParts);
+        $relation = Table::getRelation($query->getModel()::class, $columnParts);
 
-        $query->whereHas($relationPath, function ($innerQuery) use ($actualColumn, $operator, $value, $tableName) {
-            $fullColumn = $tableName ? $tableName . '.' . $actualColumn : $actualColumn;
+        $query->whereHas($relationPath, function (Builder $innerQuery) use ($actualColumn, $operator, $value, $relation) {
+            $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $innerQuery->from;
+            $fullColumn = $tableName . '.' . $actualColumn;
 
             static::applyWhere($innerQuery, $fullColumn, $operator, $value);
         });
