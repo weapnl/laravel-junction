@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.1.2
 - Fixed bug where `morphTo` relations in `where`, `whereIn`, `whereNotIn` and `search` filters would throw an error.
 - Deprecated `getRelationTableName` method on `Weap\Junction\Http\Controllers\Helpers\Table` class because it gives the wrong results for `morphTo` relations.
 
