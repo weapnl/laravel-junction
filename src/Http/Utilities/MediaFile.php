@@ -2,7 +2,6 @@
 
 namespace Weap\Junction\Http\Utilities;
 
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\File\File;
 
 class MediaFile extends File
@@ -18,14 +17,8 @@ class MediaFile extends File
      */
     public function __construct(string $path, int $mediaId)
     {
-        $isLocalFile = config('junction.route.media.filesystem_disk') === 'local';
-
-        if (! is_file($path) && $isLocalFile) {
-            throw new FileNotFoundException($path);
-        }
-
         $this->mediaId = $mediaId;
 
-        parent::__construct($path, $isLocalFile);
+        parent::__construct($path, config('junction.route.media.filesystem_disk') === 'local');
     }
 }
