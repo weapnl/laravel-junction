@@ -18,12 +18,14 @@ class MediaFile extends File
      */
     public function __construct(string $path, int $mediaId)
     {
-        if (! is_file($path)) {
+        $isLocalFile = config('junction.route.media.filesystem_disk') === 'local';
+
+        if (! is_file($path) && $isLocalFile) {
             throw new FileNotFoundException($path);
         }
 
         $this->mediaId = $mediaId;
 
-        parent::__construct($path);
+        parent::__construct($path, $isLocalFile);
     }
 }

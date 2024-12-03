@@ -51,7 +51,15 @@ class DefaultFormRequest extends FormRequest
 
                     abort_if(Auth::id() !== $media->model->created_by_user_id, 404);
 
-                    $mediaArray[$collectionName][] = new MediaFile($media->getPath(), $mediaId);
+                    if (config('junction.route.media.filesystem_disk') === 'local') {
+                        $mediaArray[$collectionName][] = new MediaFile($media->getPath(), $mediaId);
+                    } else {
+                        $tempFilePath = tempnam(sys_get_temp_dir(), 'junction-temp-media-');
+                        file_put_contents($tempFilePath, stream_get_contents($media->stream()));
+
+                        $mediaArray[$collectionName][] = new MediaFile($tempFilePath, $mediaId);
+                    }
+
                 }
             }
 
