@@ -19,6 +19,6 @@ class MediaFile extends File
     {
         $this->mediaId = $mediaId;
 
-        parent::__construct($path, config('junction.route.media.filesystem_disk') === 'local');
+        parent::__construct($path);
     }
 }
