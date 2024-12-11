@@ -18,8 +18,6 @@ return [
              * To prefix the media upload endpoint.
              */
             'prefix' => '',
-
-            'filesystem_disk' => env('FILESYSTEM_DISK', 'local'),
         ],
     ],
 ];
