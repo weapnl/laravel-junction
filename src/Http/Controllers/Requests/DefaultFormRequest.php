@@ -95,7 +95,7 @@ class DefaultFormRequest extends FormRequest
     }
 
     /**
-     * @param array $data
+     * @param array<string, mixed> $data
      * @return void
      */
     private function clearTempMediaFiles(array $data): void
@@ -112,7 +112,6 @@ class DefaultFormRequest extends FormRequest
             }
 
             foreach ($value as $mediaFiles) {
-                /** @var MediaFile $mediaFile */
                 foreach ($mediaFiles as $mediaFile) {
                     if (! $mediaFile instanceof MediaFile) {
                         continue;
