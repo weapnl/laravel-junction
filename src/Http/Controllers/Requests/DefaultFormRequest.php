@@ -2,6 +2,7 @@
 
 namespace Weap\Junction\Http\Controllers\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -18,6 +19,31 @@ class DefaultFormRequest extends FormRequest
         if (class_exists(Media::class) && config('media-library.media_model')) {
             $this->merge($this->prepareMedia($this->request->all()));
         }
+    }
+
+    /**
+     * @param Validator $validator
+     * @return void
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        if (config('media-library.disk_name') !== 'local') {
+            $this->clearTempMediaFiles($this->json->all());
+        }
+
+        parent::failedValidation($validator);
+    }
+
+    /**
+     * @return void
+     */
+    protected function passedValidation()
+    {
+        if (config('media-library.disk_name') !== 'local') {
+            $this->clearTempMediaFiles($this->json->all());
+        }
+
+        parent::passedValidation();
     }
 
     /**
@@ -51,15 +77,14 @@ class DefaultFormRequest extends FormRequest
 
                     abort_if(Auth::id() !== $media->model->created_by_user_id, 404);
 
-                    if (config('junction.route.media.filesystem_disk') === 'local') {
+                    if (config('media-library.disk_name') === 'local') {
                         $mediaArray[$collectionName][] = new MediaFile($media->getPath(), $mediaId);
                     } else {
-                        $tempFilePath = tempnam(sys_get_temp_dir(), 'junction-temp-media-');
+                        $tempFilePath = tempnam(storage_path(), 'junction-temp-media-');
                         file_put_contents($tempFilePath, stream_get_contents($media->stream()));
 
                         $mediaArray[$collectionName][] = new MediaFile($tempFilePath, $mediaId);
                     }
-
                 }
             }
 
@@ -67,6 +92,38 @@ class DefaultFormRequest extends FormRequest
         }
 
         return $data;
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    private function clearTempMediaFiles(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            if (! is_array($value)) {
+                continue;
+            }
+
+            if ($key !== '_media' || ! $this->isValidMediaFileArray($value)) {
+                $this->clearTempMediaFiles($value);
+
+                continue;
+            }
+
+            foreach ($value as $mediaFiles) {
+                /** @var MediaFile $mediaFile */
+                foreach ($mediaFiles as $mediaFile) {
+                    if (! $mediaFile instanceof MediaFile) {
+                        continue;
+                    }
+
+                    if (file_exists($mediaFile->getRealPath())) {
+                        unlink($mediaFile->getRealPath());
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -92,5 +149,22 @@ class DefaultFormRequest extends FormRequest
         }
 
         return $hasNonEmptyValue;
+    }
+
+    /**
+     * @param array<string, mixed> $array
+     * @return bool
+     */
+    private function isValidMediaFileArray(array $array): bool
+    {
+        foreach ($array as $value) {
+            foreach ($value as $item) {
+                if (! ($item instanceof MediaFile)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
