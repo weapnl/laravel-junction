@@ -98,5 +98,7 @@ trait HasMedia
      * @param Model $model
      * @return void
      */
-    public function afterMediaUpload(Media $media, Model $model): void {}
+    public function afterMediaUpload(Media $media, Model $model): void
+    {
+    }
 }

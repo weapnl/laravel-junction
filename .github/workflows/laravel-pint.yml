@@ -1,0 +1,14 @@
+name: Laravel pint
+
+on:
+  pull_request:
+
+jobs:
+  laravel-pint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: "laravel-pint"
+        uses: aglipanci/laravel-pint-action@latest
+        with:
+          testMode: true
