@@ -6,6 +6,7 @@
 - Added missing `ext-pdo` requirement in the composer config.
 - Removed table of contents from `README.md` because GitHub has built-in feature for this.
 - Added link to js-junction package in `README.md`.
+- Added laravel pint github workflow.
 
 ## v0.1.2
 - Fixed bug where `morphTo` relations in `where`, `whereIn`, `whereNotIn` and `search` filters would throw an error.
