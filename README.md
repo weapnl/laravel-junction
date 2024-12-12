@@ -316,9 +316,9 @@ protected function actionSomeName($model = null)
 
 ### Index route options
 #### Enforce order by model key
-To enable the option to enforce an order by on the query, set the `junction.route.index.enforce_order_by` config value to `true`.
+To enable the option to enforce an order by on the query, set the `junction.route.index.enforce_order_by_model_key` config value to `true`.
 This will add an "order by" clause to the query based on the model's key name, if no "order by" is already present for the key name.
-The default order direction is `asc`, but if you want it to use `desc`, update the `junction.route.index.enforce_order_by` config value to `desc`.
+The default order direction is `asc`, but if you want it to use `desc`, update the `junction.route.index.enforce_order_by_model_key_direction` config value to `desc`.
 
 ### Validation
 
