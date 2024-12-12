@@ -112,11 +112,8 @@ class DefaultFormRequest extends FormRequest
             }
 
             foreach ($value as $mediaFiles) {
+                /** @var MediaFile $mediaFile */
                 foreach ($mediaFiles as $mediaFile) {
-                    if (! $mediaFile instanceof MediaFile) {
-                        continue;
-                    }
-
                     if (file_exists($mediaFile->getRealPath())) {
                         unlink($mediaFile->getRealPath());
                     }
@@ -151,7 +148,7 @@ class DefaultFormRequest extends FormRequest
     }
 
     /**
-     * @param array<string, mixed> $array
+     * @param array<string, array<mixed, mixed>> $array
      * @return bool
      */
     private function isValidMediaFileArray(array $array): bool
