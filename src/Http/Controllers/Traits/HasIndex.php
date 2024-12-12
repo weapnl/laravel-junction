@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 use Weap\Junction\Http\Controllers\Filters\Count;
+use Weap\Junction\Http\Controllers\Filters\Index\EnforceOrderByModelKey;
 use Weap\Junction\Http\Controllers\Filters\Limit;
 use Weap\Junction\Http\Controllers\Filters\Order;
 use Weap\Junction\Http\Controllers\Filters\Relations;
@@ -53,6 +54,7 @@ trait HasIndex
         Limit::apply($this, $query);
         Order::apply($this, $query);
         Count::apply($this, $query);
+        EnforceOrderByModelKey::apply($this, $query);
 
         $items = Items::query($query)
             ->simplePagination($simplePagination)
