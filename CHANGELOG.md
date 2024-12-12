@@ -5,6 +5,7 @@
 - Added ability to enforce an order by model key on the query in an index route.
 - Added missing `ext-pdo` requirement in the composer config.
 - Removed table of contents from `README.md` because GitHub has built-in feature for this.
+- Added link to js-junction package in `README.md`.
 
 ## v0.1.2
 - Fixed bug where `morphTo` relations in `where`, `whereIn`, `whereNotIn` and `search` filters would throw an error.

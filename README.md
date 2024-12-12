@@ -7,8 +7,8 @@ This project allows you to easily create a REST API with Laravel. It has extende
 composer require weapnl/laravel-junction
 ```
 
-### Js Support
-We're excited to announce that this Laravel-Junction package now has a companion JavaScript/TS library! This addition extends the functionality of our Laravel package to the front end, offering a seamless integration for your web applications.
+### JS/TS Support
+Laravel-Junction has a companion JavaScript/TypeScript package called [JS-Junction](https://github.com/weapnl/js-junction)! This package extends the functionality of our Laravel package to the front end, offering a seamless integration for your web applications.
 
 ### Development
 In order to easily work on this package locally and use it in another local project, do the following:
