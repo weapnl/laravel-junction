@@ -2,6 +2,20 @@
 
 return [
     'route' => [
+        'index' => [
+            /*
+             * Always add an "order by" clause based on the model key name to the index query, if the query doesn't already have one.
+             */
+            'enforce_order_by_model_key' => false,
+
+            /*
+             * Change the direction of the enforced "order by" of the model key.
+             *
+             * Possible values: "asc" or "desc".
+             */
+            'enforce_order_by_model_key_direction' => 'asc',
+        ],
+
         'media' => [
             /*
              * To enable the media upload endpoint, set this variable to true.

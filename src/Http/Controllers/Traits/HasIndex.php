@@ -56,6 +56,10 @@ trait HasIndex
 
         $items = Items::query($query)
             ->simplePagination($simplePagination)
+            ->enforceOrderByModelKey(
+                (bool) config('junction.route.index.enforce_order_by_model_key', false),
+                config('junction.route.index.enforce_order_by_model_key_direction'),
+            )
             ->get();
 
         HiddenFields::apply($this, $items);

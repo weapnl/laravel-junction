@@ -30,6 +30,16 @@ class Items extends Response
     protected bool $simplePagination = false;
 
     /**
+     * @var bool
+     */
+    protected bool $enforceOrderByModelKey = false;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $enforceOrderByModelKeyDirection = null;
+
+    /**
      * @param Builder $query
      * @return Items
      */
@@ -54,12 +64,27 @@ class Items extends Response
     }
 
     /**
+     * @param bool $enforceOrderByModelKey
+     * @param string|null $direction
+     * @return $this
+     */
+    public function enforceOrderByModelKey(bool $enforceOrderByModelKey, ?string $direction = 'asc'): Items
+    {
+        $this->enforceOrderByModelKey = $enforceOrderByModelKey;
+        $this->enforceOrderByModelKeyDirection = $direction;
+
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function get(): self
     {
         $columns = [$this->query->getModel()->getTable() . '.*'];
         $perPage = request()?->input('paginate');
+
+        $this->handleEnforceOrderByModelKey();
 
         if ($perPage) {
             $page = $this->page($perPage);
@@ -140,5 +165,31 @@ class Items extends Response
         }
 
         return ceil(($index + 1) / $perPage);
+    }
+
+    /**
+     * @return void
+     */
+    protected function handleEnforceOrderByModelKey(): void
+    {
+        if (! $this->enforceOrderByModelKey) {
+            return;
+        }
+
+        $baseQuery = $this->query->getQuery();
+        $combinedQueryOrders = [
+            ...($baseQuery->orders ?? []),
+            ...($baseQuery->unionOrders ?? []),
+        ];
+
+        $model = $this->query->getModel();
+        $modelKeyName = $model->getKeyName();
+        $modelQualifiedKeyName = $model->getQualifiedKeyName();
+
+        $hasOrderByModelKey = collect($combinedQueryOrders)->whereIn('column', [$modelKeyName, $modelQualifiedKeyName])->isNotEmpty();
+
+        if (! $hasOrderByModelKey) {
+            $this->query->orderBy($modelQualifiedKeyName, $this->enforceOrderByModelKeyDirection ?? 'asc');
+        }
     }
 }
