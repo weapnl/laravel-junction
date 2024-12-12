@@ -3,6 +3,7 @@
 ## Unreleased
 - Fixed a bug where the S3 disk was not supported for temporary media uploads.
 - Added ability to enforce an order by model key on the query in an index route.
+- Added missing `ext-pdo` requirement in the composer config.
 
 ## v0.1.2
 - Fixed bug where `morphTo` relations in `where`, `whereIn`, `whereNotIn` and `search` filters would throw an error.
