@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.2.0
 - Fixed a bug where the S3 disk was not supported for temporary media uploads.
 - Added ability to enforce an order by model key on the query in an index route.
 - Added missing `ext-pdo` requirement in the composer config.
