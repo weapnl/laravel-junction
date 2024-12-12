@@ -2,30 +2,6 @@
 
 This project allows you to easily create a REST API with Laravel. It has extended functionality, such as eager loading, searching, filtering, and more.
 
-## Table of Contents
-
-- [Table of Contents](#table-of-contents)
-- [Installation](#installation)
-  - [Js Support](#js-support)
-  - [Development](#development)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-  - [Setting up the Controller](#setting-up-the-controller)
-    - [Sample usage](#sample-usage)
-    - [Sample response](#sample-response)
-    - [Filters](#filters)
-    - [Modifiers](#modifiers)
-    - [Pagination](#pagination)
-    - [Simple pagination](#simple-pagination)
-  - [Relations](#relations)
-  - [Search](#search)
-  - [Resources](#resources)
-  - [Actions](#actions)
-  - [Validation](#validation)
-    - [FormRequest validation](#formrequest-validation)
-    - [Standard validation](#standard-validation)
-    - [Save fillable attributes](#save-fillable-attributes)
-
 ## Installation
 ```bash
 composer require weapnl/laravel-junction
