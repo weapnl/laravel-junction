@@ -17,7 +17,7 @@ class DefaultFormRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if (class_exists(Media::class) && config('media-library.media_model')) {
-            $this->merge($this->prepareMedia($this->request->all()));
+            $this->merge($this->prepareMedia($this->all()));
         }
     }
 
@@ -28,7 +28,7 @@ class DefaultFormRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         if (config('media-library.disk_name') !== 'local') {
-            $this->clearTempMediaFiles($this->json->all());
+            $this->clearTempMediaFiles($this->all());
         }
 
         parent::failedValidation($validator);
@@ -40,7 +40,7 @@ class DefaultFormRequest extends FormRequest
     protected function passedValidation()
     {
         if (config('media-library.disk_name') !== 'local') {
-            $this->clearTempMediaFiles($this->json->all());
+            $this->clearTempMediaFiles($this->all());
         }
 
         parent::passedValidation();
