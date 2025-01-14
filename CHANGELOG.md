@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.2.1
 - Fixed bug where prepareForValidation in the DefaultFormRequest could overwrite previous changes made to the input.
 
 ## v0.2.0
