@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed bug where prepareForValidation in the DefaultFormRequest could overwrite previous changes made to the input.
 
 ## v0.2.0
 - Fixed a bug where the S3 disk was not supported for temporary media uploads.
