@@ -154,6 +154,10 @@ class DefaultFormRequest extends FormRequest
     private function isValidMediaFileArray(array $array): bool
     {
         foreach ($array as $value) {
+            if (empty($value)) {
+                return false;
+            }
+
             foreach ($value as $item) {
                 if (! ($item instanceof MediaFile)) {
                     return false;

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed bug where isValidMediaFileArray in the DefaultFormRequest could throw an error if the value is not an array.
 
 ## v0.2.1
 - Fixed bug where prepareForValidation in the DefaultFormRequest could overwrite previous changes made to the input.
