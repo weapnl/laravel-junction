@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.2.2
 - Fixed bug where isValidMediaFileArray in the DefaultFormRequest could throw an error if the value is not an array.
 
 ## v0.2.1
