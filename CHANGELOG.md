@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.2.3
+- Laravel 12 support.
+
 ## v0.2.2
 - Fixed bug where isValidMediaFileArray in the DefaultFormRequest could throw an error if the value is not an array.
 
