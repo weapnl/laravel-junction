@@ -76,7 +76,7 @@ trait HasShow
     /**
      * @param Builder $query
      */
-    public function beforeShow(Builder &$query)
+    public function beforeShow(Builder $query)
     {
         //
     }
@@ -84,7 +84,7 @@ trait HasShow
     /**
      * @param Item $item
      */
-    public function afterShow(Item &$item)
+    public function afterShow(Item $item)
     {
         //
     }

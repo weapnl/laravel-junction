@@ -82,7 +82,7 @@ trait HasIndex
     /**
      * @param Builder $query
      */
-    public function beforeIndex(Builder &$query)
+    public function beforeIndex(Builder $query)
     {
         //
     }
@@ -90,7 +90,7 @@ trait HasIndex
     /**
      * @param Items $items
      */
-    public function afterIndex(Items &$items)
+    public function afterIndex(Items $items)
     {
         //
     }

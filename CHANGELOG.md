@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fix type hinting in before & after method signature.
 
 ## v0.2.3
 - Laravel 12 support.
