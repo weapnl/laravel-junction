@@ -2,7 +2,9 @@
 
 namespace Weap\Junction\Http\Controllers\Filters;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Controller;
@@ -16,7 +18,7 @@ class Relations extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $relations = request()?->input('with');
+        $relations = request()?->getRelations();
 
         if (! $relations) {
             return;
@@ -24,29 +26,73 @@ class Relations extends Filter
 
         RelationsValidator::validate($controller, $relations);
 
-        collect($relations)->each(function ($relation) use ($query, $controller) {
-            static::addWith($query, $controller, $relation);
-        });
+        $relationFilters = collect($controller->relations())
+            ->filter(fn ($closure) => is_callable($closure))
+            ->undot();
+
+        $accessors = collect(request()?->getAccessors())
+            ->flip()
+            ->undot();
+
+        collect($relations)
+            ->flip()
+            ->undot()
+            ->each(function ($nestedRelations, $relation) use ($query, $relationFilters, $accessors) {
+                static::addWith(
+                    $query,
+                    $relation,
+                    is_array($nestedRelations) || is_callable($nestedRelations) ? $nestedRelations : [],
+                    $relationFilters->all(),
+                    $accessors->all(),
+                );
+            });
     }
 
     /**
      * @param Builder|Relation $query
-     * @param Controller $controller
      * @param string $relation
+     * @param array|Closure $nestedRelations
+     * @param array $relationFilters
+     * @param array $accessors
      * @return void
      */
-    protected static function addWith(Builder|Relation $query, Controller $controller, string $relation): void
+    protected static function addWith(Builder|Relation $query, string $relation, array|Closure $nestedRelations, array $relationFilters, array $accessors): void
     {
-        $query->with($relation, $controller->relations()[$relation] ?? function () {});
+        $query->with($relation, function (Builder|Relation $query) use ($relation, $relationFilters, $nestedRelations, $accessors) {
+            if (is_callable($nestedRelations)) {
+                $nestedRelations($query);
+            }
 
-        $splitRelation = Str::of($relation)->explode('.');
+            $relationFilter = $relationFilters[$relation] ?? [];
 
-        $splitRelation->pop();
+            if (is_callable($relationFilter)) {
+                $relationFilter($query);
+            }
 
-        if ($splitRelation->isEmpty()) {
-            return;
-        }
+            $accessors = $accessors[$relation] ?? [];
 
-        static::addWith($query, $controller, $splitRelation->join('.'));
+            foreach ($accessors as $accessor => $nestedAccessors) {
+                if (is_array($nestedAccessors)) {
+                    continue;
+                }
+
+                $accessor = Str::camel($accessor);
+                $attribute = method_exists($query->getModel(), $accessor) ? $query->getModel()::$accessor() : null;
+
+                if ($attribute instanceof Attribute && property_exists($attribute, 'with')) {
+                    $nestedRelations += $attribute->with;
+                }
+            }
+
+            foreach ($nestedRelations as $nestedRelation => $nestedRelations) {
+                static::addWith(
+                    $query,
+                    $nestedRelation,
+                    is_array($nestedRelations) || is_callable($nestedRelations) ? $nestedRelations : [],
+                    is_array($relationFilter) ? $relationFilter : [],
+                    is_array($accessors) ? $accessors : [],
+                );
+            }
+        });
     }
 }
