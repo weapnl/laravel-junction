@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
+use Weap\Junction\Junction;
 
 class Relations extends Filter
 {
@@ -79,8 +80,8 @@ class Relations extends Filter
                 $accessor = Str::camel($accessor);
                 $attribute = method_exists($query->getModel(), $accessor) ? $query->getModel()::$accessor() : null;
 
-                if ($attribute instanceof Attribute && property_exists($attribute, 'with')) {
-                    $nestedRelations += $attribute->with;
+                if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$query->getModel()::class][$accessor] ?? null)) {
+                    $nestedRelations += $with;
                 }
             }
 
