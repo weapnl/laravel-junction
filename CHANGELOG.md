@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.3.1
+- Fixed bug where eager loads in accessors would only work if a closure was given.
+
 ## v0.3.0
 - Added support for eager loads in accessors.
 - Relations of dot-notated *appends* are now eager loaded.
