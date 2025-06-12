@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.3.0
 - Added support for eager loads in accessors.
 - Relations of dot-notated *appends* are now eager loaded.
 
