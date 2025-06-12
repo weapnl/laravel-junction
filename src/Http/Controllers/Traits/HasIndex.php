@@ -67,9 +67,9 @@ trait HasIndex
 
         $this->afterIndex($items);
 
-        $pluckFields = request()?->input('pluck');
-        $accessors = request()?->input('appends');
-        $relations = request()?->input('with');
+        $pluckFields = request()?->getPluckFields();
+        $accessors = request()?->getAccessors();
+        $relations = request()?->getRelations();
 
         return $this->resource::items(
             $items,

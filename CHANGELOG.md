@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Added support for eager loads in accessors.
+- Relations of dot-notated *appends* are now eager loaded.
 
 ## v0.2.3
 - Laravel 12 support.

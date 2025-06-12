@@ -17,7 +17,7 @@ class Appends extends Modifier
      */
     public static function apply(Controller $controller, Response $response): void
     {
-        $appends = request()?->input('appends');
+        $appends = request()?->getAccessors();
 
         if (! $appends) {
             return;

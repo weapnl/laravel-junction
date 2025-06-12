@@ -46,8 +46,8 @@ composer require weapnl/laravel-junction dev-main
 
 ## Quick Start
 ```php
-// app/Http/Controllers/API/UserController.php
-namespace App\Http\Controllers\API;
+// app/Http/Controllers/Api/UserController.php
+namespace App\Http\Controllers\Api;
 
 use Weap\Junction\Http\Controllers\Controller;
 
@@ -88,8 +88,8 @@ To make the controller accessible through the api, you need to extend the `Weap\
 Defining the controller is pretty straightforward, check the [Quick start](#quick-start) section for a basic example. We will now go over some of the extra functionality.
 
 ```php
-// app/Http/Controllers/API/UserController.php
-namespace App\Http\Controllers\API;
+// app/Http/Controllers/Api/UserController.php
+namespace App\Http\Controllers\Api;
 
 use Weap\Junction\Http\Controllers\Controller; // Make sure to import the Controller class from the Weap/Junction package.
 
@@ -170,11 +170,11 @@ Filters are applied to the query. Filters are defined using array keys. Availabl
 #### Modifiers
 Modifiers are applied after the query has run. Available modifiers:
 
-| Key             | Example                                       | Description                                                                                               |
-|-----------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| `appends`       | `appends[]=fullname&appends[]=age`            | Add appends to each model in the result.                                                                  |
-| `hidden_fields` | `hidden_fields[]=id&hidden_fields[]=address]` | Hide the given fields for each model in the result.                                                       |
-| `pluck`         | `pluck[]=id&pluck[]=address.house_number`     | Only return the given fields for each model in the result. (Only available for `index` and `show` routes) |
+| Key             | Example                                      | Description                                                                                               |
+|-----------------|----------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| `appends`       | `appends[]=fullname&appends[]=identity.age`  | Add appends to each model in the result.                                                                  |
+| `hidden_fields` | `hidden_fields[]=id&hidden_fields[]=address` | Hide the given fields for each model in the result.                                                       |
+| `pluck`         | `pluck[]=id&pluck[]=address.house_number`    | Only return the given fields for each model in the result. (Only available for `index` and `show` routes) |
 
 #### Pagination
 Pagination is applied on database-level (after applying all filters). The following parameters can be used to setup pagination:
@@ -197,14 +197,65 @@ Simple pagination almost the same as the pagination above. But the simple pagina
 To limit the relations which can be loaded using the `with` filter, you can override the `relations` method on your controller.
 This method should return an array containing relations (dot-notation is supported). To add filters to the relation query, you can use the key as relation name and a closure as the value.
 
-**Note**: When using dot-notation, if a closure is given for one of the higher-level relations, that closure will be applied to the query. For example with relations implemented like below, loading the relation `user.activities`, will apply the `isAdmin` scope to the user query.
+**Note**: When using dot-notation, if a closure is given for one of the higher-level relations in your controller, that closure will be applied to the query. For example with relations implemented like below, loading the relation `user.activities`, will apply the `isAdmin` scope to the user query.
 ```php
 public function relations()
 {
     return [
-        'user' => fn($query) => $query->isAdmin(),
+        'user' => fn ($query) => $query->isAdmin(),
         'user.activities',
     ];
+}
+```
+
+### Accessors
+To append accessors to models in the response, you can use the `appends` modifier. This modifier allows dot-notation for relations. These relations will be eager loaded (relation closures defined in the controller are applied as well).
+
+In some cases you may want an accessor to return a value of one of its relations, which would normally cause a lazy load when the accessor is executed. To eager load the relation, you could add it to the request using the `with` filter, which means the frontend is responsible for proper eager loading.
+To shift this responsibility to the backend, you can use the `Junction::makeAttribute()` function to make an accessor instead of `Attribute::make()`:
+
+```php
+use Weap\Junction\Junction;
+
+/**
+ * @return Attribute<string, never>
+ */
+protected function name(): Attribute
+{
+    return Junction::makeAttribute(
+        get: fn (): string => $this->contact->name,
+        with: ['contact'],
+    );
+}
+```
+
+In this case, the `contact` relation would be eager loaded before the accessor is executed, which can prevent N+1 queries. The `with` array also allows dot-notation and closures to customize the query:
+
+```php
+use Weap\Junction\Junction;
+
+/**
+ * @return Attribute<string, never>
+ */
+protected function name(): Attribute
+{
+    return Junction::makeAttribute(
+        get: function (): string {
+            return match ($this->subjectable::class) {
+                Employee::class => $this->subjectable->contact?->name,
+                Freelancer::class => $this->subjectable->company?->name,
+                default => null,
+            } ?: '';
+        },
+        with: [
+            'subjectable' => function ($query) {
+                $query->morphWith([
+                    Employee::class => ['contact'],
+                    Freelancer::class => ['company'],
+                ]);
+            },
+        ],
+    );
 }
 ```
 
