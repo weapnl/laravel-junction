@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
@@ -81,7 +82,7 @@ class Relations extends Filter
                 $attribute = method_exists($query->getModel(), $accessor) ? $query->getModel()::$accessor() : null;
 
                 if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$query->getModel()::class][$accessor] ?? null)) {
-                    $nestedRelations += $with;
+                    $nestedRelations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
                 }
             }
 
