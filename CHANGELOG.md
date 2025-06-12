@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.3.2
+- Fixed bug where eager loads in accessors would only work for relations (not for the root model).
+
 ## v0.3.1
 - Fixed bug where eager loads in accessors would only work if a closure was given.
 

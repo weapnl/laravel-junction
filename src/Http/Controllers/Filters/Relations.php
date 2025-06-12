@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use ReflectionMethod;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
 use Weap\Junction\Junction;
@@ -28,73 +29,79 @@ class Relations extends Filter
 
         RelationsValidator::validate($controller, $relations);
 
+        $relations = collect($relations)->flip()->undot();
+
         $relationFilters = collect($controller->relations())
             ->filter(fn ($closure) => is_callable($closure))
             ->undot();
 
-        $accessors = collect(request()?->getAccessors())
-            ->flip()
-            ->undot();
+        $accessorRelations = static::getAccessorRelations(
+            $query->getModel()::class,
+            collect(request()?->getAccessors())->flip()->undot()->all()
+        );
 
-        collect($relations)
-            ->flip()
-            ->undot()
-            ->each(function ($nestedRelations, $relation) use ($query, $relationFilters, $accessors) {
-                static::addWith(
-                    $query,
-                    $relation,
-                    is_array($nestedRelations) || is_callable($nestedRelations) ? $nestedRelations : [],
-                    $relationFilters->all(),
-                    $accessors->all(),
-                );
+        $relations
+            ->mergeRecursive($relationFilters)
+            ->mergeRecursive($accessorRelations)
+            ->each(function ($nestedRelations, $relation) use ($query) {
+                static::addWith($query, $relation, $nestedRelations);
             });
     }
 
     /**
      * @param Builder|Relation $query
      * @param string $relation
-     * @param array|Closure $nestedRelations
-     * @param array $relationFilters
-     * @param array $accessors
+     * @param array|Closure|int $nestedRelations
      * @return void
      */
-    protected static function addWith(Builder|Relation $query, string $relation, array|Closure $nestedRelations, array $relationFilters, array $accessors): void
+    protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations): void
     {
-        $query->with($relation, function (Builder|Relation $query) use ($relation, $relationFilters, $nestedRelations, $accessors) {
-            if (is_callable($nestedRelations)) {
-                $nestedRelations($query);
-            }
+        $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relation) {
+            $nestedRelations = is_array($nestedRelations) ? $nestedRelations : [$nestedRelations];
 
-            $relationFilter = $relationFilters[$relation] ?? [];
-
-            if (is_callable($relationFilter)) {
-                $relationFilter($query);
-            }
-
-            $accessors = $accessors[$relation] ?? [];
-
-            foreach ($accessors as $accessor => $nestedAccessors) {
-                if (is_array($nestedAccessors)) {
-                    continue;
+            foreach (is_array($nestedRelations) ? $nestedRelations : [] as $nestedRelation => $nestedRelations) {
+                if (is_string($nestedRelation)) {
+                    static::addWith($query, $nestedRelation, $nestedRelations);
+                } elseif (is_callable($nestedRelations)) {
+                    $nestedRelations($query);
                 }
-
-                $accessor = Str::camel($accessor);
-                $attribute = method_exists($query->getModel(), $accessor) ? $query->getModel()::$accessor() : null;
-
-                if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$query->getModel()::class][$accessor] ?? null)) {
-                    $nestedRelations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
-                }
-            }
-
-            foreach ($nestedRelations as $nestedRelation => $nestedRelations) {
-                static::addWith(
-                    $query,
-                    $nestedRelation,
-                    is_array($nestedRelations) || is_callable($nestedRelations) ? $nestedRelations : [],
-                    is_array($relationFilter) ? $relationFilter : [],
-                    is_array($accessors) ? $accessors : [],
-                );
             }
         });
+    }
+
+    /**
+     * @param class-string $modelClass
+     * @param array $accessors
+     * @return array
+     */
+    protected static function getAccessorRelations(string $modelClass, array $accessors)
+    {
+        $relations = [];
+
+        foreach ($accessors as $accessor => $nestedAccessors) {
+            $accessor = Str::camel($accessor);
+
+            if (! method_exists($modelClass, $accessor)) {
+                continue;
+            }
+
+            // If the accessor is declared as a public method, we can not call it statically
+            $attribute = ((new ReflectionMethod($modelClass, $accessor))->isPublic())
+                ? (new $modelClass())->$accessor()
+                : $modelClass::$accessor();
+
+            if ($attribute instanceof Relation) {
+                $relations[$accessor] ??= [];
+                $relations[$accessor] += static::getAccessorRelations($attribute->getModel()::class, $nestedAccessors);
+
+                continue;
+            }
+
+            if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$modelClass][$accessor] ?? null)) {
+                $relations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
+            }
+        }
+
+        return $relations;
     }
 }
