@@ -2,6 +2,7 @@
 
 namespace Weap\Junction\Http\Controllers\Validators;
 
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Weap\Junction\Http\Controllers\Controller;
 
@@ -31,10 +32,16 @@ class Relations
             return $relations->all();
         }
 
-        $invalidRelations = $relations->filter(function ($callback, $relation) use ($availableRelations) {
+        $availableRelationsUndotted = Arr::undot(array_flip($availableRelations));
+        $invalidRelations = $relations->filter(function ($callback, $relation) use ($availableRelations, $availableRelationsUndotted) {
             $key = is_string($callback) ? $callback : $relation;
 
-            return ! array_key_exists($key, $availableRelations) && ! in_array($key, $availableRelations);
+            // Direct match
+            if (in_array($key, $availableRelations)) {
+                return false;
+            }
+
+            return ! Arr::has($availableRelationsUndotted, $key);
         });
 
         throw_if($invalidRelations->isNotEmpty(), ValidationException::withMessages([
