@@ -6,12 +6,15 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Weap\Junction\Http\Controllers\Helpers\TransactionHelper;
 
 trait HasUpdate
 {
     /**
      * @param int|string|Model $id
      * @return \Illuminate\Http\JsonResponse
+     * @throws Throwable
      */
     public function update($id)
     {
@@ -33,22 +36,24 @@ trait HasUpdate
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $request = app($this->formRequest);
+        TransactionHelper::runInTransactionIfEnabled(function () use (&$model) {
+            $request = app($this->formRequest);
 
-        $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
-        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
+            $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
+            $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
-        $model->fill(
-            $this->beforeUpdate($model, $validAttributes, $invalidAttributes)
-        );
+            $model->fill(
+                $this->beforeUpdate($model, $validAttributes, $invalidAttributes)
+            );
 
-        $model->save();
+            $model->save();
 
-        $this->attachMedia($model, $validAttributes);
+            $this->attachMedia($model, $validAttributes);
 
-        return response()->json(
-            $this->afterUpdate($model, $validAttributes, $invalidAttributes)
-        );
+            $model = $this->afterUpdate($model, $validAttributes, $invalidAttributes);
+        });
+
+        return response()->json($model);
     }
 
     /**

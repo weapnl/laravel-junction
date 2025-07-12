@@ -6,11 +6,14 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Weap\Junction\Http\Controllers\Helpers\TransactionHelper;
 
 trait HasStore
 {
     /**
      * @return \Illuminate\Http\JsonResponse
+     * @throws Throwable
      */
     public function store()
     {
@@ -22,22 +25,24 @@ trait HasStore
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $request = app($this->formRequest);
-        $model = new $this->model();
+        TransactionHelper::runInTransactionIfEnabled(function () use (&$model) {
+            $request = app($this->formRequest);
+            $model = new $this->model();
 
-        $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
-        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
+            $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
+            $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
-        $model->fill(
-            $this->beforeStore($validAttributes, $invalidAttributes)
-        );
+            $model->fill(
+                $this->beforeStore($validAttributes, $invalidAttributes)
+            );
 
-        $model->save();
-        $this->attachMedia($model, $validAttributes);
+            $model->save();
+            $this->attachMedia($model, $validAttributes);
 
-        return response()->json(
-            $this->afterStore($model, $validAttributes, $invalidAttributes)
-        );
+            $model = $this->afterStore($model, $validAttributes, $invalidAttributes);
+        });
+
+        return response()->json($model);
     }
 
     /**
