@@ -16,6 +16,7 @@ trait HasMedia
      * @param Model $model
      * @param array<string, mixed> $validAttributes
      * @return array<Media>
+     *
      * @throws Throwable
      */
     public function attachMedia(Model $model, array $validAttributes): array

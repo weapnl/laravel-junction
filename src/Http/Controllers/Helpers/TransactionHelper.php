@@ -10,6 +10,7 @@ class TransactionHelper
     /**
      * @param callable $callback
      * @return void
+     *
      * @throws Throwable
      */
     public static function runInTransactionIfEnabled(callable $callback): void

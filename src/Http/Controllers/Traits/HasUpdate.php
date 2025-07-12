@@ -14,6 +14,7 @@ trait HasUpdate
     /**
      * @param int|string|Model $id
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws Throwable
      */
     public function update($id)

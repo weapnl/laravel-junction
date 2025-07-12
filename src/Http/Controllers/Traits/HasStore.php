@@ -13,6 +13,7 @@ trait HasStore
 {
     /**
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws Throwable
      */
     public function store()
