@@ -46,7 +46,6 @@ return [
         'store' => false,
         'update' => false,
         'destroy' => false,
-        'upload' => false,
         'action' => false,
     ],
 ];
