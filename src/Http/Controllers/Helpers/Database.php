@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 use Weap\Junction\Http\Controllers\Enums\TransactionTypeEnum;
 
-class TransactionHelper
+class Database
 {
     /**
      * @param TransactionTypeEnum $type

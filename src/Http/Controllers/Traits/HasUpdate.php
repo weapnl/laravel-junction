@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
-use Weap\Junction\Http\Controllers\Helpers\TransactionHelper;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasUpdate
 {
@@ -37,7 +37,7 @@ trait HasUpdate
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $model = TransactionHelper::updateInTransactionIfEnabled(function () use ($model) {
+        $model = Database::updateInTransactionIfEnabled(function () use ($model) {
             $request = app($this->formRequest);
 
             $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();

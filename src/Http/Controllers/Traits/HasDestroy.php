@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
-use Weap\Junction\Http\Controllers\Helpers\TransactionHelper;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasDestroy
 {
@@ -32,7 +32,7 @@ trait HasDestroy
             abort(403, 'Unauthorized');
         }
 
-        $model = TransactionHelper::destroyInTransactionIfEnabled(function () use ($model) {
+        $model = Database::destroyInTransactionIfEnabled(function () use ($model) {
             $this->beforeDestroy($model);
 
             $model->delete();

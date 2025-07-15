@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
-use Weap\Junction\Http\Controllers\Helpers\TransactionHelper;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasStore
 {
@@ -26,7 +26,7 @@ trait HasStore
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $model = TransactionHelper::storeInTransactionIfEnabled(function () {
+        $model = Database::storeInTransactionIfEnabled(function () {
             $request = app($this->formRequest);
             $model = new $this->model();
 

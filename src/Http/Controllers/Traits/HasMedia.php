@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
-use Weap\Junction\Http\Controllers\Helpers\TransactionHelper;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 use Weap\Junction\Http\Utilities\MediaFile;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
@@ -27,7 +27,7 @@ trait HasMedia
 
         $mediaFiles = [];
 
-        TransactionHelper::uploadInTransactionIfEnabled(function () use ($model, $validAttributes, &$mediaFiles) {
+        Database::uploadInTransactionIfEnabled(function () use ($model, $validAttributes, &$mediaFiles) {
             foreach ($validAttributes as $key => $value) {
                 if (! is_array($value)) {
                     continue;
