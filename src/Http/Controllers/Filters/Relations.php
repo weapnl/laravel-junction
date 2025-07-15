@@ -23,11 +23,7 @@ class Relations extends Filter
     {
         $relations = request()?->getRelations();
 
-        if (! $relations) {
-            return;
-        }
-
-        RelationsValidator::validate($controller, $relations);
+        RelationsValidator::validate($controller, $relations ?: []);
 
         $relations = collect($relations)->flip()->undot();
 
