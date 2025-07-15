@@ -26,8 +26,9 @@ trait HasStore
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $model = Database::storeInTransactionIfEnabled(function () {
-            $request = app($this->formRequest);
+        $request = app($this->formRequest);
+
+        $model = Database::storeInTransactionIfEnabled(function () use ($request) {
             $model = new $this->model();
 
             $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
