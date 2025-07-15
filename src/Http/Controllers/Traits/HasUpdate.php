@@ -37,7 +37,7 @@ trait HasUpdate
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $model = TransactionHelper::runInTransactionIfEnabled(function () use ($model) {
+        $model = TransactionHelper::updateInTransactionIfEnabled(function () use ($model) {
             $request = app($this->formRequest);
 
             $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();

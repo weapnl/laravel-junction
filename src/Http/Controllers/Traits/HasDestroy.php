@@ -32,7 +32,7 @@ trait HasDestroy
             abort(403, 'Unauthorized');
         }
 
-        $model = TransactionHelper::runInTransactionIfEnabled(function () use ($model) {
+        $model = TransactionHelper::destroyInTransactionIfEnabled(function () use ($model) {
             $this->beforeDestroy($model);
 
             $model->delete();

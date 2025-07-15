@@ -42,5 +42,11 @@ return [
      * otherwise rolled back on failure. Ensures consistency
      * and integrity across multiple model operations.
      */
-    'use_db_transactions' => false,
+    'use_db_transactions' => [
+        'store' => false,
+        'update' => false,
+        'destroy' => false,
+        'upload' => false,
+        'action' => false,
+    ],
 ];

@@ -26,7 +26,7 @@ trait HasStore
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        $model = TransactionHelper::runInTransactionIfEnabled(function () {
+        $model = TransactionHelper::storeInTransactionIfEnabled(function () {
             $request = app($this->formRequest);
             $model = new $this->model();
 
