@@ -9,18 +9,16 @@ class TransactionHelper
 {
     /**
      * @param callable $callback
-     * @return void
+     * @return mixed
      *
      * @throws Throwable
      */
-    public static function runInTransactionIfEnabled(callable $callback): void
+    public static function runInTransactionIfEnabled(callable $callback): mixed
     {
         if (config('junction.use_db_transactions')) {
-            DB::transaction($callback);
-
-            return;
+            return DB::transaction($callback);
         }
 
-        $callback();
+        return $callback();
     }
 }

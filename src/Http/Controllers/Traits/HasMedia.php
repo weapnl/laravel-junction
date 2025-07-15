@@ -27,7 +27,7 @@ trait HasMedia
 
         $mediaFiles = [];
 
-        TransactionHelper::runInTransactionIfEnabled(function () use (&$model, $validAttributes, &$mediaFiles) {
+        TransactionHelper::runInTransactionIfEnabled(function () use ($model, $validAttributes, &$mediaFiles) {
             foreach ($validAttributes as $key => $value) {
                 if (! is_array($value)) {
                     continue;

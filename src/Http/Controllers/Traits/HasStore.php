@@ -26,7 +26,7 @@ trait HasStore
             throw new Exception('Property `formRequest` should inherit from `FormRequest::class`.');
         }
 
-        TransactionHelper::runInTransactionIfEnabled(function () use (&$model) {
+        $model = TransactionHelper::runInTransactionIfEnabled(function () {
             $request = app($this->formRequest);
             $model = new $this->model();
 
@@ -40,7 +40,7 @@ trait HasStore
             $model->save();
             $this->attachMedia($model, $validAttributes);
 
-            $model = $this->afterStore($model, $validAttributes, $invalidAttributes);
+            return $this->afterStore($model, $validAttributes, $invalidAttributes);
         });
 
         return response()->json($model);
