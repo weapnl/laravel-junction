@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Fixed bug where eager loads in accessors would not work if no other relations were requested.
+- Added use_db_transactions to the config to enable database transactions for several actions.
 
 ## v0.3.2
 - Fixed bug where eager loads in accessors would only work for relations (not for the root model).
