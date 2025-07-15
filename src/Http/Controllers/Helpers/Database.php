@@ -33,7 +33,7 @@ class Database
      */
     public static function storeInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::store, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Store, $callback);
     }
 
     /**
@@ -44,7 +44,7 @@ class Database
      */
     public static function updateInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::update, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Update, $callback);
     }
 
     /**
@@ -55,7 +55,7 @@ class Database
      */
     public static function destroyInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::destroy, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Destroy, $callback);
     }
 
     /**
@@ -66,6 +66,6 @@ class Database
      */
     public static function actionInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::action, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Action, $callback);
     }
 }
