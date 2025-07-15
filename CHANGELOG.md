@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Parent relations are now implicitly allowed when nested relations are defined in the `relations()` method.
 
 ## v0.3.2
 - Fixed bug where eager loads in accessors would only work for relations (not for the root model).
