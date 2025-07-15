@@ -15,7 +15,7 @@ class TransactionHelper
      */
     public static function runInTransactionIfEnabled(callable $callback): void
     {
-        if (config('junction.useDbTransactions')) {
+        if (config('junction.use_db_transactions')) {
             DB::transaction($callback);
 
             return;

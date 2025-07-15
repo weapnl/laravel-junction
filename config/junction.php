@@ -42,5 +42,5 @@ return [
      * otherwise rolled back on failure. Ensures consistency
      * and integrity across multiple model operations.
      */
-    'useDbTransactions' => false,
+    'use_db_transactions' => false,
 ];
