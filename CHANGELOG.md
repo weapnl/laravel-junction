@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed bug where eager loads in accessors would not work if no other relations were requested.
 
 ## v0.3.2
 - Fixed bug where eager loads in accessors would only work for relations (not for the root model).
