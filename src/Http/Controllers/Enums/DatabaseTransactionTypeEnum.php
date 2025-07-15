@@ -2,11 +2,10 @@
 
 namespace Weap\Junction\Http\Controllers\Enums;
 
-enum TransactionTypeEnum
+enum DatabaseTransactionTypeEnum
 {
     case store;
     case update;
     case destroy;
-    case upload;
     case action;
 }

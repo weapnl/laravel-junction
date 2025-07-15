@@ -5,11 +5,15 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Throwable;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasAction
 {
     /**
      * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws Throwable
      */
     public function action()
     {
@@ -34,7 +38,7 @@ trait HasAction
             abort(403, 'Unauthorized');
         }
 
-        return $this->{$this->getActionMethod(request()->action)}($model);
+        return Database::actionInTransactionIfEnabled(fn () => $this->{$this->getActionMethod(request()->action)}($model));
     }
 
     /**
