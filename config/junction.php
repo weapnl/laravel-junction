@@ -36,8 +36,8 @@ return [
     ],
 
     /*
-     * Wraps store, update, destroy and media upload logic
-     * in a database transaction. If enabled, all DB operations
+     * Wraps store, update, destroy and action logic
+     * in a database transaction. If enabled, the DB operations
      * in those methods will be committed only if successful,
      * otherwise rolled back on failure. Ensures consistency
      * and integrity across multiple model operations.
