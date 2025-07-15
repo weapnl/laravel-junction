@@ -32,7 +32,16 @@ class Relations
             return $relations->all();
         }
 
-        $availableRelationsUndotted = Arr::undot(array_flip($availableRelations));
+        $relationArray = [];
+        foreach ($availableRelations as $key => $value) {
+            if (is_string($value)) {
+                $relationArray[] = $value;
+            } elseif (is_string($key)) {
+                $relationArray[] = $key;
+            }
+        }
+
+        $availableRelationsUndotted = Arr::undot(array_flip($relationArray));
         $invalidRelations = $relations->filter(function ($callback, $relation) use ($availableRelations, $availableRelationsUndotted) {
             $key = is_string($callback) ? $callback : $relation;
 
