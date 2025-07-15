@@ -33,7 +33,7 @@ trait HasMedia
 
             if ($key !== '_media') {
                 if ($model->$key instanceof Model) {
-                    $this->attachMedia($model->$key, $value, true);
+                    $this->attachMedia($model->$key, $value);
                 }
 
                 continue;
