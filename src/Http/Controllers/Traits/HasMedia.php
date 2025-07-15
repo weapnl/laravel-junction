@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Throwable;
 use Weap\Junction\Http\Utilities\MediaFile;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
@@ -14,6 +15,8 @@ trait HasMedia
      * @param Model $model
      * @param array<string, mixed> $validAttributes
      * @return array<Media>
+     *
+     * @throws Throwable
      */
     public function attachMedia(Model $model, array $validAttributes): array
     {

@@ -6,11 +6,15 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasStore
 {
     /**
      * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws Throwable
      */
     public function store()
     {
@@ -23,21 +27,24 @@ trait HasStore
         }
 
         $request = app($this->formRequest);
-        $model = new $this->model();
 
-        $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
-        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
+        $model = Database::storeInTransactionIfEnabled(function () use ($request) {
+            $model = new $this->model();
 
-        $model->fill(
-            $this->beforeStore($validAttributes, $invalidAttributes)
-        );
+            $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
+            $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
-        $model->save();
-        $this->attachMedia($model, $validAttributes);
+            $model->fill(
+                $this->beforeStore($validAttributes, $invalidAttributes)
+            );
 
-        return response()->json(
-            $this->afterStore($model, $validAttributes, $invalidAttributes)
-        );
+            $model->save();
+            $this->attachMedia($model, $validAttributes);
+
+            return $this->afterStore($model, $validAttributes, $invalidAttributes);
+        });
+
+        return response()->json($model);
     }
 
     /**

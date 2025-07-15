@@ -2,17 +2,19 @@
 
 namespace Weap\Junction\Http\Controllers\Traits;
 
-use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasDestroy
 {
     /**
      * @param int|string|Model $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function destroy($id)
     {
@@ -30,13 +32,15 @@ trait HasDestroy
             abort(403, 'Unauthorized');
         }
 
-        $this->beforeDestroy($model);
+        $model = Database::destroyInTransactionIfEnabled(function () use ($model) {
+            $this->beforeDestroy($model);
 
-        $model->delete();
+            $model->delete();
 
-        return response()->json(
-            $this->afterDestroy($model)
-        );
+            return $this->afterDestroy($model);
+        });
+
+        return response()->json($model);
     }
 
     /**

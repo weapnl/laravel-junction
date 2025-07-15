@@ -6,12 +6,16 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Weap\Junction\Http\Controllers\Helpers\Database;
 
 trait HasUpdate
 {
     /**
      * @param int|string|Model $id
      * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws Throwable
      */
     public function update($id)
     {
@@ -35,20 +39,22 @@ trait HasUpdate
 
         $request = app($this->formRequest);
 
-        $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
-        $invalidAttributes = array_diff_key($request->all(), $validAttributes);
+        $model = Database::updateInTransactionIfEnabled(function () use ($model, $request) {
+            $validAttributes = $this->saveFillable ? $request->only($model->getFillable()) : $request->validated();
+            $invalidAttributes = array_diff_key($request->all(), $validAttributes);
 
-        $model->fill(
-            $this->beforeUpdate($model, $validAttributes, $invalidAttributes)
-        );
+            $model->fill(
+                $this->beforeUpdate($model, $validAttributes, $invalidAttributes)
+            );
 
-        $model->save();
+            $model->save();
 
-        $this->attachMedia($model, $validAttributes);
+            $this->attachMedia($model, $validAttributes);
 
-        return response()->json(
-            $this->afterUpdate($model, $validAttributes, $invalidAttributes)
-        );
+            return $this->afterUpdate($model, $validAttributes, $invalidAttributes);
+        });
+
+        return response()->json($model);
     }
 
     /**
