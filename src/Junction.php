@@ -2,17 +2,11 @@
 
 namespace Weap\Junction;
 
-use Closure;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Route;
 
 class Junction
 {
-    /**
-     * @var array<class-string, array<string, array<string|int, string|Closure>>>
-     */
-    public static array $cachedAttributeRelations = [];
-
     /**
      * @param $uri
      * @param $controller
