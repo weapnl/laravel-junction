@@ -39,6 +39,8 @@ class JunctionServiceProvider extends ServiceProvider
         $this->bootRouteMacros();
 
         $this->bootRequestMacros();
+
+        $this->app->scoped(AttributeRelationCache::class, fn () => new AttributeRelationCache());
     }
 
     /**

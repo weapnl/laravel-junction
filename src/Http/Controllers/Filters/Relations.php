@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use ReflectionMethod;
+use Weap\Junction\AttributeRelationCache;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
 use Weap\Junction\Junction;
@@ -93,7 +94,9 @@ class Relations extends Filter
                 continue;
             }
 
-            if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$modelClass][$accessor] ?? null)) {
+            $cache = app(AttributeRelationCache::class);
+
+            if ($attribute instanceof Attribute && ($with = $cache->get($modelClass, $accessor))) {
                 $relations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
             }
         }

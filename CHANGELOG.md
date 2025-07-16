@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Replaced static `Junction::$cachedAttributeRelations` with request-scoped `AttributeRelationCache` for Laravel Octane compatibility.
 
 ## v0.4.0
 - Fixed bug where eager loads in accessors would not work if no other relations were requested.
