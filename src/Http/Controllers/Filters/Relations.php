@@ -93,9 +93,7 @@ class Relations extends Filter
                 continue;
             }
 
-            $cache = app(AttributeRelationCache::class);
-
-            if ($attribute instanceof Attribute && ($with = $cache->get($modelClass, $accessor))) {
+            if ($attribute instanceof Attribute && ($with = app(AttributeRelationCache::class)->get($modelClass, $accessor))) {
                 $relations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
             }
         }

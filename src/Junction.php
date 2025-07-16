@@ -37,9 +37,7 @@ class Junction
         $attribute = Attribute::make($get, $set);
 
         if ($caller = debug_backtrace()[1] ?? null) {
-            /** @var AttributeRelationCache $attributeRelationCache */
-            $attributeRelationCache = app(AttributeRelationCache::class);
-            $attributeRelationCache->set($caller['class'], $caller['function'], $with);
+            app(AttributeRelationCache::class)->set($caller['class'], $caller['function'], $with);
         }
 
         return $attribute;
