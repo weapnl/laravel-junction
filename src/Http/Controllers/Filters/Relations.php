@@ -12,7 +12,6 @@ use ReflectionMethod;
 use Weap\Junction\AttributeRelationCache;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
-use Weap\Junction\Junction;
 
 class Relations extends Filter
 {
