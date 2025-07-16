@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Bugfix: `Unsupported operand types: int + array`.
 
 ## v0.4.0
 - Fixed bug where eager loads in accessors would not work if no other relations were requested.

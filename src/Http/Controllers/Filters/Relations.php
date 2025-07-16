@@ -94,7 +94,7 @@ class Relations extends Filter
             }
 
             if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$modelClass][$accessor] ?? null)) {
-                $relations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
+                $relations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => [$relation]] : [$relation => []]);
             }
         }
 
