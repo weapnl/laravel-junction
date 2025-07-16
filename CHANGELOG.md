@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.4.0
 - Fixed bug where eager loads in accessors would not work if no other relations were requested.
 - Parent relations are now implicitly allowed when nested relations are defined in the `relations()` method.
 - Added use_db_transactions to the config to enable database transactions for several actions.
