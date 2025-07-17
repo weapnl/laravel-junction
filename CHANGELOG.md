@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed a bug where relations which had mutations defined in a controller would always be loaded, even if they weren't requested.
 
 ## v0.4.1
 - Fixed a bug where an error was thrown when applying an accessor on a relation which was eager loaded by another accessor.

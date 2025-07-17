@@ -26,20 +26,19 @@ class Relations extends Filter
 
         $relations = collect($relations)->flip()->undot();
 
-        $relationFilters = collect($controller->relations())
-            ->filter(fn ($closure) => is_callable($closure))
-            ->undot();
-
         $accessorRelations = static::getAccessorRelations(
             $query->getModel()::class,
             collect(request()?->getAccessors())->flip()->undot()->all()
         );
 
+        $relationFilters = collect($controller->relations())
+            ->filter(fn ($closure) => is_callable($closure))
+            ->undot();
+
         $relations
-            ->mergeRecursive($relationFilters)
             ->mergeRecursive($accessorRelations)
-            ->each(function ($nestedRelations, $relation) use ($query) {
-                static::addWith($query, $relation, $nestedRelations);
+            ->each(function ($nestedRelations, $relation) use ($query, $relationFilters) {
+                static::addWith($query, $relation, $nestedRelations, $relationFilters[$relation] ?? []);
             });
     }
 
@@ -47,16 +46,21 @@ class Relations extends Filter
      * @param Builder|Relation $query
      * @param string $relation
      * @param array|Closure|int $nestedRelations
+     * @param array $relationFilters
      * @return void
      */
-    protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations): void
+    protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations, array|Closure|null $relationFilters): void
     {
-        $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relation) {
+        $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relation, $relationFilters) {
             $nestedRelations = is_array($nestedRelations) ? $nestedRelations : [$nestedRelations];
+
+            if (is_callable($relationFilters)) {
+                $relationFilters($query);
+            }
 
             foreach (is_array($nestedRelations) ? $nestedRelations : [] as $nestedRelation => $nestedRelations) {
                 if (is_string($nestedRelation)) {
-                    static::addWith($query, $nestedRelation, $nestedRelations);
+                    static::addWith($query, $nestedRelation, $nestedRelations, is_array($relationFilters) ? $relationFilters[$nestedRelation] ?? null : null);
                 } elseif (is_callable($nestedRelations)) {
                     $nestedRelations($query);
                 }
