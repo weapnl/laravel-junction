@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use ReflectionMethod;
 use Weap\Junction\Http\Controllers\Controller;
@@ -94,7 +93,15 @@ class Relations extends Filter
             }
 
             if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$modelClass][$accessor] ?? null)) {
-                $relations += Arr::mapWithKeys($with, fn ($relation, $key) => is_callable($relation) ? [$key => $relation] : [$relation => $key]);
+                foreach ($with as $key => $relation) {
+                    $relationKey = is_callable($relation) ? $key : $relation;
+                    $relationValue = is_callable($relation) ? [$relation] : [];
+
+                    $relations[$relationKey] = [
+                        ...($relations[$relationKey] ?? []),
+                        ...$relationValue,
+                    ];
+                }
             }
         }
 

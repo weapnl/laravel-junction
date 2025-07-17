@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed a bug where an error was thrown when applying an accessor on a relation which was eager loaded by another accessor.
 
 ## v0.4.0
 - Fixed bug where eager loads in accessors would not work if no other relations were requested.
