@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.4.2
 - Fixed a bug where relations which had mutations defined in a controller would always be loaded, even if they weren't requested.
 
 ## v0.4.1
