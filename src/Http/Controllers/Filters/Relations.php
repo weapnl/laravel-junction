@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use ReflectionMethod;
+use Weap\Junction\AttributeRelationCache;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
-use Weap\Junction\Junction;
 
 class Relations extends Filter
 {
@@ -92,7 +92,7 @@ class Relations extends Filter
                 continue;
             }
 
-            if ($attribute instanceof Attribute && ($with = Junction::$cachedAttributeRelations[$modelClass][$accessor] ?? null)) {
+            if ($attribute instanceof Attribute && ($with = app(AttributeRelationCache::class)->get($modelClass, $accessor))) {
                 foreach ($with as $key => $relation) {
                     $relationKey = is_callable($relation) ? $key : $relation;
                     $relationValue = is_callable($relation) ? [$relation] : [];
