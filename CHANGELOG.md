@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Added support for ordering by relationship columns in the Order filter (e.g., `brand.code`, `user.name`).
+- Order filter now uses LEFT JOIN approach for relationship ordering to preserve all records.
 
 ## v0.4.2
 - Fixed a bug where relations which had mutations defined in a controller would always be loaded, even if they weren't requested.
