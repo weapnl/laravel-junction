@@ -78,7 +78,7 @@ class Order extends Filter
     }
 
     /**
-     * @param $query
+     * @param Builder|Relation $query
      * @param string $column
      * @param string $direction
      * @return void
