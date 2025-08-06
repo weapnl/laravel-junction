@@ -51,7 +51,10 @@ class Wheres extends Filter
 
         // If there's no relation (single column name), apply the where condition and exit early.
         if (count($columnParts) === 1) {
-            static::applyWhere($query, $query->getModel()->getTable() . '.' . $column, $operator, $value);
+            $tableName = $query->getModel()->getTable();
+            $columnPath = $tableName ? "$tableName.$column" : $column;
+
+            static::applyWhere($query, $columnPath, $operator, $value);
 
             return;
         }
@@ -62,7 +65,7 @@ class Wheres extends Filter
 
         $query->whereHas($relationPath, function (Builder $innerQuery) use ($actualColumn, $operator, $value, $relation) {
             $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $innerQuery->from;
-            $fullColumn = $tableName . '.' . $actualColumn;
+            $fullColumn = $tableName ? "$tableName.$actualColumn" : $actualColumn;
 
             static::applyWhere($innerQuery, $fullColumn, $operator, $value);
         });

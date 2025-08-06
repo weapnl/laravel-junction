@@ -45,7 +45,10 @@ class WhereNotIn extends Filter
 
         // Directly on the main model (no relation)
         if (count($relationParts) === 1) {
-            $query->whereNotIn($query->getModel()->getTable() . '.' . $column, $values);
+            $tableName = $query->getModel()->getTable();
+            $columnPath = $tableName ? "$tableName.$column" : $column;
+
+            $query->whereNotIn($columnPath, $values);
 
             return;
         }
@@ -57,7 +60,7 @@ class WhereNotIn extends Filter
 
         $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $relation) {
             $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $subQuery->from;
-            $fullColumn = $tableName . '.' . $actualColumn;
+            $fullColumn = $tableName ? "$tableName.$actualColumn" : $actualColumn;
 
             $subQuery->whereNotIn($fullColumn, $values);
         });
