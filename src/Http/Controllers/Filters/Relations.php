@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use ReflectionMethod;
 use Weap\Junction\AttributeRelationCache;
@@ -32,13 +33,14 @@ class Relations extends Filter
         );
 
         $relationFilters = collect($controller->relations())
-            ->filter(fn ($closure) => is_callable($closure))
-            ->undot();
+            ->mapWithKeys(fn ($closure, $relation) => [$relation => is_callable($closure) ? $closure : null])
+            ->filter()
+            ->all();
 
         $relations
             ->mergeRecursive($accessorRelations)
             ->each(function ($nestedRelations, $relation) use ($query, $relationFilters) {
-                static::addWith($query, $relation, $nestedRelations, $relationFilters[$relation] ?? []);
+                static::addWith($query, $relation, $nestedRelations, $relationFilters);
             });
     }
 
@@ -49,18 +51,24 @@ class Relations extends Filter
      * @param array $relationFilters
      * @return void
      */
-    protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations, array|Closure|null $relationFilters): void
+    protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations, array $relationFilters): void
     {
+        $relationFilters = array_filter(Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation) => Str::startsWith($filterRelation, $relation) ? [Str::after($filterRelation, $relation) => $closure] : [$filterRelation => null]));
+
         $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relation, $relationFilters) {
             $nestedRelations = is_array($nestedRelations) ? $nestedRelations : [$nestedRelations];
 
-            if (is_callable($relationFilters)) {
-                $relationFilters($query);
+            $currentRelationFilters = Arr::where($relationFilters, fn ($closure, $filterRelation) => ! Str::startsWith($filterRelation, '.'));
+
+            foreach ($currentRelationFilters as $currentRelationFilter) {
+                $currentRelationFilter($query);
             }
+
+            $remainingRelationFilters = Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation) => Str::startsWith($filterRelation, '.') ? [Str::after($filterRelation, '.') => $closure] : [$filterRelation => null]);
 
             foreach (is_array($nestedRelations) ? $nestedRelations : [] as $nestedRelation => $nestedRelations) {
                 if (is_string($nestedRelation)) {
-                    static::addWith($query, $nestedRelation, $nestedRelations, is_array($relationFilters) ? $relationFilters[$nestedRelation] ?? null : null);
+                    static::addWith($query, $nestedRelation, $nestedRelations, $remainingRelationFilters);
                 } elseif (is_callable($nestedRelations)) {
                     $nestedRelations($query);
                 }

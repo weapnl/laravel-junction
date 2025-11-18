@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed a bug where nested relations with mutations would overwrite parent relation mutations in controllers.
 
 ## v0.4.2
 - Fixed a bug where relations which had mutations defined in a controller would always be loaded, even if they weren't requested.
