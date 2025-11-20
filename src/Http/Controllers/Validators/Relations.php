@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Validators;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Weap\Junction\Extensions\RelationExtension;
 use Weap\Junction\Http\Controllers\Controller;
 
 class Relations
@@ -27,7 +28,7 @@ class Relations
             return [];
         }
 
-        $availableRelations = $controller->relations();
+        $availableRelations = app(RelationExtension::class)->call($controller->relations() ?? [], $controller);
 
         if ($availableRelations == ['*']) {
             return $relations->all();
