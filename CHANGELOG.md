@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.4.4
 - Added support for relation extensions.
 
 ## v0.4.3
