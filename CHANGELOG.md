@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added support for relation extensions.
 
 ## v0.4.3
 - Fixed a bug where nested relations with mutations would overwrite parent relation mutations in controllers.

@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use ReflectionMethod;
 use Weap\Junction\AttributeRelationCache;
+use Weap\Junction\Extensions\RelationExtension;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
 
@@ -32,7 +33,7 @@ class Relations extends Filter
             collect(request()?->getAccessors())->flip()->undot()->all()
         );
 
-        $relationFilters = collect($controller->relations())
+        $relationFilters = collect(app(RelationExtension::class)->call($controller->relations() ?? [], $controller))
             ->mapWithKeys(fn ($closure, $relation) => [$relation => is_callable($closure) ? $closure : null])
             ->filter()
             ->all();

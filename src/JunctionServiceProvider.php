@@ -10,6 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Commands\CleanMediaTemporaryUploads;
+use Weap\Junction\Extensions\RelationExtension;
 
 class JunctionServiceProvider extends ServiceProvider
 {
@@ -39,6 +40,8 @@ class JunctionServiceProvider extends ServiceProvider
         $this->bootRouteMacros();
 
         $this->bootRequestMacros();
+
+        $this->app->scoped(RelationExtension::class, fn () => new RelationExtension());
 
         $this->app->scoped(AttributeRelationCache::class, fn () => new AttributeRelationCache());
     }

@@ -208,6 +208,19 @@ public function relations()
 }
 ```
 
+#### Extensions
+To modify the relations array before it is parsed, you can use the following in a service provider;
+
+```php
+app(\Weap\Junction\Extensions\RelationExtension::class)->add(function (array $relations, \Illuminate\Routing\Controller $controller) {
+    // Only get activities of the past week
+    $relations['activities'] = fn ($query) => $query->where('created_at', '>', now()->subWeek());
+
+    return $relations;
+});
+```
+This example will add or replace the `activities` relation on any controller. Note that it only sets the relation on the controller; it does not actually load the relation unless it is requested.
+
 ### Accessors
 To append accessors to models in the response, you can use the `appends` modifier. This modifier allows dot-notation for relations. These relations will be eager loaded (relation closures defined in the controller are applied as well).
 
