@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed bug where `Weap\Junction\Http\Controllers\Resources\BaseResource` would throw an error when the resource instance is null.
 
 ## v0.4.4
 - Added support for relation extensions.
