@@ -76,6 +76,10 @@ class BaseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        if (is_null($this->resource)) {
+            return [];
+        }
+
         return array_merge(
             $this->relationsToArray($request),
             $this->attributesToArray($request),
