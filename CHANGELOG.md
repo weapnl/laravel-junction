@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Added support for ordering by relationship columns in the Order filter (e.g., `brand.code`, `user.name`).
+- Order filter now uses LEFT JOIN approach for relationship ordering to preserve all records.
 
 ## v0.4.5
 - Fixed bug where `Weap\Junction\Http\Controllers\Resources\BaseResource` would throw an error when the resource instance is null.
