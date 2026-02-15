@@ -4,8 +4,8 @@ namespace Weap\Junction\Http\Controllers\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\MediaCollections\Events\MediaHasBeenAddedEvent;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 use Weap\Junction\Http\Utilities\MediaFile;
 use Weap\Junction\Models\MediaTemporaryUpload;
