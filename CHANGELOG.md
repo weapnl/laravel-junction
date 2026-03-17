@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added morph map handling for `MediaTemporaryUpload` in `DefaultFormRequest` and `HasMedia` to use `getMorphClass()`, ensuring compatibility with alias-based model types.
 
 ## v0.4.5
 - Fixed bug where `Weap\Junction\Http\Controllers\Resources\BaseResource` would throw an error when the resource instance is null.

@@ -49,7 +49,7 @@ trait HasMedia
                     /** @var Media $media */
                     $media = config('media-library.media_model')::findOrFail($uploadedFile->mediaId);
 
-                    abort_if($media->model_type !== MediaTemporaryUpload::class || Auth::id() !== $media->model->created_by_user_id, 404);
+                    abort_if($media->model_type !== (new MediaTemporaryUpload)->getMorphClass() || Auth::id() !== $media->model->created_by_user_id, 404);
 
                     $media = $this->beforeMediaUpload($media, $model, $collectionName);
 
