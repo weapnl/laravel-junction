@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.4.6
 - Added morph map handling for `MediaTemporaryUpload` in `DefaultFormRequest` and `HasMedia` to use `getMorphClass()`, ensuring compatibility with alias-based model types.
 
 ## v0.4.5
