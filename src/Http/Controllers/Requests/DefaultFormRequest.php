@@ -69,7 +69,7 @@ class DefaultFormRequest extends FormRequest
                 foreach ($mediaItems as $mediaId) {
                     $media = config('media-library.media_model')::find($mediaId);
 
-                    if (! $media || $media->model_type !== MediaTemporaryUpload::class) {
+                    if (! $media || $media->model_type !== (new MediaTemporaryUpload())->getMorphClass()) {
                         $mediaArray[$collectionName][] = $mediaId;
 
                         continue;
