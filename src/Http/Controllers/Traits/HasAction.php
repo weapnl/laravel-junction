@@ -30,7 +30,7 @@ trait HasAction
 
         if ($requiresModel) {
             request()->validate([
-                'id' => ['required', 'integer'],
+                'id' => ['required'],
             ]);
         }
 
