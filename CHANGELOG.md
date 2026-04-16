@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Use resource class for store, update, and destroy responses, ensuring consistent output and applying availableAttributes and availableRelations filters.
 
 ## v0.4.7
 - Added Laravel 13 support.
