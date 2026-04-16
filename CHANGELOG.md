@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Added support for ordering by relationship columns in the Order filter (e.g., `brand.code`, `user.name`).
+- Order filter now uses LEFT JOIN approach for relationship ordering to preserve all records.
 
 ## v0.4.8
 - Use resource class for store, update, and destroy responses, ensuring consistent output and applying availableAttributes and availableRelations filters.
