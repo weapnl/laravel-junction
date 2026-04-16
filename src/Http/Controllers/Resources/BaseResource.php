@@ -93,22 +93,35 @@ class BaseResource extends JsonResource
      */
     protected function relationsToArray(Request $request): array
     {
-        $relations = $this->availableRelations();
+        $availableRelations = $this->availableRelations();
 
-        // If no pluck relations are given, return nothing
+        // If no pluck relations are given, fall back to rendering the available
+        // relations that are already loaded on the model. This keeps store/update
+        // responses consistent with Laravel's `whenLoaded` behaviour.
         if ($this->pluckRelations === null) {
-            return [];
-        }
+            if ($availableRelations === null) {
+                return [];
+            }
 
-        // Only get available relations (if present)
-        $relations = $relations !== null
-            ? collect($relations)->filter(fn ($resource, $field) => array_key_exists($field, $this->pluckRelations))
-            : collect($this->pluckRelations)->mapWithKeys(fn ($_, $relation) => [$relation => self::class]);
+            $relations = collect($availableRelations)
+                ->filter(fn ($_, $field) => $this->resource->relationLoaded($field));
+
+            if ($relations->isEmpty()) {
+                return [];
+            }
+        } else {
+            // Only get available relations (if present)
+            $relations = $availableRelations !== null
+                ? collect($availableRelations)->filter(fn ($resource, $field) => array_key_exists($field, $this->pluckRelations))
+                : collect($this->pluckRelations)->mapWithKeys(fn ($_, $relation) => [$relation => self::class]);
+        }
 
         return $relations->map(function ($resourceClass, $field) use ($request) {
             if ($this->resource->$field === null) {
                 return null;
             }
+
+            $nestedPluckRelations = is_array($this->pluckRelations[$field] ?? null) ? $this->pluckRelations[$field] : null;
 
             if ($this->resource->$field instanceof Collection) {
                 $resourceCollection = $resourceClass::collection($this->resource->$field);
@@ -117,7 +130,7 @@ class BaseResource extends JsonResource
                 $resourceCollection->resource->each->pluckFields(
                     $this->pluckAttributes[$field] ?? null,
                     $this->pluckAccessors[$field] ?? null,
-                    is_array($this->pluckRelations[$field] ?? null) ? $this->pluckRelations[$field] : null,
+                    $nestedPluckRelations,
                 );
 
                 return $resourceCollection->toArray($request);
@@ -128,7 +141,7 @@ class BaseResource extends JsonResource
             $resource->pluckFields(
                 $this->pluckAttributes[$field] ?? null,
                 $this->pluckAccessors[$field] ?? null,
-                is_array($this->pluckRelations[$field] ?? null) ? $this->pluckRelations[$field] : null,
+                $nestedPluckRelations,
             );
 
             return $resource->toArray($request);
