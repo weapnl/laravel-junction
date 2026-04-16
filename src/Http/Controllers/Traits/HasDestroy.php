@@ -40,7 +40,7 @@ trait HasDestroy
             return $this->afterDestroy($model);
         });
 
-        return response()->json($model);
+        return response()->json(new $this->resource($model));
     }
 
     /**

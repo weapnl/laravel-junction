@@ -44,7 +44,7 @@ trait HasStore
             return $this->afterStore($model, $validAttributes, $invalidAttributes);
         });
 
-        return response()->json($model);
+        return response()->json(new $this->resource($model));
     }
 
     /**

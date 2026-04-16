@@ -54,7 +54,7 @@ trait HasUpdate
             return $this->afterUpdate($model, $validAttributes, $invalidAttributes);
         });
 
-        return response()->json($model);
+        return response()->json(new $this->resource($model));
     }
 
     /**
