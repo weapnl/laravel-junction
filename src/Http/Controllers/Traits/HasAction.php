@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use ReflectionMethod;
 use Throwable;
 use Weap\Junction\Http\Controllers\Helpers\Database;
 
@@ -24,6 +25,15 @@ trait HasAction
             ],
         ]);
 
+        $actionMethod = $this->getActionMethod(request()->action);
+        $requiresModel = $this->actionRequiresModel($actionMethod);
+
+        if ($requiresModel) {
+            request()->validate([
+                'id' => ['required'],
+            ]);
+        }
+
         $model = null;
 
         if (request()->id) {
@@ -38,7 +48,7 @@ trait HasAction
             abort(403, 'Unauthorized');
         }
 
-        return Database::actionInTransactionIfEnabled(fn () => $this->{$this->getActionMethod(request()->action)}($model));
+        return Database::actionInTransactionIfEnabled(fn () => $this->{$actionMethod}($model));
     }
 
     /**
@@ -75,5 +85,23 @@ trait HasAction
             return Str::of($method)->startsWith('action')
                 && $method !== 'action';
         })->values();
+    }
+
+    /**
+     * Check if an action method has a typed (non-nullable) first parameter,
+     * meaning it requires a model to be passed.
+     *
+     * @param string|null $method
+     * @return bool
+     */
+    private function actionRequiresModel(?string $method): bool
+    {
+        if (! $method || ! method_exists($this, $method)) {
+            return false;
+        }
+
+        $parameters = (new ReflectionMethod($this, $method))->getParameters();
+
+        return ! empty($parameters) && $parameters[0]->hasType() && ! $parameters[0]->allowsNull();
     }
 }
