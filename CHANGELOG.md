@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.4.8
 - Use resource class for store, update, and destroy responses, ensuring consistent output and applying availableAttributes and availableRelations filters.
 - Validate that `id` is required for actions expecting a model, preventing 500 TypeErrors and returning a proper 422 validation error instead.
 
