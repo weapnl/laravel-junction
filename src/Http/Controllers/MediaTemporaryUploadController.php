@@ -2,6 +2,7 @@
 
 namespace Weap\Junction\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -10,11 +11,12 @@ use Weap\Junction\Models\MediaTemporaryUpload;
 class MediaTemporaryUploadController extends Controller
 {
     /**
-     * The class name of the model for which the controller should implement CRUD actions.
-     *
-     * @var string
+     * @throws Exception
      */
-    public $model = MediaTemporaryUpload::class;
+    public function __construct()
+    {
+        parent::__construct(config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class));
+    }
 
     /**
      * @return JsonResponse
@@ -28,7 +30,7 @@ class MediaTemporaryUploadController extends Controller
             'files.*' => ['required', 'file'],
         ]);
 
-        $mediaTemporaryUpload = new MediaTemporaryUpload();
+        $mediaTemporaryUpload = new $this->model();
         $mediaTemporaryUpload->createdBy()->associate(Auth::user());
         $mediaTemporaryUpload->save();
 

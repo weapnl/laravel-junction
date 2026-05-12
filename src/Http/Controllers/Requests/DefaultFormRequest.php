@@ -52,6 +52,9 @@ class DefaultFormRequest extends FormRequest
      */
     private function prepareMedia(array $data): array
     {
+        $mediaTemporaryUploadModel = config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class);
+        $mediaTemporaryUploadMorphClass = (new $mediaTemporaryUploadModel())->getMorphClass();
+
         foreach ($data as $key => $value) {
             if (! is_array($value)) {
                 continue;
@@ -69,7 +72,7 @@ class DefaultFormRequest extends FormRequest
                 foreach ($mediaItems as $mediaId) {
                     $media = config('media-library.media_model')::find($mediaId);
 
-                    if (! $media || $media->model_type !== (new MediaTemporaryUpload())->getMorphClass()) {
+                    if (! $media || $media->model_type !== $mediaTemporaryUploadMorphClass) {
                         $mediaArray[$collectionName][] = $mediaId;
 
                         continue;

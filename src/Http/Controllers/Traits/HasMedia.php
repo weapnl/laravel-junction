@@ -24,6 +24,9 @@ trait HasMedia
             return [];
         }
 
+        $mediaTemporaryUploadModel = config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class);
+        $mediaTemporaryUploadMorphClass = (new $mediaTemporaryUploadModel())->getMorphClass();
+
         $mediaFiles = [];
 
         foreach ($validAttributes as $key => $value) {
@@ -49,7 +52,7 @@ trait HasMedia
                     /** @var Media $media */
                     $media = config('media-library.media_model')::findOrFail($uploadedFile->mediaId);
 
-                    abort_if($media->model_type !== (new MediaTemporaryUpload())->getMorphClass() || Auth::id() !== $media->model->created_by_user_id, 404);
+                    abort_if($media->model_type !== $mediaTemporaryUploadMorphClass || Auth::id() !== $media->model->created_by_user_id, 404);
 
                     $media = $this->beforeMediaUpload($media, $model, $collectionName);
 

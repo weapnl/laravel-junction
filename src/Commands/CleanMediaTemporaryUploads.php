@@ -30,7 +30,9 @@ class CleanMediaTemporaryUploads extends Command
         $maxAgeInHours = $this->argument('hours');
         $cutOffDate = Carbon::now()->subHours((int) $maxAgeInHours)->format('Y-m-d H:i:s');
 
-        $mediaTemporaryUploads = MediaTemporaryUpload::query()
+        $model = config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class);
+
+        $mediaTemporaryUploads = $model::query()
             ->where('created_at', '<', $cutOffDate)
             ->get();
 

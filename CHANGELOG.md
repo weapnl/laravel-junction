@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added support for configuring a custom model for temporary media uploads via the `media_temporary_upload_model` config option.
 
 ## v0.4.8
 - Use resource class for store, update, and destroy responses, ensuring consistent output and applying availableAttributes and availableRelations filters.
