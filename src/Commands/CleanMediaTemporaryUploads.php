@@ -5,7 +5,7 @@ namespace Weap\Junction\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Weap\Junction\Models\MediaTemporaryUpload;
+use Weap\Junction\Junction;
 
 class CleanMediaTemporaryUploads extends Command
 {
@@ -30,7 +30,9 @@ class CleanMediaTemporaryUploads extends Command
         $maxAgeInHours = $this->argument('hours');
         $cutOffDate = Carbon::now()->subHours((int) $maxAgeInHours)->format('Y-m-d H:i:s');
 
-        $mediaTemporaryUploads = MediaTemporaryUpload::query()
+        $model = Junction::getMediaTemporaryUploadModel();
+
+        $mediaTemporaryUploads = $model::query()
             ->where('created_at', '<', $cutOffDate)
             ->get();
 

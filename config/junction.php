@@ -32,6 +32,11 @@ return [
              * To prefix the media upload endpoint.
              */
             'prefix' => '',
+
+            /*
+             * The model class used for temporary media uploads.
+             */
+            'media_temporary_upload_model' => \Weap\Junction\Models\MediaTemporaryUpload::class,
         ],
     ],
 

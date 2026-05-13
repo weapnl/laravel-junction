@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 use Weap\Junction\Http\Utilities\MediaFile;
-use Weap\Junction\Models\MediaTemporaryUpload;
+use Weap\Junction\Junction;
 
 trait HasMedia
 {
@@ -23,6 +23,9 @@ trait HasMedia
         if (! class_exists(Media::class) || ! config('media-library.media_model')) {
             return [];
         }
+
+        $mediaTemporaryUploadModel = Junction::getMediaTemporaryUploadModel();
+        $mediaTemporaryUploadMorphClass = (new $mediaTemporaryUploadModel())->getMorphClass();
 
         $mediaFiles = [];
 
@@ -49,7 +52,7 @@ trait HasMedia
                     /** @var Media $media */
                     $media = config('media-library.media_model')::findOrFail($uploadedFile->mediaId);
 
-                    abort_if($media->model_type !== (new MediaTemporaryUpload())->getMorphClass() || Auth::id() !== $media->model->created_by_user_id, 404);
+                    abort_if($media->model_type !== $mediaTemporaryUploadMorphClass || Auth::id() !== $media->model->created_by_user_id, 404);
 
                     $media = $this->beforeMediaUpload($media, $model, $collectionName);
 
