@@ -478,10 +478,25 @@ The `_media` key can also be nested within the request body, for example, inside
 In this example, when creating a new `Employee`, media ID 3 will be attached to the `ProfilePicture` collection within the `contact` relationship of the new `Employee`.
 
 #### Using a Custom Temporary Upload Model
-By default, temporary uploads are stored on the `Weap\Junction\Models\MediaTemporaryUpload` model. If you need extra columns, relations or behavior on the temporary upload (for example a custom `created_by` relation, soft deletes, or your own table), you can swap in your own model via the `junction.route.media.media_temporary_upload_model` config value:
+By default, temporary uploads use the `Weap\Junction\Models\MediaTemporaryUpload` model and the `media_temporary_uploads` table. If you need extra columns, relations or other behavior on the temporary upload record, you can swap in your own model.
+
+**1. Create a subclass of `MediaTemporaryUpload`:**
 
 ```php
-// config/junction.php
+// app/Models/MyMediaTemporaryUpload.php
+namespace App\Models;
+
+use Weap\Junction\Models\MediaTemporaryUpload;
+
+class MyMediaTemporaryUpload extends MediaTemporaryUpload
+{
+    // Add your custom columns, relations, casts, scopes, etc.
+}
+```
+
+**2. Register it in `config/junction.php`:**
+
+```php
 'route' => [
     'media' => [
         // ...
@@ -490,8 +505,4 @@ By default, temporary uploads are stored on the `Weap\Junction\Models\MediaTempo
 ],
 ```
 
-Your custom model must:
-- Implement `Spatie\MediaLibrary\HasMedia` and use the `Spatie\MediaLibrary\InteractsWithMedia` trait.
-- Expose a `created_by_user_id` column (used to verify ownership when attaching uploads).
-
-The same model is used by the `MediaTemporaryUploadController`, the `DefaultFormRequest` morph check, the `HasMedia` controller trait, and the `media:clean-media-temporary-uploads` command, so all four stay in sync automatically.
+Your subclass inherits the default table and the Spatie `HasMedia` integration, so no further setup is required. Once registered, Junction uses your model everywhere temporary uploads are read or written.
