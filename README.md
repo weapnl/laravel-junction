@@ -476,3 +476,22 @@ The `_media` key can also be nested within the request body, for example, inside
 ```
 
 In this example, when creating a new `Employee`, media ID 3 will be attached to the `ProfilePicture` collection within the `contact` relationship of the new `Employee`.
+
+#### Using a Custom Temporary Upload Model
+By default, temporary uploads are stored on the `Weap\Junction\Models\MediaTemporaryUpload` model. If you need extra columns, relations or behavior on the temporary upload (for example a custom `created_by` relation, soft deletes, or your own table), you can swap in your own model via the `junction.route.media.media_temporary_upload_model` config value:
+
+```php
+// config/junction.php
+'route' => [
+    'media' => [
+        // ...
+        'media_temporary_upload_model' => \App\Models\MyMediaTemporaryUpload::class,
+    ],
+],
+```
+
+Your custom model must:
+- Implement `Spatie\MediaLibrary\HasMedia` and use the `Spatie\MediaLibrary\InteractsWithMedia` trait.
+- Expose a `created_by_user_id` column (used to verify ownership when attaching uploads).
+
+The same model is used by the `MediaTemporaryUploadController`, the `DefaultFormRequest` morph check, the `HasMedia` controller trait, and the `media:clean-media-temporary-uploads` command, so all four stay in sync automatically.
