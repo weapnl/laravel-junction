@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Http\Utilities\MediaFile;
-use Weap\Junction\Models\MediaTemporaryUpload;
+use Weap\Junction\Junction;
 
 class DefaultFormRequest extends FormRequest
 {
@@ -52,7 +52,7 @@ class DefaultFormRequest extends FormRequest
      */
     private function prepareMedia(array $data): array
     {
-        $mediaTemporaryUploadModel = config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class);
+        $mediaTemporaryUploadModel = Junction::getMediaTemporaryUploadModel();
         $mediaTemporaryUploadMorphClass = (new $mediaTemporaryUploadModel())->getMorphClass();
 
         foreach ($data as $key => $value) {

@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Weap\Junction\Models\MediaTemporaryUpload;
+use Weap\Junction\Junction;
 
 class MediaTemporaryUploadController extends Controller
 {
@@ -15,7 +15,7 @@ class MediaTemporaryUploadController extends Controller
      */
     public function __construct()
     {
-        parent::__construct(config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class));
+        parent::__construct(Junction::getMediaTemporaryUploadModel());
     }
 
     /**
