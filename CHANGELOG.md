@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.5.0
 - Added support for configuring a custom model for temporary media uploads via the `media_temporary_upload_model` config option.
 
 ## v0.4.8
