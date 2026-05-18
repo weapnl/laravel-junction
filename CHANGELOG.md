@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Added support for ordering by relationship columns in the Order filter (e.g., `brand.code`, `user.name`).
+- Order filter now uses LEFT JOIN approach for relationship ordering to preserve all records.
 
 ## v0.5.0
 - Added support for configuring a custom model for temporary media uploads via the `media_temporary_upload_model` config option.
