@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.6.0
 - Bumped dependencies which fix vulnerability issues.
 
 ## v0.5.0
