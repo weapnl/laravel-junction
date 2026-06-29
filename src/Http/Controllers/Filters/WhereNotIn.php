@@ -56,7 +56,7 @@ class WhereNotIn extends Filter
         $relation = Table::getRelation($query->getModel()::class, $relationParts);
 
         $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $relation) {
-            $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $subQuery->from;
+            $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $subQuery->getModel()->getTable();
             $fullColumn = $tableName . '.' . $actualColumn;
 
             $subQuery->whereNotIn($fullColumn, $values);

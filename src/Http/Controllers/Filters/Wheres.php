@@ -61,7 +61,7 @@ class Wheres extends Filter
         $relation = Table::getRelation($query->getModel()::class, $columnParts);
 
         $query->whereHas($relationPath, function (Builder $innerQuery) use ($actualColumn, $operator, $value, $relation) {
-            $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $innerQuery->from;
+            $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $innerQuery->getModel()->getTable();
             $fullColumn = $tableName . '.' . $actualColumn;
 
             static::applyWhere($innerQuery, $fullColumn, $operator, $value);
