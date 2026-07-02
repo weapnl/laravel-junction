@@ -58,7 +58,7 @@ class Search extends Filter
                 $relation = Table::getRelation($query->getModel()::class, [$relationName]);
 
                 $query->orWhereHas($relationName, function (Builder $query) use ($relationColumns, $relation, $searchValue) {
-                    $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $query->from;
+                    $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $query->getModel()->getTable();
 
                     $query->where(function (Builder $query) use ($relationColumns, $tableName, $searchValue) {
                         self::searchColumnQuery($query, $relationColumns, $tableName, $searchValue);

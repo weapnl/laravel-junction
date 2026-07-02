@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed a bug where filtering through a self-referential relation (search, where, whereIn, whereNotIn) generated invalid SQL, because the related model's aliased table name (`table as alias`) was used as a column prefix instead of the alias.
 
 ## v0.6.0
 - Bumped dependencies which fix vulnerability issues.
