@@ -1,2 +1,5 @@
+build
 .idea/
-/vendor
+.phpunit.cache/
+.phpunit.result.cache
+vendor
