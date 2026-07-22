@@ -5,9 +5,11 @@
 - Added `pestphp/pest`, `pestphp/pest-plugin-laravel` and `orchestra/testbench` composer packages for testing.
 - Added config for Pest and Orchestra Testbench to support writing tests.
 - Added github action to run pest tests.
+- Added native parameter, return, and property type declarations (and stricter PHPDoc generics) throughout the package.
 
 ### ⚠️ Breaking changes ⚠️
 - Removed support for `laravel/framework` versions 8, 9, 10 and 11. The minimum version is now 12.
+- Type declarations were added to overridable methods and properties. If you extend `Controller`, its CRUD traits (`HasIndex`, `HasShow`, `HasStore`, `HasUpdate`, `HasDestroy`), `BaseResource`, or the `Response`/`Item`/`Items` objects, overridden signatures and redeclared properties may need updating — and the `beforeIndex`, `afterIndex`, `beforeShow` and `afterShow` hooks no longer receive their argument by reference. See the [upgrade guide](UPGRADE.md) for the full list of changed signatures.
 
 ## v0.6.1
 - Fixed a bug where filtering through a self-referential relation (search, where, whereIn, whereNotIn) generated invalid SQL, because the related model's aliased table name (`table as alias`) was used as a column prefix instead of the alias.

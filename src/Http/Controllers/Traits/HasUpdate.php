@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 use Weap\Junction\Http\Controllers\Helpers\Database;
@@ -13,11 +14,11 @@ trait HasUpdate
 {
     /**
      * @param int|string|Model $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      *
      * @throws Throwable
      */
-    public function update($id)
+    public function update(int|string|Model $id): JsonResponse
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -59,22 +60,22 @@ trait HasUpdate
 
     /**
      * @param Model $model
-     * @param array $validAttributes
-     * @param array $invalidAttributes
-     * @return array
+     * @param array<string, mixed> $validAttributes
+     * @param array<string, mixed> $invalidAttributes
+     * @return array<string, mixed>
      */
-    public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes)
+    public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes): array
     {
         return $validAttributes;
     }
 
     /**
      * @param Model $model
-     * @param array $validAttributes
-     * @param array $invalidAttributes
+     * @param array<string, mixed> $validAttributes
+     * @param array<string, mixed> $invalidAttributes
      * @return Model
      */
-    public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes)
+    public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes): Model
     {
         return $model;
     }

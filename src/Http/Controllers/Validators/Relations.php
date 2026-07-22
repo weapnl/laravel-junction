@@ -15,12 +15,12 @@ class Relations
      * Ex. `['relation' => function($query){ return $query; }]`
      *
      * @param Controller $controller
-     * @param array $relations
-     * @return array
+     * @param array<int|string, mixed> $relations
+     * @return array<int|string, mixed>
      *
      * @throws ValidationException
      */
-    public static function validate(Controller $controller, array $relations)
+    public static function validate(Controller $controller, array $relations): array
     {
         $relations = collect($relations);
 

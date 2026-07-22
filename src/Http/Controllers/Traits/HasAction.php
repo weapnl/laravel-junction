@@ -2,6 +2,7 @@
 
 namespace Weap\Junction\Http\Controllers\Traits;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -12,11 +13,11 @@ use Weap\Junction\Http\Controllers\Helpers\Database;
 trait HasAction
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return mixed
      *
      * @throws Throwable
      */
-    public function action()
+    public function action(): mixed
     {
         request()->validate([
             'action' => [
@@ -25,7 +26,7 @@ trait HasAction
             ],
         ]);
 
-        $actionMethod = $this->getActionMethod(request()->action);
+        $actionMethod = $this->getActionMethod((string) request()->action);
         $requiresModel = $this->actionRequiresModel($actionMethod);
 
         if ($requiresModel) {
@@ -52,13 +53,13 @@ trait HasAction
     }
 
     /**
-     * @param $name
-     * @return \Illuminate\Support\Stringable
+     * @param string $name
+     * @return string|null
      */
-    protected function getActionMethod($name)
+    protected function getActionMethod(string $name): ?string
     {
-        $exists = (bool) $this->getActions()->first(function ($action) use ($name) {
-            return $action == $name;
+        $exists = (bool) $this->getActions()->first(function (string $action) use ($name) {
+            return $action === $name;
         });
 
         return $exists
@@ -67,19 +68,19 @@ trait HasAction
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection<int, string>
      */
-    protected function getActions()
+    protected function getActions(): Collection
     {
-        return $this->getActionMethods()->map(function ($method) {
+        return $this->getActionMethods()->map(function (string $method) {
             return (string) Str::of($method)->remove('action')->camel();
         });
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection<int, non-falsy-string>
      */
-    protected function getActionMethods()
+    protected function getActionMethods(): Collection
     {
         return collect(get_class_methods($this))->filter(function ($method) {
             return Str::of($method)->startsWith('action')

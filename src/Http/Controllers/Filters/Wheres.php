@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use RuntimeException;
@@ -14,7 +15,7 @@ class Wheres extends Filter
 {
     /**
      * @param Controller $controller
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      *
      * @throws Exception
      */
@@ -40,7 +41,7 @@ class Wheres extends Filter
     }
 
     /**
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      * @param string $column
      * @param string $operator
      * @param mixed $value
@@ -69,13 +70,13 @@ class Wheres extends Filter
     }
 
     /**
-     * @param $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      * @param string $column
      * @param string $operator
      * @param mixed $value
      * @return void
      */
-    protected static function applyWhere($query, string $column, string $operator, mixed $value): void
+    protected static function applyWhere(Builder|Relation $query, string $column, string $operator, mixed $value): void
     {
         if ($value === null) {
             if (in_array($operator, ['!=', 'IS NOT'], true)) {

@@ -23,7 +23,7 @@ class ResourceRegistrar extends BaseResourceRegistrar
      * @param string $name
      * @param string $base
      * @param string $controller
-     * @param array $options
+     * @param array<string, mixed> $options
      * @return Route
      */
     protected function addResourceIndexPost(string $name, string $base, string $controller, array $options): Route
@@ -44,7 +44,7 @@ class ResourceRegistrar extends BaseResourceRegistrar
      * @param string $name
      * @param string $base
      * @param string $controller
-     * @param array $options
+     * @param array<string, mixed> $options
      * @return Route
      */
     protected function addResourceShowPost(string $name, string $base, string $controller, array $options): Route
@@ -65,7 +65,7 @@ class ResourceRegistrar extends BaseResourceRegistrar
      * @param string $name
      * @param string $base
      * @param string $controller
-     * @param array $options
+     * @param array<string, mixed> $options
      * @return Route
      */
     public function addResourceAction(string $name, string $base, string $controller, array $options): Route

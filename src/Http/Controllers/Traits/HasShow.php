@@ -26,7 +26,7 @@ trait HasShow
      *
      * @throws Exception
      */
-    public function show($id)
+    public function show(int|string|Model $id): BaseResource
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -74,9 +74,9 @@ trait HasShow
     }
 
     /**
-     * @param Builder $query
+     * @param Builder<Model> $query
      */
-    public function beforeShow(Builder &$query)
+    public function beforeShow(Builder $query): void
     {
         //
     }
@@ -84,7 +84,7 @@ trait HasShow
     /**
      * @param Item $item
      */
-    public function afterShow(Item &$item)
+    public function afterShow(Item $item): void
     {
         //
     }

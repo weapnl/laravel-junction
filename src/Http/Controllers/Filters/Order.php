@@ -3,6 +3,7 @@
 namespace Weap\Junction\Http\Controllers\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use RuntimeException;
 use Weap\Junction\Http\Controllers\Controller;
@@ -11,7 +12,7 @@ class Order extends Filter
 {
     /**
      * @param Controller $controller
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {

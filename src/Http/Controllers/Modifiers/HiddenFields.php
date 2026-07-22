@@ -29,7 +29,7 @@ class HiddenFields extends Modifier
 
     /**
      * @param Model $model
-     * @param array $hiddenFields
+     * @param array<int, string> $hiddenFields
      */
     public static function traverse(Model $model, array $hiddenFields): void
     {

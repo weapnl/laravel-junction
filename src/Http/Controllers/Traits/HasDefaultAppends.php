@@ -7,7 +7,7 @@ trait HasDefaultAppends
     /**
      * Add this trait to your model if you want to include all accessors defined in `$appends` in the response.
      *
-     * @return array
+     * @return array<int, string>
      */
     public static function defaultAppends(): array
     {

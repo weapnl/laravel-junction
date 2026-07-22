@@ -8,12 +8,12 @@ use Illuminate\Routing\Controller;
 class RelationExtension
 {
     /**
-     * @var array<Closure(array<string, Closure>|array<string>, Controller): array<string, Closure>|array<string>>
+     * @var array<Closure(array<string, Closure>|array<string>, Controller): (array<string, Closure>|array<string>|null)>
      */
     protected array $closures = [];
 
     /**
-     * @param Closure(array<string, Closure>|array<string>, Controller): array<string, Closure>|array<string> $closure
+     * @param Closure(array<string, Closure>|array<string>, Controller): (array<string, Closure>|array<string>|null) $closure
      * @return static
      */
     public function add(Closure $closure): static

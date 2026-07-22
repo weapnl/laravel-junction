@@ -3,6 +3,7 @@
 namespace Weap\Junction\Http\Controllers\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ trait HasIndex
      *
      * @throws Throwable
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         if ($this->usePolicy && ! Auth::user()->can('viewAny', $this->model)) {
             abort(403, 'Unauthorized');
@@ -39,7 +40,7 @@ trait HasIndex
             abort(400, 'Simple pagination is required for this resource.');
         }
 
-        /** @var Builder $query */
+        /** @var Builder<Model> $query */
         $query = $this->model::query();
 
         $this->beforeIndex($query);
@@ -80,9 +81,9 @@ trait HasIndex
     }
 
     /**
-     * @param Builder $query
+     * @param Builder<Model> $query
      */
-    public function beforeIndex(Builder &$query)
+    public function beforeIndex(Builder $query): void
     {
         //
     }
@@ -90,7 +91,7 @@ trait HasIndex
     /**
      * @param Items $items
      */
-    public function afterIndex(Items &$items)
+    public function afterIndex(Items $items): void
     {
         //
     }

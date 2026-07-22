@@ -9,8 +9,8 @@ class Scopes
 {
     /**
      * @param Controller $controller
-     * @param array $scopes
-     * @return array
+     * @param array<int, array<string, mixed>> $scopes
+     * @return array<int, array<string, mixed>>
      *
      * @throws ValidationException
      */

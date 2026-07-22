@@ -4,6 +4,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Weap\Junction\Http\Controllers\Controller;
@@ -13,7 +14,7 @@ class WhereNotIn extends Filter
 {
     /**
      * @param Controller $controller
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      *
      * @throws Exception
      */
@@ -35,9 +36,9 @@ class WhereNotIn extends Filter
     }
 
     /**
-     * @param Builder $query
+     * @param Builder<Model> $query
      * @param string $column
-     * @param array $values
+     * @param array<int|string, mixed> $values
      */
     protected static function traverse(Builder $query, string $column, array $values): void
     {

@@ -13,25 +13,25 @@ use Weap\Junction\Http\Controllers\Response\Items;
 class BaseResource extends JsonResource
 {
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected ?array $pluckAttributes = null;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected ?array $pluckAccessors = null;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected ?array $pluckRelations = null;
 
     /**
      * @param Items $items
-     * @param array|null $pluckAttributes
-     * @param array|null $pluckAccessors
-     * @param array|null $pluckRelations
+     * @param array<string, mixed>|null $pluckAttributes
+     * @param array<string, mixed>|null $pluckAccessors
+     * @param array<string, mixed>|null $pluckRelations
      * @return AnonymousResourceCollection
      */
     public static function items(Items $items, ?array $pluckAttributes = null, ?array $pluckAccessors = null, ?array $pluckRelations = null): AnonymousResourceCollection
@@ -54,10 +54,10 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * @param array|null $pluckAttributes
-     * @param array|null $pluckAccessors
-     * @param array|null $pluckRelations
-     * @return $this
+     * @param array<string, mixed>|null $pluckAttributes
+     * @param array<string, mixed>|null $pluckAccessors
+     * @param array<string, mixed>|null $pluckRelations
+     * @return static
      */
     public function pluckFields(?array $pluckAttributes = null, ?array $pluckAccessors = null, ?array $pluckRelations = null): static
     {
@@ -72,7 +72,7 @@ class BaseResource extends JsonResource
      * Transform the resource into an array.
      *
      * @param Request $request
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
@@ -89,7 +89,7 @@ class BaseResource extends JsonResource
 
     /**
      * @param Request $request
-     * @return array
+     * @return array<string, mixed>
      */
     protected function relationsToArray(Request $request): array
     {
@@ -137,7 +137,7 @@ class BaseResource extends JsonResource
 
     /**
      * @param Request $request
-     * @return array
+     * @return array<string, mixed>
      */
     protected function attributesToArray(Request $request): array
     {
@@ -166,7 +166,7 @@ class BaseResource extends JsonResource
 
     /**
      * @param Request $request
-     * @return array
+     * @return array<string, mixed>
      */
     protected function accessorsToArray(Request $request): array
     {
@@ -201,7 +201,7 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * @return array|null
+     * @return array<int, string>|null
      */
     protected function availableAttributes(): ?array
     {
@@ -209,7 +209,7 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * @return array|null
+     * @return array<int, string>|null
      */
     protected function availableAccessors(): ?array
     {
@@ -217,7 +217,7 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * @return array|null
+     * @return array<string, class-string<BaseResource>>|null
      */
     protected function availableRelations(): ?array
     {

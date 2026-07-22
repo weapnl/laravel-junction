@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Filters;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class Relations extends Filter
 {
     /**
      * @param Controller $controller
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
@@ -46,29 +47,30 @@ class Relations extends Filter
     }
 
     /**
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      * @param string $relation
-     * @param array|Closure|int $nestedRelations
-     * @param array $relationFilters
+     * @param array<int|string, mixed>|Closure|int $nestedRelations
+     * @param array<string, callable|null> $relationFilters
      * @return void
      */
     protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations, array $relationFilters): void
     {
-        $relationFilters = array_filter(Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation) => Str::startsWith($filterRelation, $relation) ? [Str::after($filterRelation, $relation) => $closure] : [$filterRelation => null]));
+        $relationFilters = array_filter(Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation): array => Str::startsWith($filterRelation, $relation) ? [Str::after($filterRelation, $relation) => $closure] : [$filterRelation => null]));
 
-        $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relation, $relationFilters) {
+        $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relationFilters) {
             $nestedRelations = is_array($nestedRelations) ? $nestedRelations : [$nestedRelations];
 
-            $currentRelationFilters = Arr::where($relationFilters, fn ($closure, $filterRelation) => ! Str::startsWith($filterRelation, '.'));
+            $currentRelationFilters = Arr::where($relationFilters, fn ($closure, $filterRelation): bool => ! Str::startsWith($filterRelation, '.'));
 
             foreach ($currentRelationFilters as $currentRelationFilter) {
                 $currentRelationFilter($query);
             }
 
-            $remainingRelationFilters = Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation) => Str::startsWith($filterRelation, '.') ? [Str::after($filterRelation, '.') => $closure] : [$filterRelation => null]);
+            $remainingRelationFilters = Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation): array => Str::startsWith($filterRelation, '.') ? [Str::after($filterRelation, '.') => $closure] : [$filterRelation => null]);
 
             foreach (is_array($nestedRelations) ? $nestedRelations : [] as $nestedRelation => $nestedRelations) {
                 if (is_string($nestedRelation)) {
+                    /** @var Builder<Model>|Relation<Model, Model, mixed> $query */
                     static::addWith($query, $nestedRelation, $nestedRelations, $remainingRelationFilters);
                 } elseif (is_callable($nestedRelations)) {
                     $nestedRelations($query);
@@ -79,10 +81,10 @@ class Relations extends Filter
 
     /**
      * @param class-string $modelClass
-     * @param array $accessors
-     * @return array
+     * @param array<string, mixed> $accessors
+     * @return array<string, mixed>
      */
-    protected static function getAccessorRelations(string $modelClass, array $accessors)
+    protected static function getAccessorRelations(string $modelClass, array $accessors): array
     {
         $relations = [];
 

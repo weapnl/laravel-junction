@@ -14,9 +14,9 @@ class Item extends Response
 
     /**
      * @param Model $model
-     * @return static
+     * @return self
      */
-    public static function model(Model $model)
+    public static function model(Model $model): self
     {
         $item = new self();
 
@@ -27,9 +27,9 @@ class Item extends Response
 
     /**
      * @param Closure $param
-     * @return $this
+     * @return static
      */
-    public function modify(Closure $param): self
+    public function modify(Closure $param): static
     {
         $param($this->model);
 

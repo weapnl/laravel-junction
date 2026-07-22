@@ -12,7 +12,7 @@ class MediaTemporaryUpload extends Model implements HasMedia
     use InteractsWithMedia;
 
     /**
-     * @return BelongsTo
+     * @return BelongsTo<Model, $this>
      */
     public function createdBy(): BelongsTo
     {

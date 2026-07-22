@@ -45,10 +45,11 @@ composer require weapnl/laravel-junction dev-main
 
 
 ## Quick Start
+
 ```php
-// app/Http/Controllers/Api/UserController.php
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Database\Eloquent\Model;
 use Weap\Junction\Http\Controllers\Controller;
 
 class UserController extends Controller
@@ -56,14 +57,20 @@ class UserController extends Controller
     /**
      * The class name of the model for which the controller should implement CRUD actions.
      *
-     * @var string
+     * @var class-string<Model>
      */
-    public $model = User::class;
+    public string $model = User::class;
 
     /**
-     * Define the relations which can be loaded in a request using "array" notation.
+     * Define the relations which can be loaded in a request using "dot" notation.
      *
-     * @return array
+     * Each entry is either:
+     * - a relation name (string value with an integer key).
+     * - a relation name mapped to a closure that constrains the relation's query (string key with a Closure value).
+     *
+     * Both forms may be mixed.
+     *
+     * @return array<int|string, string|Closure>
      */
     public function relations(): array
     {
@@ -88,9 +95,9 @@ To make the controller accessible through the api, you need to extend the `Weap\
 Defining the controller is pretty straightforward, check the [Quick start](#quick-start) section for a basic example. We will now go over some of the extra functionality.
 
 ```php
-// app/Http/Controllers/Api/UserController.php
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Database\Eloquent\Model;
 use Weap\Junction\Http\Controllers\Controller; // Make sure to import the Controller class from the Weap/Junction package.
 
 class UserController extends Controller
@@ -98,21 +105,27 @@ class UserController extends Controller
     /**
      * The class name of the model for which the controller should implement CRUD actions.
      *
-     * @var string
+     * @var class-string<Model>
      */
-    public $model = User::class;
-    
-    /**
-     * The class name of Resource to be used for the show and index methods.
-     *
-     * @var string $resource
-     */
-    public $resource = UserResource::class;
+    public string $model = User::class;
 
     /**
-     * Define the relations which can be loaded in a request using "array" notation.
+     * The class name of the resource to be used for the index and show methods.
      *
-     * @return array
+     * @var class-string<BaseResource>
+     */
+    public string $resource = UserResource::class;
+
+    /**
+     * Define the relations which can be loaded in a request using "dot" notation.
+     *
+     * Each entry is either:
+     * - a relation name (string value with an integer key).
+     * - a relation name mapped to a closure that constrains the relation's query (string key with a Closure value).
+     *
+     * Both forms may be mixed.
+     *
+     * @return array<int|string, string|Closure>
      */
     public function relations(): array
     {
@@ -199,7 +212,7 @@ This method should return an array containing relations (dot-notation is support
 
 **Note**: When using dot-notation, if a closure is given for one of the higher-level relations in your controller, that closure will be applied to the query. For example with relations implemented like below, loading the relation `user.activities`, will apply the `isAdmin` scope to the user query.
 ```php
-public function relations()
+public function relations(): array
 {
     return [
         'user' => fn ($query) => $query->isAdmin(),
@@ -299,7 +312,7 @@ Example:
 class UserResource extends BaseResource
 {
     /**
-     * @return array|null
+     * @return array<int, string>|null
      */
     protected function availableAttributes(): ?array
     {
@@ -309,7 +322,7 @@ class UserResource extends BaseResource
     }
 
     /**
-     * @return array|null
+     * @return array<int, string>|null
      */
     protected function availableAccessors(): ?array
     {
@@ -319,7 +332,7 @@ class UserResource extends BaseResource
     }
 
     /**
-     * @return array|null
+     * @return array<string, class-string<BaseResource>>|null
      */
     protected function availableRelations(): ?array
     {
@@ -336,7 +349,7 @@ Add the action method in your controller:
 
 ```php
 /**
- * @param null|Model $model
+ * @param Model|null $model
  */
 protected function actionSomeName($model = null)
 {
@@ -369,11 +382,11 @@ To validate the incoming request, you can create a `FormRequest` and extend the 
 To validate the request, create a request file for your model and add this to the controller.
 ```php
 /**
- * The class name of FormRequest to be used for the store and update methods.
+ * The class name of the form request to be used for the store and update methods.
  *
- * @var string
+ * @var class-string<FormRequest>
  */
-public $formRequest = ModelRequest::class;
+public string $formRequest = DefaultFormRequest::class;
 ```
 
 - Add rules to the `rules()` method in the `ModelRequest`.
@@ -381,9 +394,9 @@ public $formRequest = ModelRequest::class;
 /**
  * Get the validation rules that apply to the request.
  *
- * @return array
+ * @return array<string, mixed>
  */
-public function rules()
+public function rules(): array
 {
     return [
         'first_name' => 'required',
@@ -391,11 +404,11 @@ public function rules()
 }
 
 /**
- * Define validation rule messages for store and update requests.
+ * Define validation rule messages for the store and update methods.
  *
- * @return array
+ * @return array<string, string>
  */
-public function messages()
+public function messages(): array
 {
     return [
         'first_name.required' => 'The first name is required.',
@@ -407,11 +420,11 @@ public function messages()
 By default, only validated attributes are saved when calling store/update routes. To save fillable attributes instead, set the following on your controller:
 ```php
 /**
- * Set to true to save fillable instead of validated attributes in store/update methods.
+ * Set to true to save fillable instead of validated attributes in the store and update methods.
  *
  * @var bool
  */
-protected $saveFillable = true;
+public bool $saveFillable = true;
 ```
 
 ### Using Temporary Media Files with [Spatie Medialibrary](https://spatie.be/docs/laravel-medialibrary/v11/introduction)
