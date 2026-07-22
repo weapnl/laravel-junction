@@ -2,11 +2,12 @@
 
 ## Unreleased
 - Bumped `laravel/pint` composer dev package to `^1.29`.
-- Updated composer lockfile to prefer the lowest possible versions.
+- Added `pestphp/pest`, `pestphp/pest-plugin-laravel` and `orchestra/testbench` composer packages for testing.
+- Added config for Pest and Orchestra Testbench to support writing tests.
+- Added github action to run pest tests.
 
 ### ⚠️ Breaking changes ⚠️
 - Removed support for `laravel/framework` versions 8, 9, 10 and 11. The minimum version is now 12.
-
 
 ## v0.6.1
 - Fixed a bug where filtering through a self-referential relation (search, where, whereIn, whereNotIn) generated invalid SQL, because the related model's aliased table name (`table as alias`) was used as a column prefix instead of the alias.

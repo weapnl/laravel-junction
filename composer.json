@@ -1,32 +1,49 @@
 {
     "name": "weapnl/laravel-junction",
     "description": "Easily create a REST API with extended functionality, such as eager loading, searching, filtering, and more.",
+    "type": "library",
     "homepage": "https://github.com/weapnl/laravel-junction",
     "license": "MIT",
-    "type": "library",
     "authors": [
         {
             "name": "Robin",
             "email": "robin@weap.nl"
         }
     ],
-    "suggest": {
-        "spatie/laravel-medialibrary": "For using the temporary media upload functionality."
-    },
-    "minimum-stability": "dev",
-    "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist",
-        "sort-packages": true
-    },
-    "prefer-stable": true,
     "require": {
         "php": "^8.2",
         "ext-pdo": "*",
         "laravel/framework": "^12.0 || ^13.0"
     },
     "require-dev": {
-        "laravel/pint": "^1.29"
+        "laravel/pint": "^1.29",
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "pestphp/pest": "^3.0 || ^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0 || ^4.0",
+        "spatie/laravel-medialibrary": "^11.23"
+    },
+    "suggest": {
+        "spatie/laravel-medialibrary": "For using the temporary media upload functionality."
+    },
+    "autoload": {
+        "psr-4": {
+            "Weap\\Junction\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Weap\\Junction\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "sort-packages": true
     },
     "extra": {
         "laravel": {
@@ -35,9 +52,8 @@
             ]
         }
     },
-    "autoload": {
-        "psr-4": {
-            "Weap\\Junction\\": "src/"
-        }
+    "scripts": {
+        "format": "pint",
+        "test": "pest"
     }
 }
