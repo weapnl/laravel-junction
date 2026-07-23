@@ -215,7 +215,7 @@ This method should return an array containing relations (dot-notation is support
 public function relations(): array
 {
     return [
-        'user' => fn ($query) => $query->isAdmin(),
+        'user' => fn (Relation $query) => $query->isAdmin(),
         'user.activities',
     ];
 }
