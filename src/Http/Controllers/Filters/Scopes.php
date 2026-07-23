@@ -16,7 +16,7 @@ class Scopes extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $scopes = request()?->input('scopes');
+        $scopes = request()->input('scopes');
 
         if (! $scopes) {
             return;

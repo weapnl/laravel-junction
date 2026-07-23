@@ -60,9 +60,9 @@ trait HasShow
 
         $this->afterShow($item);
 
-        $pluckFields = request()?->getPluckFields();
-        $accessors = request()?->getAccessors();
-        $relations = request()?->getRelations();
+        $pluckFields = request()->getPluckFields();
+        $accessors = request()->getAccessors();
+        $relations = request()->getRelations();
 
         $this->resource::withoutWrapping();
 

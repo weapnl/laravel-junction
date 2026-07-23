@@ -16,7 +16,7 @@ class Order extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $orders = request()?->input('orders');
+        $orders = request()->input('orders');
 
         if (empty($orders)) {
             return;

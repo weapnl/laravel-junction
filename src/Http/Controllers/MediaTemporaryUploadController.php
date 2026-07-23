@@ -30,7 +30,8 @@ class MediaTemporaryUploadController extends Controller
             'files.*' => ['required', 'file'],
         ]);
 
-        $mediaTemporaryUpload = new $this->model();
+        $mediaTemporaryUploadModel = Junction::getMediaTemporaryUploadModel();
+        $mediaTemporaryUpload = new $mediaTemporaryUploadModel();
         $mediaTemporaryUpload->createdBy()->associate(Auth::user());
         $mediaTemporaryUpload->save();
 

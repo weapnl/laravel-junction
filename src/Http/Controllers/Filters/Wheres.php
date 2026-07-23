@@ -21,7 +21,7 @@ class Wheres extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $wheres = request()?->input('wheres');
+        $wheres = request()->input('wheres');
 
         if (! $wheres) {
             return;

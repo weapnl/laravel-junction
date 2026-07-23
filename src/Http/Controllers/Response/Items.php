@@ -42,11 +42,11 @@ class Items extends Response
 
     /**
      * @param Builder<Model> $query
-     * @return static
+     * @return self
      */
-    public static function query(Builder $query): static
+    public static function query(Builder $query): self
     {
-        $items = new static();
+        $items = new self();
 
         $items->query = $query;
 
@@ -83,7 +83,7 @@ class Items extends Response
     public function get(): static
     {
         $columns = [$this->query->getModel()->getTable() . '.*'];
-        $perPage = request()?->input('paginate');
+        $perPage = request()->input('paginate');
 
         $this->handleEnforceOrderByModelKey();
 
@@ -139,9 +139,9 @@ class Items extends Response
      */
     protected function page(int $perPage): ?int
     {
-        $page = request()?->input('page') ?: 1;
+        $page = request()->input('page') ?: 1;
 
-        $idToFind = request()?->input('page_for_id');
+        $idToFind = request()->input('page_for_id');
 
         if (! $idToFind) {
             return $page;

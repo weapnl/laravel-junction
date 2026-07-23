@@ -20,7 +20,7 @@ class WhereNotIn extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $whereNotIns = request()?->input('where_not_in');
+        $whereNotIns = request()->input('where_not_in');
 
         if (! $whereNotIns) {
             return;

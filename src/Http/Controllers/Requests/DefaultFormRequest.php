@@ -125,7 +125,7 @@ class DefaultFormRequest extends FormRequest
     }
 
     /**
-     * @param array<string, mixed> $array
+     * @param array<array-key, mixed> $array
      * @return bool
      */
     private function isValidMediaArray(array $array): bool

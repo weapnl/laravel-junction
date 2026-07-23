@@ -17,7 +17,7 @@ class Appends extends Modifier
      */
     public static function apply(Controller $controller, Response $response): void
     {
-        $appends = request()?->getAccessors();
+        $appends = request()->getAccessors();
 
         if (! $appends) {
             return;
@@ -50,11 +50,7 @@ class Appends extends Modifier
                     self::traverse($model->$relation, [$traversed->join('.')]);
                 }
             } else {
-                if ($model instanceof Enumerable) {
-                    $model->each->append($field);
-                } else {
-                    $model->append($field);
-                }
+                $model->append($field);
             }
         }
     }

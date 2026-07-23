@@ -122,25 +122,22 @@ protected static function applyWhere($query, /* ... */)  →  protected static f
 
 #### Response objects
 
-The methods on `Response`, `Item`, and `Items` now return `static` instead of `self`/`$this`. This is backwards compatible for callers, but if you extended these classes and overrode any of them, update the return type to `static`:
+The instance methods on `Response`, `Item`, and `Items` now return `static` instead of `self`/`$this`, and the `Item::model()` factory declares a return type where it previously had none. This is backwards compatible for callers, but if you extended these classes and overrode any of them, update the overridden return types to match:
 
 ```php
 // Response
 abstract public function modify(Closure $param): self  →  abstract public function modify(Closure $param): static
 
 // Item
-public static function model(Model $model)             →  public static function model(Model $model): static
+public static function model(Model $model)             →  public static function model(Model $model): self
 public function modify(Closure $param): self           →  public function modify(Closure $param): static
 
 // Items
-public static function query(Builder $query): Items    →  public static function query(Builder $query): static
 public function simplePagination(bool $s): Items       →  public function simplePagination(bool $simplePagination): static
 public function enforceOrderByModelKey(/* ... */): Items  →  public function enforceOrderByModelKey(bool $enforceOrderByModelKey, ?string $direction = 'asc'): static
 public function get(): self                            →  public function get(): static
 public function modify(Closure $param): self           →  public function modify(Closure $param): static
 ```
-
-> **Behavioural change:** `Item::model()` and `Items::query()` now instantiate `new static()` instead of `new self()`. If you extended `Item` or `Items`, these factories now return an instance of *your* subclass rather than the base class. This is what the docblocks always claimed; previously they silently returned the base class.
 
 `Items::page()` also takes a typed `int $perPage` now. It is `protected` and only called internally, so this only affects you if you overrode it.
 

@@ -15,7 +15,7 @@ class Limit extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $limit = request()?->input('limit');
+        $limit = request()->input('limit');
 
         if (! $limit) {
             return;
