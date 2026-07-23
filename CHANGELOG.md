@@ -10,6 +10,7 @@
 - Added native parameter, return, and property type declarations (and stricter PHPDoc generics) throughout the package.
 - Added `.gitattributes` (`export-ignore`) so dist tarballs no longer ship dev/CI files, and an `.editorconfig` for consistent formatting.
 - Config is now merged via `mergeConfigFrom()` and publishable under the `config` tag (`php artisan vendor:publish --tag=config`).
+- Added feature/unit tests for the whole codebase.
 
 ### ⚠️ Breaking changes ⚠️
 - Removed support for `laravel/framework` versions 8, 9, 10 and 11. The minimum version is now 12.

@@ -5,10 +5,13 @@ namespace Weap\Junction\Tests\TestSupport\Controllers;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Tests\TestSupport\Models\Post;
+use Weap\Junction\Tests\TestSupport\Requests\PostFormRequest;
 
 class PostController extends Controller
 {
     public string $model = Post::class;
+
+    public string $formRequest = PostFormRequest::class;
 
     /**
      * @return array<int|string, mixed>

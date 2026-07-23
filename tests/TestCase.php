@@ -10,11 +10,17 @@ use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\MediaLibrary\MediaLibraryServiceProvider;
 use Weap\Junction\JunctionServiceProvider;
+use Weap\Junction\Tests\TestSupport\Controllers\ActionPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\CommentController;
+use Weap\Junction\Tests\TestSupport\Controllers\FillablePostController;
 use Weap\Junction\Tests\TestSupport\Controllers\ForcedPaginationPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\GatedPostController;
+use Weap\Junction\Tests\TestSupport\Controllers\HookedPostController;
+use Weap\Junction\Tests\TestSupport\Controllers\MediaPostController;
+use Weap\Junction\Tests\TestSupport\Controllers\PolicyPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\PostController;
 use Weap\Junction\Tests\TestSupport\Controllers\TagController;
+use Weap\Junction\Tests\TestSupport\Controllers\ThrowingPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\UserController;
 use Weap\Junction\Tests\TestSupport\Models\User;
 
@@ -79,11 +85,17 @@ abstract class TestCase extends Orchestra
      */
     protected function defineRoutes($router): void
     {
+        $router->junctionResource('action-posts', ActionPostController::class);
         $router->junctionResource('comments', CommentController::class);
+        $router->junctionResource('fillable-posts', FillablePostController::class);
         $router->junctionResource('forced-posts', ForcedPaginationPostController::class);
         $router->junctionResource('gated-posts', GatedPostController::class);
+        $router->junctionResource('hooked-posts', HookedPostController::class);
+        $router->junctionResource('media-posts', MediaPostController::class);
+        $router->junctionResource('policy-posts', PolicyPostController::class);
         $router->junctionResource('posts', PostController::class);
         $router->junctionResource('tags', TagController::class);
+        $router->junctionResource('throwing-posts', ThrowingPostController::class);
         $router->junctionResource('users', UserController::class);
     }
 
@@ -129,6 +141,33 @@ abstract class TestCase extends Orchestra
             $table->foreignId('tag_id')->constrained();
             $table->string('label')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create('media_posts', function (Blueprint $table) {
+            $table->id();
+            $table->string('title')->nullable();
+            $table->timestamps();
+        });
+
+        // Mirrors spatie/laravel-medialibrary's create_media_table migration
+        // (shipped as a .stub, so it can't be loaded via loadMigrationsFrom).
+        Schema::create('media', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('model');
+            $table->uuid()->nullable()->unique();
+            $table->string('collection_name');
+            $table->string('name');
+            $table->string('file_name');
+            $table->string('mime_type')->nullable();
+            $table->string('disk');
+            $table->string('conversions_disk')->nullable();
+            $table->unsignedBigInteger('size');
+            $table->json('manipulations');
+            $table->json('custom_properties');
+            $table->json('generated_conversions');
+            $table->json('responsive_images');
+            $table->unsignedInteger('order_column')->nullable()->index();
+            $table->nullableTimestamps();
         });
     }
 }
