@@ -8,11 +8,33 @@
 - Added github action to run pest tests.
 - Added github action to run PHPStan static code analysis.
 - Added native parameter, return, and property type declarations (and stricter PHPDoc generics) throughout the package.
+- Added `.gitattributes` (`export-ignore`) so dist tarballs no longer ship dev/CI files, and an `.editorconfig` for consistent formatting.
+- Config is now merged recursively via `replaceConfigRecursivelyFrom()`, so the package works without publishing `config/junction.php` and a published file only needs to contain the values you override — nested keys it omits keep inheriting the package defaults.
+- `config/junction.php` is now the single source of truth for the default config values; the duplicated fallbacks that were passed as the second argument to `config()` throughout the package have been removed.
+- `Junction::getMediaTemporaryUploadModel()` now throws a clear `RuntimeException` when `junction.route.media.media_temporary_upload_model` is not a `MediaTemporaryUpload` class.
+- Documented how to publish the migration and the config file in the readme.
+- `Support\Database::*InTransactionIfEnabled()` are now generic, so they return the callback's own return type instead of `mixed`.
+- `Models\MediaTemporaryUpload::createdBy()` now throws a clear `RuntimeException` when `auth.providers.users.model` is not an Eloquent model class, instead of failing deeper inside Eloquent.
 
 ### ⚠️ Breaking changes ⚠️
 - Removed support for `laravel/framework` versions 8, 9, 10 and 11. The minimum version is now 12.
-- Type declarations were added to overridable methods and properties. If you extend `Controller`, its CRUD traits (`HasIndex`, `HasShow`, `HasStore`, `HasUpdate`, `HasDestroy`, `HasAction`), `DefaultFormRequest`, `BaseResource`, overridden signatures and redeclared properties may need updating — and the `beforeIndex`, `afterIndex`, `beforeShow` and `afterShow` hooks no longer receive their argument by reference. See the [upgrade guide](UPGRADE.md) for the full list of changed signatures.
+- Relocated classes for a cleaner structure (logic unchanged, namespaces only). Update your `use` statements if you reference them directly.
+    - Controller traits moved from `Http\Controllers\Traits\` to `Http\Controllers\Concerns\`;
+    - Form request moved from `Http\Controllers\Requests\DefaultFormRequest` to `Http\Requests\DefaultFormRequest`;
+    - Base resource moved from `Http\Controllers\Resources\BaseResource` to `Http\Resources\BaseResource`;
+    - Model trait moved from `Http\Controllers\Traits\HasDefaultAppends` to `Models\Concerns\HasDefaultAppends`;
+    - Helper classes moved from `Http\Controllers\Helpers\` moved to `Support\`;
+    - Media file value object moved from `Http\Utilities\MediaFile` to `Support\MediaFile`;
+    - Enum class moved from `Http\Controllers\Enums\DatabaseTransactionTypeEnum` moved to `Enums\` and was renamed to `DatabaseTransactionType` (dropped the redundant `Enum` suffix).
+- `Enums\DatabaseTransactionType` is now a string-backed enum (`Store = 'store'`, etc.), so the config keys it maps to are explicit instead of being derived from the case names.
+- The publish tags were renamed to avoid collisions with other packages: `migrations` is now `junction-migrations` and the config file is published with `junction-config`.
+- `Support\Database::storeInTransactionIfEnabled()`, `updateInTransactionIfEnabled()`, `destroyInTransactionIfEnabled()` and `actionInTransactionIfEnabled()` now accept a `Closure` instead of any `callable`. `DB::transaction()` already required a `Closure`, so passing another callable type only worked while transactions were disabled.
+- Type declarations were added to overridable methods and properties. If you extend `Controller`, its CRUD traits (`HasIndex`, `HasShow`, `HasStore`, `HasUpdate`, `HasDestroy`, `HasAction`), `DefaultFormRequest`, `BaseResource`, or the `Response`/`Item`/`Items` objects, overridden signatures and redeclared properties may need updating — and the `beforeIndex`, `afterIndex`, `beforeShow` and `afterShow` hooks no longer receive their argument by reference. See the [upgrade guide](UPGRADE.md) for the full list of changed signatures.
 - `Controller::$resource`, `Controller::$saveFillable` and `Controller::$forceSimplePagination` were widened from `protected` to `public`. Redeclaring them as `protected` in a subclass is a fatal error.
+- Removed the unused `Http\Controllers\Controller::rules()` and `Http\Controllers\Controller::messages()` methods.
+- Removed the deprecated `Support\Table::getRelationTableName()` and `Junction::resource()` methods.
+
+See the [upgrade guide](UPGRADE.md) for more information.
 
 ## v0.6.2
 - Changed laravel-pint GitHub action to use version from composer instead of always using the latest.

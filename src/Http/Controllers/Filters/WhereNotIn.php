@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\Table;
+use Weap\Junction\Support\Table;
 
 class WhereNotIn extends Filter
 {

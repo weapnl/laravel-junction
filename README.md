@@ -3,8 +3,29 @@
 This project allows you to easily create a REST API with Laravel. It has extended functionality, such as eager loading, searching, filtering, and more.
 
 ## Installation
+Junction can be installed via Composer:
+
 ```bash
 composer require weapnl/laravel-junction
+```
+
+### Preparing the database
+Junction ships a single migration, which creates the `media_temporary_uploads` table. You only need it if you use the [temporary media file](#using-temporary-media-files-with-spatie-medialibrary) functionality, which additionally requires the `spatie/laravel-medialibrary` package. Every other feature works without any migration.
+
+Publish the migration and run it:
+
+```bash
+php artisan vendor:publish --tag=junction-migrations
+php artisan migrate
+```
+
+The migration adds a `created_by_user_id` foreign key that constrains against the table of the model configured in `auth.providers.users.model`, so make sure your users table already exists when you run it.
+
+### Publishing the config file
+Publishing the config file is optional:
+
+```bash
+php artisan vendor:publish --tag=junction-config
 ```
 
 ### JS/TS Support
@@ -82,7 +103,7 @@ class UserController extends Controller
 
 ```php
 // routes/api.php
-Junction::apiResource('users', 'UserController');
+Route::junctionResource('users', UserController::class);
 ```
 
 You're all set and ready to go now. You can now perform requests to the `/api/users` endpoint. Try a post request to create a new user, or a get request to retrieve all users.
@@ -299,7 +320,7 @@ public $searchable = [
 ```
 
 ### Resources
-To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Controllers\Resources`.
+To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Resources\BaseResource`.
 
 This allows you to specify which attributes, accessors and relations will be returned. To do this, override the corresponding method:
 - `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is always included.
@@ -377,7 +398,7 @@ The default order direction is `asc`, but if you want it to use `desc`, update t
 ### Validation
 
 #### FormRequest validation
-To validate the incoming request, you can create a `FormRequest` and extend the `Weap\Junction\Http\Controllers\Requests\DefaultFormRequest` class. This class extends the default Laravel `FormRequest` class, and adds some extra functionality.
+To validate the incoming request, you can create a `FormRequest` and extend the `Weap\Junction\Http\Requests\DefaultFormRequest` class. This class extends the default Laravel `FormRequest` class, and adds some extra functionality.
 
 #### Standard validation
 To validate the request, create a request file for your model and add this to the controller.

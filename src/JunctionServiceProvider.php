@@ -18,23 +18,33 @@ class JunctionServiceProvider extends ServiceProvider
     /**
      * @return void
      */
+    public function register(): void
+    {
+        // Merged recursively so a published config file only has to contain the values it overrides,
+        // and keeps inheriting the package defaults for every nested key it does not mention.
+        $this->replaceConfigRecursivelyFrom(__DIR__ . '/../config/junction.php', 'junction');
+    }
+
+    /**
+     * @return void
+     */
     public function boot(): void
     {
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'migrations');
+        ], 'junction-migrations');
 
         $this->publishes([
             __DIR__ . '/../config/junction.php' => config_path('junction.php'),
-        ]);
+        ], 'junction-config');
 
         $this->commands([
             CleanMediaTemporaryUploads::class,
         ]);
 
-        if (class_exists(Media::class) && config('junction.route.media.enabled', true)) {
-            Route::middleware(config('junction.route.media.middleware', ['api']))
-                ->prefix(config('junction.route.media.prefix', ''))
+        if (class_exists(Media::class) && config()->boolean('junction.route.media.enabled')) {
+            Route::middleware(config('junction.route.media.middleware'))
+                ->prefix(config('junction.route.media.prefix'))
                 ->group(__DIR__ . '/../routes/media_library.php');
         }
 
@@ -53,9 +63,7 @@ class JunctionServiceProvider extends ServiceProvider
     protected function bootRouteMacros(): void
     {
         Route::macro('junctionResource', function ($name, $controller, array $options = []) {
-            $defaults = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action'];
-
-            $only = $options['only'] ?? $defaults;
+            $only = $options['only'] ?? ResourceRegistrar::DEFAULT_METHODS;
 
             if (isset($options['except'])) {
                 $only = array_diff($only, (array) $options['except']);

@@ -3,30 +3,25 @@
 namespace Weap\Junction;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Facades\Route;
+use RuntimeException;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
 class Junction
 {
     /**
      * @return class-string<MediaTemporaryUpload>
+     *
+     * @throws RuntimeException
      */
     public static function getMediaTemporaryUploadModel(): string
     {
-        return config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class);
-    }
+        $model = config('junction.route.media.media_temporary_upload_model');
 
-    /**
-     * @param string $uri
-     * @param class-string $controller
-     * @param array<int, string> $only
-     * @return void
-     *
-     * @deprecated Replaced by Route::junctionResource().
-     */
-    public static function resource(string $uri, string $controller, array $only = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action']): void
-    {
-        Route::junctionResource($uri, $controller)->only($only);
+        if (! is_string($model) || ! is_a($model, MediaTemporaryUpload::class, true)) {
+            throw new RuntimeException('The [junction.route.media.media_temporary_upload_model] config value must be a ' . MediaTemporaryUpload::class . ' class.');
+        }
+
+        return $model;
     }
 
     /**

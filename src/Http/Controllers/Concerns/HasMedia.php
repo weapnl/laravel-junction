@@ -1,13 +1,13 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Traits;
+namespace Weap\Junction\Http\Controllers\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
-use Weap\Junction\Http\Utilities\MediaFile;
 use Weap\Junction\Junction;
+use Weap\Junction\Support\MediaFile;
 
 trait HasMedia
 {
