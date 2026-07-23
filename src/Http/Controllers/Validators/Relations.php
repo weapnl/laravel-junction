@@ -28,7 +28,7 @@ class Relations
             return [];
         }
 
-        $availableRelations = app(RelationExtension::class)->call($controller->relations() ?? [], $controller);
+        $availableRelations = app(RelationExtension::class)->call($controller->relations(), $controller);
 
         if ($availableRelations == ['*']) {
             return $relations->all();

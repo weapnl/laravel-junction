@@ -20,7 +20,7 @@ class WhereIn extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $whereIns = request()?->input('where_in');
+        $whereIns = request()->input('where_in');
 
         if (! $whereIns) {
             return;

@@ -1,0 +1,17 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+
+    paths:
+        - config
+        - database
+        - src
+
+    checkOctaneCompatibility: true
+    treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        - identifier: trait.unused
+          path: src/Http/Controllers/Traits/HasDefaultAppends.php

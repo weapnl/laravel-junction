@@ -40,6 +40,7 @@ trait HasStore
             );
 
             $model->save();
+
             $this->attachMedia($model, $validAttributes);
 
             return $this->afterStore($model, $validAttributes, $invalidAttributes);

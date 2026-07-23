@@ -23,7 +23,7 @@ class Relations extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $relations = request()?->getRelations();
+        $relations = request()->getRelations();
 
         RelationsValidator::validate($controller, $relations ?: []);
 
@@ -31,10 +31,10 @@ class Relations extends Filter
 
         $accessorRelations = static::getAccessorRelations(
             $query->getModel()::class,
-            collect(request()?->getAccessors())->flip()->undot()->all()
+            collect(request()->getAccessors())->flip()->undot()->all()
         );
 
-        $relationFilters = collect(app(RelationExtension::class)->call($controller->relations() ?? [], $controller))
+        $relationFilters = collect(app(RelationExtension::class)->call($controller->relations(), $controller))
             ->mapWithKeys(fn ($closure, $relation) => [$relation => is_callable($closure) ? $closure : null])
             ->filter()
             ->all();
@@ -68,7 +68,7 @@ class Relations extends Filter
 
             $remainingRelationFilters = Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation): array => Str::startsWith($filterRelation, '.') ? [Str::after($filterRelation, '.') => $closure] : [$filterRelation => null]);
 
-            foreach (is_array($nestedRelations) ? $nestedRelations : [] as $nestedRelation => $nestedRelations) {
+            foreach ($nestedRelations as $nestedRelation => $nestedRelations) {
                 if (is_string($nestedRelation)) {
                     /** @var Builder<Model>|Relation<Model, Model, mixed> $query */
                     static::addWith($query, $nestedRelation, $nestedRelations, $remainingRelationFilters);

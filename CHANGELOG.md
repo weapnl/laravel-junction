@@ -3,8 +3,10 @@
 ## Unreleased
 - Bumped `laravel/pint` composer dev package to `^1.29`.
 - Added `pestphp/pest`, `pestphp/pest-plugin-laravel` and `orchestra/testbench` composer packages for testing.
+- Added `larastan/larastan` and `phpstan/extension-installer` composer packages for static code analysis.
 - Added config for Pest and Orchestra Testbench to support writing tests.
 - Added github action to run pest tests.
+- Added github action to run PHPStan static code analysis.
 - Added native parameter, return, and property type declarations (and stricter PHPDoc generics) throughout the package.
 
 ### ⚠️ Breaking changes ⚠️

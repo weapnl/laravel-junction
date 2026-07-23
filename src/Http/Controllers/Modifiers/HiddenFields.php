@@ -16,7 +16,7 @@ class HiddenFields extends Modifier
      */
     public static function apply(Controller $controller, Response $response): void
     {
-        $hiddenFields = request()?->input('hidden_fields');
+        $hiddenFields = request()->input('hidden_fields');
 
         if (! $hiddenFields) {
             return;
@@ -46,8 +46,6 @@ class HiddenFields extends Modifier
                 } elseif ($model->$relation instanceof Model) {
                     self::traverse($model->$relation, [$traversed->join('.')]);
                 }
-            } elseif ($model instanceof Enumerable) {
-                $model->each->makeHidden($field);
             } else {
                 $model->makeHidden($field);
             }
