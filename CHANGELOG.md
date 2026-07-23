@@ -8,10 +8,23 @@
 - Added github action to run pest tests.
 - Added github action to run PHPStan static code analysis.
 - Added native parameter, return, and property type declarations (and stricter PHPDoc generics) throughout the package.
+- Added `.gitattributes` (`export-ignore`) so dist tarballs no longer ship dev/CI files, and an `.editorconfig` for consistent formatting.
+- Config is now merged via `mergeConfigFrom()` and publishable under the `config` tag (`php artisan vendor:publish --tag=config`).
 
 ### ⚠️ Breaking changes ⚠️
 - Removed support for `laravel/framework` versions 8, 9, 10 and 11. The minimum version is now 12.
+- Relocated classes for a cleaner structure (logic unchanged, namespaces only). Update your `use` statements if you reference them directly.
+    - Controller traits moved from `Http\Controllers\Traits\` to `Http\Controllers\Concerns\`;
+    - Form request moved from `Http\Controllers\Requests\DefaultFormRequest` to `Http\Requests\DefaultFormRequest`;
+    - Base resource moved from `Http\Controllers\Resources\BaseResource` to `Http\Resources\BaseResource`;
+    - Model trait moved from `Http\Controllers\Traits\HasDefaultAppends` to `Models\Concerns\HasDefaultAppends`;
+    - Helper classes moved from `Http\Controllers\Helpers\` moved to `Support\`;
+    - Enum class moved from `Http\Controllers\Enums\DatabaseTransactionTypeEnum` moved to `Enums\` and was renamed to `DatabaseTransactionType` (dropped the redundant `Enum` suffix).
 - Type declarations were added to overridable methods and properties. If you extend `Controller`, its CRUD traits (`HasIndex`, `HasShow`, `HasStore`, `HasUpdate`, `HasDestroy`), `BaseResource`, or the `Response`/`Item`/`Items` objects, overridden signatures and redeclared properties may need updating — and the `beforeIndex`, `afterIndex`, `beforeShow` and `afterShow` hooks no longer receive their argument by reference. See the [upgrade guide](UPGRADE.md) for the full list of changed signatures.
+- Removed the unused `Http\Controllers\Controller::rules()` and `Http\Controllers\Controller::messages()` methods.
+- Removed the deprecated `Support\Table::getRelationTableName()` and `Junction::resource()` methods.
+
+See the [upgrade guide](UPGRADE.md) for more information.
 
 ## v0.6.1
 - Fixed a bug where filtering through a self-referential relation (search, where, whereIn, whereNotIn) generated invalid SQL, because the related model's aliased table name (`table as alias`) was used as a column prefix instead of the alias.

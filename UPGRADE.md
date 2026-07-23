@@ -6,6 +6,44 @@
 
 - Laravel 12 or higher
 
+### Moved and renamed classes
+
+Several classes were relocated to give the package a cleaner structure, and one enum lost its redundant `Enum` suffix. The class logic is unchanged — only the namespaces moved. Update any `use` statements (and `extends`/`class-string` references) that point at the old locations:
+
+```php
+// Controller traits moved from `Traits` to `Concerns`
+Weap\Junction\Http\Controllers\Traits\HasAction         →  Weap\Junction\Http\Controllers\Concerns\HasAction
+Weap\Junction\Http\Controllers\Traits\HasIndex          →  Weap\Junction\Http\Controllers\Concerns\HasIndex
+Weap\Junction\Http\Controllers\Traits\HasShow           →  Weap\Junction\Http\Controllers\Concerns\HasShow
+Weap\Junction\Http\Controllers\Traits\HasStore          →  Weap\Junction\Http\Controllers\Concerns\HasStore
+Weap\Junction\Http\Controllers\Traits\HasUpdate         →  Weap\Junction\Http\Controllers\Concerns\HasUpdate
+Weap\Junction\Http\Controllers\Traits\HasDestroy        →  Weap\Junction\Http\Controllers\Concerns\HasDestroy
+Weap\Junction\Http\Controllers\Traits\HasMedia          →  Weap\Junction\Http\Controllers\Concerns\HasMedia
+
+// Form request and resource lifted out of `Http\Controllers` into the standard `Http` layer
+Weap\Junction\Http\Controllers\Requests\DefaultFormRequest  →  Weap\Junction\Http\Requests\DefaultFormRequest
+Weap\Junction\Http\Controllers\Resources\BaseResource       →  Weap\Junction\Http\Resources\BaseResource
+
+// Model trait moved next to models
+Weap\Junction\Http\Controllers\Traits\HasDefaultAppends  →  Weap\Junction\Models\Concerns\HasDefaultAppends
+
+// Supporting classes moved out of `Http\Controllers`
+Weap\Junction\Http\Controllers\Helpers\Database  →  Weap\Junction\Support\Database
+Weap\Junction\Http\Controllers\Helpers\Table     →  Weap\Junction\Support\Table
+
+// Enum moved and renamed (dropped the redundant `Enum` suffix)
+Weap\Junction\Http\Controllers\Enums\DatabaseTransactionTypeEnum  →  Weap\Junction\Enums\DatabaseTransactionType
+```
+
+### Removed methods
+
+The following methods were removed. If you overrode any of them, the override is now dead code and can be deleted:
+
+- `Controller::rules()` was unused by the package. Define your validation rules on your own `FormRequest` (`rules()`), as shown in the README.
+- `Controller::messages()` the unused companion to `rules()`. Define validation messages on your own `FormRequest` instead.
+- `Weap\Junction\Support\Table::getRelationTableName()` was `@deprecated` because it returned the wrong table name for `morphTo` relations. Resolve the relation with `Table::getRelation()` and read the table name from there.
+- `Weap\Junction\Junction::resource()` was `@deprecated` because it is replaced by `Illuminate\Support\Facades\Route::junctionResource()`.
+
 ### Type Hints
 
 Native parameter, return, and property types have been added throughout the package. PHP enforces that an overriding method's signature stays compatible with its parent, so if you have extended any of the classes or traits below and overridden one of these methods (or declared one of these properties), you **must** update your signature to match, otherwise PHP will throw a fatal error.
@@ -27,8 +65,6 @@ protected $saveFillable = false;        →  public bool $saveFillable = false;
 // Methods — return types added
 public function relations()             →  public function relations(): array
 public function searchable()            →  public function searchable(): array
-public function rules()                 →  public function rules(): array        // now @deprecated (unused)
-public function messages()              →  public function messages(): array
 
 // Constructor — the $model parameter is now typed
 public function __construct($model = null)  →  public function __construct(?string $model = null)
@@ -81,7 +117,7 @@ public static function defaultAppends()  →  public static function defaultAppe
 
 #### Resources
 
-If you extend `Weap\Junction\Http\Controllers\Resources\BaseResource` and override any of these methods:
+If you extend `Weap\Junction\Http\Resources\BaseResource` and override any of these methods:
 
 ```php
 public function toArray($request)        →  public function toArray(Request $request): array

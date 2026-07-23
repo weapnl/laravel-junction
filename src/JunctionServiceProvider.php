@@ -18,6 +18,14 @@ class JunctionServiceProvider extends ServiceProvider
     /**
      * @return void
      */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__ . '/../config/junction.php', 'junction');
+    }
+
+    /**
+     * @return void
+     */
     public function boot(): void
     {
         $this->publishes([
@@ -26,7 +34,7 @@ class JunctionServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../config/junction.php' => config_path('junction.php'),
-        ]);
+        ], 'config');
 
         $this->commands([
             CleanMediaTemporaryUploads::class,
@@ -53,9 +61,7 @@ class JunctionServiceProvider extends ServiceProvider
     protected function bootRouteMacros(): void
     {
         Route::macro('junctionResource', function ($name, $controller, array $options = []) {
-            $defaults = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action'];
-
-            $only = $options['only'] ?? $defaults;
+            $only = $options['only'] ?? ResourceRegistrar::DEFAULT_METHODS;
 
             if (isset($options['except'])) {
                 $only = array_diff($only, (array) $options['except']);

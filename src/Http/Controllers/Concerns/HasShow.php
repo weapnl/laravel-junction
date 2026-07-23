@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Traits;
+namespace Weap\Junction\Http\Controllers\Concerns;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,8 +15,8 @@ use Weap\Junction\Http\Controllers\Filters\WhereNotIn;
 use Weap\Junction\Http\Controllers\Filters\Wheres;
 use Weap\Junction\Http\Controllers\Modifiers\Appends;
 use Weap\Junction\Http\Controllers\Modifiers\HiddenFields;
-use Weap\Junction\Http\Controllers\Resources\BaseResource;
 use Weap\Junction\Http\Controllers\Response\Item;
+use Weap\Junction\Http\Resources\BaseResource;
 
 trait HasShow
 {

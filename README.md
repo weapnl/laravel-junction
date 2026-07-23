@@ -82,7 +82,7 @@ class UserController extends Controller
 
 ```php
 // routes/api.php
-Junction::apiResource('users', 'UserController');
+Route::junctionResource('users', UserController::class);
 ```
 
 You're all set and ready to go now. You can now perform requests to the `/api/users` endpoint. Try a post request to create a new user, or a get request to retrieve all users.
@@ -298,7 +298,7 @@ public $searchable = [
 ```
 
 ### Resources
-To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Controllers\Resources`.
+To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Resources\BaseResource`.
 
 This allows you to specify which attributes, accessors and relations will be returned. To do this, override the corresponding method:
 - `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is always included.
@@ -376,7 +376,7 @@ The default order direction is `asc`, but if you want it to use `desc`, update t
 ### Validation
 
 #### FormRequest validation
-To validate the incoming request, you can create a `FormRequest` and extend the `Weap\Junction\Http\Controllers\Requests\DefaultFormRequest` class. This class extends the default Laravel `FormRequest` class, and adds some extra functionality.
+To validate the incoming request, you can create a `FormRequest` and extend the `Weap\Junction\Http\Requests\DefaultFormRequest` class. This class extends the default Laravel `FormRequest` class, and adds some extra functionality.
 
 #### Standard validation
 To validate the request, create a request file for your model and add this to the controller.

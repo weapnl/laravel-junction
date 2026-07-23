@@ -3,7 +3,6 @@
 namespace Weap\Junction;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Facades\Route;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
 class Junction
@@ -14,19 +13,6 @@ class Junction
     public static function getMediaTemporaryUploadModel(): string
     {
         return config('junction.route.media.media_temporary_upload_model', MediaTemporaryUpload::class);
-    }
-
-    /**
-     * @param string $uri
-     * @param class-string $controller
-     * @param array<int, string> $only
-     * @return void
-     *
-     * @deprecated Replaced by Route::junctionResource().
-     */
-    public static function resource(string $uri, string $controller, array $only = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action']): void
-    {
-        Route::junctionResource($uri, $controller)->only($only);
     }
 
     /**

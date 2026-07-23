@@ -1,22 +1,22 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Helpers;
+namespace Weap\Junction\Support;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Throwable;
-use Weap\Junction\Http\Controllers\Enums\DatabaseTransactionTypeEnum;
+use Weap\Junction\Enums\DatabaseTransactionType;
 
 class Database
 {
     /**
-     * @param DatabaseTransactionTypeEnum $type
+     * @param DatabaseTransactionType $type
      * @param callable $callback
      * @return mixed
      *
      * @throws Throwable
      */
-    protected static function runInTransactionIfEnabled(DatabaseTransactionTypeEnum $type, callable $callback): mixed
+    protected static function runInTransactionIfEnabled(DatabaseTransactionType $type, callable $callback): mixed
     {
         if (config('junction.use_db_transactions.' . Str::snake($type->name))) {
             return DB::transaction($callback);
@@ -33,7 +33,7 @@ class Database
      */
     public static function storeInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Store, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionType::Store, $callback);
     }
 
     /**
@@ -44,7 +44,7 @@ class Database
      */
     public static function updateInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Update, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionType::Update, $callback);
     }
 
     /**
@@ -55,7 +55,7 @@ class Database
      */
     public static function destroyInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Destroy, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionType::Destroy, $callback);
     }
 
     /**
@@ -66,6 +66,6 @@ class Database
      */
     public static function actionInTransactionIfEnabled(callable $callback): mixed
     {
-        return self::runInTransactionIfEnabled(DatabaseTransactionTypeEnum::Action, $callback);
+        return self::runInTransactionIfEnabled(DatabaseTransactionType::Action, $callback);
     }
 }

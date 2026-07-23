@@ -1,0 +1,19 @@
+# Path-based git attributes
+# https://www.kernel.org/pub/software/scm/git/docs/gitattributes.html
+
+* text=auto eol=lf
+
+# Keep release/dist tarballs lean — exclude dev & CI artefacts.
+/.claude            export-ignore
+/.editorconfig      export-ignore
+/.gitattributes     export-ignore
+/.github            export-ignore
+/.gitignore         export-ignore
+/CHANGELOG.md       export-ignore
+/phpstan-baseline.neon export-ignore
+/phpstan.dist.neon  export-ignore
+/phpunit.xml.dist   export-ignore
+/pint.json          export-ignore
+/testbench.yaml     export-ignore
+/tests              export-ignore
+/UPGRADE.md         export-ignore
