@@ -20,6 +20,7 @@ use Weap\Junction\Http\Controllers\Filters\Wheres;
 use Weap\Junction\Http\Controllers\Modifiers\Appends;
 use Weap\Junction\Http\Controllers\Modifiers\HiddenFields;
 use Weap\Junction\Http\Controllers\Response\Items;
+use Weap\Junction\Http\Resources\BaseResource;
 
 trait HasIndex
 {
@@ -68,16 +69,20 @@ trait HasIndex
 
         $this->afterIndex($items);
 
-        $pluckFields = request()->getPluckFields();
-        $accessors = request()->getAccessors();
-        $relations = request()->getRelations();
+        if (is_a($this->resource, BaseResource::class, true)) {
+            $pluckFields = request()->getPluckFields();
+            $accessors = request()->getAccessors();
+            $relations = request()->getRelations();
 
-        return $this->resource::items(
-            $items,
-            pluckAttributes: $pluckFields !== null ? Arr::undot(array_flip($pluckFields)) : null,
-            pluckAccessors: $accessors !== null ? Arr::undot(array_flip($accessors)) : null,
-            pluckRelations: $relations !== null ? Arr::undot(array_flip($relations)) : null,
-        );
+            return $this->resource::items(
+                $items,
+                pluckAttributes: $pluckFields !== null ? Arr::undot(array_flip($pluckFields)) : null,
+                pluckAccessors: $accessors !== null ? Arr::undot(array_flip($accessors)) : null,
+                pluckRelations: $relations !== null ? Arr::undot(array_flip($relations)) : null,
+            );
+        }
+
+        return $this->resource::collection($items->paginator() ?? $items->models());
     }
 
     /**

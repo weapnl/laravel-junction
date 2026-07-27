@@ -3,20 +3,21 @@
 namespace Weap\Junction\Http\Controllers\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
+use Weap\Junction\Http\Resources\BaseResource;
 use Weap\Junction\Support\Database;
 
 trait HasDestroy
 {
     /**
      * @param int|string|Model $id
-     * @return JsonResponse
+     * @return JsonResource
      *
      * @throws Throwable
      */
-    public function destroy(int|string|Model $id): JsonResponse
+    public function destroy(int|string|Model $id): JsonResource
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -40,7 +41,13 @@ trait HasDestroy
             return $this->afterDestroy($model);
         });
 
-        return response()->json(new $this->resource($model));
+        $resource = new $this->resource($model);
+
+        if ($resource instanceof BaseResource) {
+            $resource::withoutWrapping();
+        }
+
+        return $resource;
     }
 
     /**

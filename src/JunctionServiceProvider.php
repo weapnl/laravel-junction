@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Weap\Junction\Commands\CleanMediaTemporaryUploads;
 use Weap\Junction\Extensions\RelationExtension;
+use Weap\Junction\Support\FieldPath;
 
 class JunctionServiceProvider extends ServiceProvider
 {
@@ -83,12 +84,12 @@ class JunctionServiceProvider extends ServiceProvider
      */
     protected function bootRequestMacros(): void
     {
-        Request::macro('getPluckFields', fn () => $this->input('pluck'));
+        Request::macro('getPluckFields', fn () => FieldPath::fields($this->input('pluck')));
 
-        Request::macro('getAccessors', fn () => $this->input('appends'));
+        Request::macro('getAccessors', fn () => FieldPath::fields($this->input('appends')));
 
         Request::macro('getRelations', function () {
-            $relations = $this->input('with');
+            $relations = FieldPath::relations($this->input('with'));
 
             foreach ($this->getAccessors() ?? [] as $accessor) {
                 if (! Str::contains($accessor, '.')) {

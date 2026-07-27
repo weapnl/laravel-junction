@@ -42,7 +42,30 @@ it('getRelations returns null when there is nothing to resolve', function () {
 });
 
 it('getRelations skips injection on a startsWith prefix collision', function () {
-    // 'comments_extra' startsWith 'comments', so the guard suppresses a new relation.
-    expect(makeJunctionRequest(['with' => ['comments_extra'], 'appends' => ['comments.user']])->getRelations())
-        ->toBe(['comments_extra']);
+    // 'commentsExtra' startsWith 'comments', so the guard suppresses a new relation.
+    expect(makeJunctionRequest(['with' => ['commentsExtra'], 'appends' => ['comments.user']])->getRelations())
+        ->toBe(['commentsExtra']);
+});
+
+it('normalizes attributes and accessors to snake_case', function () {
+    expect(makeJunctionRequest(['pluck' => ['userId', 'user.emailVerifiedAt']])->getPluckFields())
+        ->toBe(['user_id', 'user.email_verified_at'])
+        ->and(makeJunctionRequest(['appends' => ['authorName']])->getAccessors())
+        ->toBe(['author_name']);
+});
+
+it('normalizes relations to camelCase', function () {
+    expect(makeJunctionRequest(['with' => ['user_posts', 'comments.user']])->getRelations())
+        ->toBe(['userPosts', 'comments.user']);
+});
+
+it('keeps the relation segments of a field path camelCased', function () {
+    // Every segment but the last is a relation, the last is an attribute.
+    expect(makeJunctionRequest(['pluck' => ['user_posts.published_at']])->getPluckFields())
+        ->toBe(['userPosts.published_at']);
+});
+
+it('normalizes a field selection given as a string', function () {
+    expect(makeJunctionRequest(['pluck' => 'userId'])->getPluckFields())->toBe('user_id')
+        ->and(makeJunctionRequest(['with' => 'user_posts'])->getRelations())->toBe('userPosts');
 });

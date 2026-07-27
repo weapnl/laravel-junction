@@ -5,19 +5,20 @@ namespace Weap\Junction\Http\Controllers\Concerns;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
+use Weap\Junction\Http\Resources\BaseResource;
 use Weap\Junction\Support\Database;
 
 trait HasStore
 {
     /**
-     * @return JsonResponse
+     * @return JsonResource
      *
      * @throws Throwable
      */
-    public function store(): JsonResponse
+    public function store(): JsonResource
     {
         if ($this->usePolicy && ! Auth::user()->can('create', $this->model)) {
             abort(403, 'Unauthorized');
@@ -46,7 +47,13 @@ trait HasStore
             return $this->afterStore($model, $validAttributes, $invalidAttributes);
         });
 
-        return response()->json(new $this->resource($model));
+        $resource = new $this->resource($model);
+
+        if ($resource instanceof BaseResource) {
+            $resource::withoutWrapping();
+        }
+
+        return $resource;
     }
 
     /**

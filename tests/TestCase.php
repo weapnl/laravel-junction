@@ -8,14 +8,17 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Spatie\LaravelRay\RayServiceProvider;
 use Spatie\MediaLibrary\MediaLibraryServiceProvider;
 use Weap\Junction\JunctionServiceProvider;
 use Weap\Junction\Tests\TestSupport\Controllers\ActionPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\CommentController;
+use Weap\Junction\Tests\TestSupport\Controllers\CustomPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\FillablePostController;
 use Weap\Junction\Tests\TestSupport\Controllers\ForcedPaginationPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\GatedPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\HookedPostController;
+use Weap\Junction\Tests\TestSupport\Controllers\LegacyPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\MediaPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\PolicyPostController;
 use Weap\Junction\Tests\TestSupport\Controllers\PostController;
@@ -46,6 +49,7 @@ abstract class TestCase extends Orchestra
         return [
             MediaLibraryServiceProvider::class,
             JunctionServiceProvider::class,
+            RayServiceProvider::class,
         ];
     }
 
@@ -87,10 +91,12 @@ abstract class TestCase extends Orchestra
     {
         $router->junctionResource('action-posts', ActionPostController::class);
         $router->junctionResource('comments', CommentController::class);
+        $router->junctionResource('custom-posts', CustomPostController::class);
         $router->junctionResource('fillable-posts', FillablePostController::class);
         $router->junctionResource('forced-posts', ForcedPaginationPostController::class);
         $router->junctionResource('gated-posts', GatedPostController::class);
         $router->junctionResource('hooked-posts', HookedPostController::class);
+        $router->junctionResource('legacy-posts', LegacyPostController::class);
         $router->junctionResource('media-posts', MediaPostController::class);
         $router->junctionResource('policy-posts', PolicyPostController::class);
         $router->junctionResource('posts', PostController::class);

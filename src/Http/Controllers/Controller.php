@@ -16,6 +16,7 @@ use Weap\Junction\Http\Controllers\Concerns\HasStore;
 use Weap\Junction\Http\Controllers\Concerns\HasUpdate;
 use Weap\Junction\Http\Requests\DefaultFormRequest;
 use Weap\Junction\Http\Resources\BaseResource;
+use Weap\Junction\Http\Resources\JunctionResource;
 
 class Controller extends BaseController
 {
@@ -51,9 +52,9 @@ class Controller extends BaseController
     /**
      * The class name of the resource to be used for the index and show methods.
      *
-     * @var class-string<BaseResource>
+     * @var class-string<JunctionResource|BaseResource>
      */
-    public string $resource = BaseResource::class;
+    public string $resource = JunctionResource::class;
 
     /**
      * Set to true to save fillable instead of validated attributes in the store and update methods.

@@ -112,7 +112,7 @@ class UserController extends Controller
     /**
      * The class name of the resource to be used for the index and show methods.
      *
-     * @var class-string<BaseResource>
+     * @var class-string<JunctionResource>
      */
     public string $resource = UserResource::class;
 
@@ -298,50 +298,63 @@ public $searchable = [
 ```
 
 ### Resources
-To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Resources\BaseResource`.
+Responses are rendered by `\Weap\Junction\Http\Resources\JunctionResource`, which is the default for every controller. You only need to set the `resource` variable in your controller when you want to customize the output; your resource must then extend `JunctionResource`.
 
-This allows you to specify which attributes, accessors and relations will be returned. To do this, override the corresponding method:
-- `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is always included.
-- `availableAccessors`. Return an array of strings, specifying which accessors will be returned.
-- `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource.
+A `JunctionResource` resolves the field selection from the request itself, so it works the same inside and outside a Junction controller. Each parameter governs one kind of field:
 
-Return `null` in any of these methods to allow `ALL` attributes/accessors/relations to be returned.
+| Parameter | Governs | When absent |
+|-----------|---------|-------------|
+| `pluck`   | attributes | every attribute is returned |
+| `appends` | accessors  | no accessors are returned, apart from the model's own `$appends` |
+| `with`    | relations  | no relations are returned |
 
-Example:
+The primary key is always returned, and the model's `$appends` and `$hidden` are respected as they are in plain Laravel — a hidden field cannot be exposed by plucking it. A relation is returned only when it appears in `with`: one that was loaded for another reason, such as an accessor that reads it, stays out of the response.
+
+Asking for an accessor is also asking for it to be returned, so `appends` widens what `pluck` narrowed and the two combine as you would expect: `pluck[]=title&appends[]=excerpt` answers with the title and the excerpt. There is no separate rule for an accessor once it is on the model — `pluck` selects from everything the model carries, whether a key is backed by a column, a cast, or a mutator.
+
+That makes a `pluck` selection authoritative: it narrows the model's own `$appends` as well, so a model appending `slug` answers `pluck[]=name` with the name alone. Name the accessor in `pluck` (or in `appends`) to keep it. The same holds one level down — `pluck[]=tags.name` narrows a tag's `$appends`, while a level `pluck` never reaches keeps returning them.
+
+The resource renders what the model carries: it never loads a relation or resolves an accessor of its own accord. On the `index` and `show` routes that is all it needs to do, because Junction resolves the request before the response is rendered — it appends the accessors `appends` asked for to the model, and eager loads the relations `with` asked for. The `store`, `update` and `destroy` routes hand the model they just wrote straight to the resource, so nothing is appended or loaded there and only `pluck` has any effect.
+
+These parameters are normalized to Laravel's own conventions, so the response does not depend on the casing your front-end sends. In each dot separated path every segment but the last is a relation and is camelCased, while the last segment is an attribute or accessor and is snake_cased — `pluck[]=userPosts.publishedAt` and `pluck[]=user_posts.published_at` mean the same thing, and both answer under the `userPosts.published_at` keys.
+
+Relations are rendered recursively as nested resources, and the field selection cascades: `with[]=orders&pluck[]=orders.total` returns each order's primary key and total. A level that `pluck` does not reach carries no restriction, so `pluck[]=title` alongside `with[]=orders` returns the post's title and every attribute of each order.
+
+#### Writing your own `toArray()`
+This works exactly as it does in Laravel, with Laravel's own conditional helpers. `pluck` still restricts the plain attribute keys the resource returns, so clients keep control over the response size, while the primary key is always added.
+
+Guard accessors with `whenAppended()` and relations with `whenLoaded()`. Both answer to the model rather than to the request, which is all they need to do: `appends` is resolved by appending the accessor to the model, and `with` by eager loading the relation, both before the resource is rendered.
+
 ```php
-class UserResource extends BaseResource
+class UserResource extends JunctionResource
 {
-    /**
-     * @return array<int, string>|null
-     */
-    protected function availableAttributes(): ?array
+    public function toArray(Request $request): array
     {
         return [
-            'first_name'
-        ];
-    }
+            // Restricted by `pluck`, like any attribute.
+            'first_name' => $this->first_name,
 
-    /**
-     * @return array<int, string>|null
-     */
-    protected function availableAccessors(): ?array
-    {
-        return [
-            'fullName'
-        ];
-    }
+            // Returned when `appends[]=full_name` appended it to the model.
+            'full_name' => $this->whenAppended('full_name'),
 
-    /**
-     * @return array<string, class-string<BaseResource>>|null
-     */
-    protected function availableRelations(): ?array
-    {
-        return [
-            'orders' => OrderResource::class,
+            // Returned when `with[]=orders` eager loaded it. Nested field
+            // selection (`pluck[]=orders.total`) keeps cascading into it.
+            'orders' => OrderResource::collection($this->whenLoaded('orders')),
+            'company' => new CompanyResource($this->whenLoaded('company')),
         ];
     }
 }
 ```
+
+A relation is only ever returned when `with` asked for it, even if it is loaded for another reason — Junction also eager loads the relations an accessor declares through `Junction::makeAttribute()`, and those have no business in the response.
+
+Returning a relation raw (`'company' => $this->whenLoaded('company')`) works too: Junction wraps a bare model or Eloquent collection in a resource for you, so nested field selection still cascades.
+
+Because both helpers read what the model carries, a resource that has to answer with an accessor or a relation somewhere Junction did not resolve the request — the `store`, `update` and `destroy` routes, a custom action, or a resource rendered by hand — needs the caller to append or eager load it first.
+
+Index responses are wrapped by `\Weap\Junction\Http\Resources\AnonymousResourceCollection`, which defines the `items` wrapper and the `total`/`page`/`has_next_page` pagination keys using Laravel's standard resource collection mechanisms (`$wrap` and `paginationInformation()`). Single resources (show/store/update/destroy) are returned unwrapped via `$wrap = null`. Both are declared at class level, so the global `JsonResource::$wrap` state of your application is never modified.
+
+> **Deprecated:** `\Weap\Junction\Http\Resources\BaseResource` (with its `availableAttributes()`/`availableAccessors()`/`availableRelations()` whitelists) keeps its old behavior for backwards compatibility, but is deprecated and will be removed in a future major release. `JunctionResource` renders the same output for the same request, with four exceptions: the model's `$appends` are always honored (the `HasDefaultAppends` trait is only consulted by `BaseResource`), a hidden field can no longer be exposed by plucking it, plucking an accessor no longer resolves it (request it through `appends`), and plucking a field that does not exist no longer adds a `null` entry to the response.
 ### Actions
 This package also supports action routes.
 
