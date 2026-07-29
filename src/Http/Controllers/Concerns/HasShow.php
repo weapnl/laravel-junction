@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Concerns;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Weap\Junction\Http\Controllers\Filters\Count;
@@ -22,11 +23,11 @@ trait HasShow
 {
     /**
      * @param int|string|Model $id
-     * @return BaseResource
+     * @return JsonResource
      *
      * @throws Exception
      */
-    public function show(int|string|Model $id): BaseResource
+    public function show(int|string|Model $id): JsonResource
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -60,17 +61,23 @@ trait HasShow
 
         $this->afterShow($item);
 
-        $pluckFields = request()->getPluckFields();
-        $accessors = request()->getAccessors();
-        $relations = request()->getRelations();
+        $resource = new $this->resource($item->getModel());
 
-        $this->resource::withoutWrapping();
+        if ($resource instanceof BaseResource) {
+            $resource::withoutWrapping();
 
-        return (new $this->resource($item->getModel()))->pluckFields(
-            pluckAttributes: $pluckFields !== null ? Arr::undot(array_flip($pluckFields)) : null,
-            pluckAccessors: $accessors !== null ? Arr::undot(array_flip($accessors)) : null,
-            pluckRelations: $relations !== null ? Arr::undot(array_flip($relations)) : null,
-        );
+            $pluckFields = request()->getPluckFields();
+            $accessors = request()->getAccessors();
+            $relations = request()->getRelations();
+
+            $resource = $resource->pluckFields(
+                pluckAttributes: $pluckFields !== null ? Arr::undot(array_flip($pluckFields)) : null,
+                pluckAccessors: $accessors !== null ? Arr::undot(array_flip($accessors)) : null,
+                pluckRelations: $relations !== null ? Arr::undot(array_flip($relations)) : null,
+            );
+        }
+
+        return $resource;
     }
 
     /**

@@ -90,17 +90,17 @@ public function beforeShow(Builder &$query)          →  public function before
 public function afterShow(Item &$item)               →  public function afterShow(Item $item): void
 
 // HasStore
-public function store()                              →  public function store(): JsonResponse
+public function store()                              →  public function store(): JsonResource
 public function beforeStore($valid, $invalid)        →  public function beforeStore(array $validAttributes, array $invalidAttributes): array
 public function afterStore($model, $valid, $invalid) →  public function afterStore(Model $model, array $validAttributes, array $invalidAttributes): Model
 
 // HasUpdate
-public function update($id)                          →  public function update(int|string|Model $id): JsonResponse
+public function update($id)                          →  public function update(int|string|Model $id): JsonResource
 public function beforeUpdate($model, $v, $i)         →  public function beforeUpdate(Model $model, array $validAttributes, array $invalidAttributes): array
 public function afterUpdate($model, $v, $i)          →  public function afterUpdate(Model $model, array $validAttributes, array $invalidAttributes): Model
 
 // HasDestroy
-public function destroy($id)                         →  public function destroy(int|string|Model $id): JsonResponse
+public function destroy($id)                         →  public function destroy(int|string|Model $id): JsonResource
 public function beforeDestroy(Model $model)          →  public function beforeDestroy(Model $model): void
 public function afterDestroy(Model $model)           →  public function afterDestroy(Model $model): Model
 ```
@@ -128,6 +128,52 @@ protected function availableRelations()  →  protected function availableRelati
 ```
 
 `pluckFields()` now returns `static` instead of `$this` (a docblock change only, no code change required, but note it if you type-hint the return value).
+
+`Controller::$resource` now defaults to the new `Weap\Junction\Http\Resources\JunctionResource` instead of `BaseResource`, so controllers that never declared a `$resource` switch over automatically. `JunctionResource` renders the same output for the same request, with these exceptions:
+
+- the model's `$appends` are honored without the `HasDefaultAppends` trait, as in plain Laravel (`BaseResource` only honored them through that trait);
+- a `pluck` selection narrows the model's `$appends`, where `BaseResource` returned a `defaultAppends()` accessor whatever the client asked for. `pluck[]=name` on a model appending `slug` no longer answers with the slug; name it in `pluck` or in `appends` to keep it. Only affects models using the `HasDefaultAppends` trait, since that is the only way `BaseResource` returned an appended accessor at all;
+- a field in the model's `$hidden` can no longer be exposed by plucking it;
+- plucking an accessor no longer resolves it — request it through `appends` instead;
+- plucking a field that does not exist no longer adds a `null` entry to the response;
+- the store, update and destroy routes honor the field selection too, so a client that sends `pluck` alongside the attributes it writes gets a narrowed response where it previously got the model in full.
+
+If you depend on any of those, pin the old behavior by setting `public string $resource = BaseResource::class;` (or your own subclass of it) on the controller. Note that `BaseResource` is deprecated and will be removed in a future major release.
+
+A `JunctionResource` renders what the model carries: it never loads a relation or resolves an accessor by itself. On the index and show routes Junction resolves the request first — appending the accessors `appends` asked for and eager loading the relations `with` asked for — so a resource that writes its own `toArray()` guards them with Laravel's own helpers:
+
+```php
+class PostResource extends JunctionResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'title' => $this->title,
+
+            // Returned when `appends[]=excerpt` appended it to the model.
+            'excerpt' => $this->whenAppended('excerpt'),
+
+            // Returned when `with[]=user` eager loaded it.
+            'user' => new UserResource($this->whenLoaded('user')),
+        ];
+    }
+}
+```
+
+If you already guard relations with `whenLoaded()`, that keeps working unchanged. One addition: a relation is now only returned when `with` asked for it, so a relation that is loaded for another reason no longer reaches the response — including the ones Junction eager loads for an accessor declared with `Junction::makeAttribute(with: [...])`.
+
+Nothing is appended or eager loaded on the store, update and destroy routes, in a custom action, or in a resource you render by hand, so a guarded accessor or relation is omitted there unless you append or eager load it yourself first.
+
+#### Field selection casing
+
+The `getPluckFields()`, `getAccessors()` and `getRelations()` request macros now normalize the paths they return, so `pluck`, `appends` and `with` no longer depend on the casing the client sends. Per dot separated path, every segment but the last is treated as a relation and camelCased, and the last segment is treated as an attribute or accessor and snake_cased.
+
+This affects both resource classes, because the normalization happens in the request layer. Two things to check in your front-end:
+
+- If it sends camelCase accessors (`appends[]=authorName`) it used to read the value back under `authorName`; the key is now `author_name`.
+- If it sends camelCase attributes (`pluck[]=userId`) it used to receive `"userId": null`; it now receives the real `user_id` value.
+
+If a model has a relation method that is genuinely snake_cased, rename it to camelCase (the Laravel convention) or list the camelCase form in the controller's `relations()`.
 
 #### Custom filters
 

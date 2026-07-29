@@ -2,6 +2,7 @@
 
 namespace Weap\Junction\Http\Resources;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -10,6 +11,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Weap\Junction\Http\Controllers\Response\Items;
 
+/**
+ * @deprecated Use \Weap\Junction\Http\Resources\JunctionResource instead.
+ */
 class BaseResource extends JsonResource
 {
     /**
@@ -66,6 +70,20 @@ class BaseResource extends JsonResource
         $this->pluckRelations = $pluckRelations;
 
         return $this;
+    }
+
+    /**
+     * Customize the outgoing response for the resource.
+     *
+     * Laravel answers a recently created model with a 201;
+     * Junction expects all routes to answer with a 200.
+     *
+     * @param Request $request
+     * @param JsonResponse $response
+     */
+    public function withResponse(Request $request, JsonResponse $response)
+    {
+        $response->setStatusCode(200);
     }
 
     /**

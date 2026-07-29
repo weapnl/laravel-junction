@@ -4,6 +4,12 @@ use Illuminate\Support\Str;
 use Weap\Junction\Tests\TestSupport\Models\Post;
 use Weap\Junction\Tests\TestSupport\Models\User;
 
+/**
+ * The `availableAttributes()`/`availableAccessors()`/`availableRelations()`
+ * whitelists exist on the deprecated BaseResource only, so `/gated-posts` pins a
+ * subclass of it. JunctionResource has no equivalent: a resource that wants to
+ * gate its output writes its own `toArray()`.
+ */
 beforeEach(function () {
     $this->user = User::create(['name' => 'Ada', 'email' => 'ada@example.com']);
 });
