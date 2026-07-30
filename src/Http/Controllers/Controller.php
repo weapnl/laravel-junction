@@ -2,7 +2,10 @@
 
 namespace Weap\Junction\Http\Controllers;
 
+use Closure;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Controller as BaseController;
 use Weap\Junction\Http\Controllers\Requests\DefaultFormRequest;
 use Weap\Junction\Http\Controllers\Resources\BaseResource;
@@ -27,95 +30,105 @@ class Controller extends BaseController
     /**
      * The class name of the model for which the controller should implement CRUD actions.
      *
-     * @var string
+     * @var class-string<Model>
      */
-    public $model;
+    public string $model;
 
     /**
      * Determine whether to use the policy corresponding with the model.
      *
      * @var bool
      */
-    public $usePolicy = false;
+    public bool $usePolicy = false;
 
     /**
-     * The class name of FormRequest to be used for the store and update methods.
+     * The class name of the form request to be used for the store and update methods.
      *
-     * @var string
+     * @var class-string<FormRequest>
      */
-    public $formRequest = DefaultFormRequest::class;
+    public string $formRequest = DefaultFormRequest::class;
 
     /**
-     * The class name of Resource to be used for the show and index methods.
+     * The class name of the resource to be used for the index and show methods.
      *
-     * @var string
+     * @var class-string<BaseResource>
      */
-    protected $resource = BaseResource::class;
+    public string $resource = BaseResource::class;
 
     /**
-     * Set to true to save fillable instead of validated attributes in store/update methods.
-     *
-     * @var bool
-     */
-    protected $saveFillable = false;
-
-    /**
-     * Set to true to force simple pagination in index method.
+     * Set to true to save fillable instead of validated attributes in the store and update methods.
      *
      * @var bool
      */
-    protected bool $forceSimplePagination = false;
+    public bool $saveFillable = false;
 
     /**
-     * @param null $model
+     * Set to true to force simple pagination in the index method.
+     *
+     * @var bool
+     */
+    public bool $forceSimplePagination = false;
+
+    /**
+     * @param class-string<Model>|null $model
      *
      * @throws Exception
      */
-    public function __construct($model = null)
+    public function __construct(?string $model = null)
     {
-        $this->model = $this->model ?? $model;
-
-        if (! $this->model) {
+        if (! isset($this->model) && ! $model) {
             throw new Exception('Your controller should contain a property `model` to define which model to query for.');
         }
+
+        $this->model ??= $model;
     }
 
     /**
-     * Define the relations which can be loaded in a request using "array" notation.
+     * Define the relations which can be loaded in a request using "dot" notation.
      *
-     * @return array
+     * Each entry is either:
+     * - a relation name (string value with an integer key).
+     * - a relation name mapped to a closure that constrains the relation's query (string key with a Closure value).
+     *
+     * Both forms may be mixed.
+     *
+     * @return array<int|string, string|Closure>
      */
-    public function relations()
+    public function relations(): array
     {
         return [];
     }
 
     /**
-     * Define the searchable column which can be searched trough in a request using "array" notation.
+     * Define the searchable column which can be searched trough in a request using "dot" notation.
      *
-     * @return array
+     * @return array<int, string>
      */
-    public function searchable()
+    public function searchable(): array
     {
         return [];
     }
 
     /**
-     * Define validation rules for store and update requests.
+     * Define validation rules for the store and update methods.
      *
-     * @return array
+     * @return array<string, mixed>
+     *
+     * @deprecated Unused method
      */
-    public function rules()
+    public function rules(): array
     {
         return [];
     }
 
     /**
-     * Define validation rule messages for store and update requests.
+     * Define validation rule messages for the store and update methods.
      *
-     * @return array
+     * @return array<string, string>
+     *
+     * @deprecated Unused method
      */
-    public function messages()
+    public function messages(): array
     {
         return [];
     }

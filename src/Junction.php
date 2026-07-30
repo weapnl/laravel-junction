@@ -17,14 +17,14 @@ class Junction
     }
 
     /**
-     * @param $uri
-     * @param $controller
-     * @param mixed $only
+     * @param string $uri
+     * @param class-string $controller
+     * @param array<int, string> $only
      * @return void
      *
      * @deprecated Replaced by Route::junctionResource().
      */
-    public static function resource($uri, $controller, $only = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action']): void
+    public static function resource(string $uri, string $controller, array $only = ['index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action']): void
     {
         Route::junctionResource($uri, $controller)->only($only);
     }
@@ -32,8 +32,8 @@ class Junction
     /**
      * @param callable|null $get
      * @param callable|null $set
-     * @param array $with
-     * @return Attribute
+     * @param array<int|string, mixed> $with
+     * @return Attribute<mixed, mixed>
      */
     public static function makeAttribute(?callable $get = null, ?callable $set = null, array $with = []): Attribute
     {

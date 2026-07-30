@@ -10,12 +10,12 @@ class Appends
 {
     /**
      * @param Controller $controller
-     * @param array $appends
-     * @return array
+     * @param array<int, string> $appends
+     * @return array<int, string>
      *
      * @throws ValidationException
      */
-    public static function validate(Controller $controller, array $appends)
+    public static function validate(Controller $controller, array $appends): array
     {
         $appends = collect($appends);
 

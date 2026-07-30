@@ -8,7 +8,7 @@ abstract class Response
 {
     /**
      * @param Closure $param
-     * @return $this
+     * @return static
      */
-    abstract public function modify(Closure $param): self;
+    abstract public function modify(Closure $param): static;
 }

@@ -5,22 +5,23 @@ namespace Weap\Junction\Http\Controllers\Response;
 use Closure;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Enumerable;
 
 class Items extends Response
 {
     /**
-     * @var Builder
+     * @var Builder<Model>
      */
     protected Builder $query;
 
     /**
-     * @var Enumerable
+     * @var Enumerable<int, Model>
      */
     protected Enumerable $models;
 
     /**
-     * @var Paginator|null
+     * @var Paginator<int, Model>|null
      */
     protected ?Paginator $paginator = null;
 
@@ -40,12 +41,12 @@ class Items extends Response
     protected ?string $enforceOrderByModelKeyDirection = null;
 
     /**
-     * @param Builder $query
-     * @return Items
+     * @param Builder<Model> $query
+     * @return static
      */
-    public static function query(Builder $query): Items
+    public static function query(Builder $query): static
     {
-        $items = new self();
+        $items = new static();
 
         $items->query = $query;
 
@@ -54,9 +55,9 @@ class Items extends Response
 
     /**
      * @param bool $simplePagination
-     * @return $this
+     * @return static
      */
-    public function simplePagination(bool $simplePagination): Items
+    public function simplePagination(bool $simplePagination): static
     {
         $this->simplePagination = $simplePagination;
 
@@ -66,9 +67,9 @@ class Items extends Response
     /**
      * @param bool $enforceOrderByModelKey
      * @param string|null $direction
-     * @return $this
+     * @return static
      */
-    public function enforceOrderByModelKey(bool $enforceOrderByModelKey, ?string $direction = 'asc'): Items
+    public function enforceOrderByModelKey(bool $enforceOrderByModelKey, ?string $direction = 'asc'): static
     {
         $this->enforceOrderByModelKey = $enforceOrderByModelKey;
         $this->enforceOrderByModelKeyDirection = $direction;
@@ -77,9 +78,9 @@ class Items extends Response
     }
 
     /**
-     * @return $this
+     * @return static
      */
-    public function get(): self
+    public function get(): static
     {
         $columns = [$this->query->getModel()->getTable() . '.*'];
         $perPage = request()?->input('paginate');
@@ -107,9 +108,9 @@ class Items extends Response
 
     /**
      * @param Closure $param
-     * @return $this
+     * @return static
      */
-    public function modify(Closure $param): self
+    public function modify(Closure $param): static
     {
         $this->models->each($param);
 
@@ -117,7 +118,7 @@ class Items extends Response
     }
 
     /**
-     * @return Enumerable
+     * @return Enumerable<int, Model>
      */
     public function models(): Enumerable
     {
@@ -125,7 +126,7 @@ class Items extends Response
     }
 
     /**
-     * @return Paginator|null
+     * @return Paginator<int, Model>|null
      */
     public function paginator(): ?Paginator
     {
@@ -133,10 +134,10 @@ class Items extends Response
     }
 
     /**
-     * @param $perPage
+     * @param int $perPage
      * @return int|null
      */
-    protected function page($perPage): ?int
+    protected function page(int $perPage): ?int
     {
         $page = request()?->input('page') ?: 1;
 
@@ -164,7 +165,7 @@ class Items extends Response
             return $page;
         }
 
-        return ceil(($index + 1) / $perPage);
+        return (int) ceil(($index + 1) / $perPage);
     }
 
     /**

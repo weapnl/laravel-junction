@@ -16,7 +16,7 @@ class Search extends Filter
 {
     /**
      * @param Controller $controller
-     * @param Builder|Relation $query
+     * @param Builder<Model>|Relation<Model, Model, mixed> $query
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
@@ -40,8 +40,8 @@ class Search extends Filter
     }
 
     /**
-     * @param Builder $query
-     * @param array $columns
+     * @param Builder<Model> $query
+     * @param array<string, mixed> $columns
      * @param string $tableName
      * @param string $searchValue
      * @return void

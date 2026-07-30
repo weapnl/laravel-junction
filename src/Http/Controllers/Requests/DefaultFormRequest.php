@@ -12,7 +12,7 @@ use Weap\Junction\Junction;
 class DefaultFormRequest extends FormRequest
 {
     /**
-     * @return void
+     * @inheritDoc
      */
     protected function prepareForValidation(): void
     {
@@ -22,10 +22,9 @@ class DefaultFormRequest extends FormRequest
     }
 
     /**
-     * @param Validator $validator
-     * @return void
+     * @inheritDoc
      */
-    protected function failedValidation(Validator $validator)
+    protected function failedValidation(Validator $validator): void
     {
         if (config('media-library.disk_name') !== 'local') {
             $this->clearTempMediaFiles($this->all());
@@ -35,9 +34,9 @@ class DefaultFormRequest extends FormRequest
     }
 
     /**
-     * @return void
+     * @inheritDoc
      */
-    protected function passedValidation()
+    protected function passedValidation(): void
     {
         if (config('media-library.disk_name') !== 'local') {
             $this->clearTempMediaFiles($this->all());

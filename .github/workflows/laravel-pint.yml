@@ -6,9 +6,13 @@ on:
 jobs:
   laravel-pint:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v7
+
       - name: "laravel-pint"
-        uses: aglipanci/laravel-pint-action@latest
+        uses: aglipanci/laravel-pint-action@v2
         with:
           testMode: true
+          useComposer: true

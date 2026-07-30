@@ -32,7 +32,7 @@ class Appends extends Modifier
 
     /**
      * @param Model $model
-     * @param array $fields
+     * @param array<int, string> $fields
      */
     public static function traverse(Model $model, array $fields): void
     {

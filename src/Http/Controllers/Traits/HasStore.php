@@ -5,6 +5,7 @@ namespace Weap\Junction\Http\Controllers\Traits;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 use Weap\Junction\Http\Controllers\Helpers\Database;
@@ -12,11 +13,11 @@ use Weap\Junction\Http\Controllers\Helpers\Database;
 trait HasStore
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      *
      * @throws Throwable
      */
-    public function store()
+    public function store(): JsonResponse
     {
         if ($this->usePolicy && ! Auth::user()->can('create', $this->model)) {
             abort(403, 'Unauthorized');
@@ -48,22 +49,22 @@ trait HasStore
     }
 
     /**
-     * @param array $validAttributes
-     * @param array $invalidAttributes
-     * @return array
+     * @param array<string, mixed> $validAttributes
+     * @param array<string, mixed> $invalidAttributes
+     * @return array<string, mixed>
      */
-    public function beforeStore(array $validAttributes, array $invalidAttributes)
+    public function beforeStore(array $validAttributes, array $invalidAttributes): array
     {
         return $validAttributes;
     }
 
     /**
      * @param Model $model
-     * @param array $validAttributes
-     * @param array $invalidAttributes
+     * @param array<string, mixed> $validAttributes
+     * @param array<string, mixed> $invalidAttributes
      * @return Model
      */
-    public function afterStore(Model $model, array $validAttributes, array $invalidAttributes)
+    public function afterStore(Model $model, array $validAttributes, array $invalidAttributes): Model
     {
         return $model;
     }

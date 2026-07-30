@@ -16,7 +16,7 @@ trait HasDestroy
      *
      * @throws Throwable
      */
-    public function destroy($id)
+    public function destroy(int|string|Model $id): JsonResponse
     {
         if ($id instanceof Model) {
             $id = $id->{$id->getKeyName()};
@@ -46,7 +46,7 @@ trait HasDestroy
     /**
      * @param Model $model
      */
-    public function beforeDestroy(Model $model)
+    public function beforeDestroy(Model $model): void
     {
         //
     }
@@ -55,7 +55,7 @@ trait HasDestroy
      * @param Model $model
      * @return Model
      */
-    public function afterDestroy(Model $model)
+    public function afterDestroy(Model $model): Model
     {
         return $model;
     }
