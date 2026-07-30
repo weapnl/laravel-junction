@@ -14,11 +14,11 @@ class Item extends Response
 
     /**
      * @param Model $model
-     * @return self
+     * @return static
      */
-    public static function model(Model $model): self
+    public static function model(Model $model): static
     {
-        $item = new self();
+        $item = new static();
 
         $item->model = $model;
 

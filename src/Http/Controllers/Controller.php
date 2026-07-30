@@ -125,6 +125,8 @@ class Controller extends BaseController
      * Define validation rule messages for the store and update methods.
      *
      * @return array<string, string>
+     *
+     * @deprecated Unused method
      */
     public function messages(): array
     {

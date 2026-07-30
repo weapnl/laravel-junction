@@ -78,7 +78,7 @@ trait HasAction
     }
 
     /**
-     * @return Collection<int, non-falsy-string>
+     * @return Collection<int, string>
      */
     protected function getActionMethods(): Collection
     {

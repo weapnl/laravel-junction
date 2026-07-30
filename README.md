@@ -386,7 +386,7 @@ To validate the request, create a request file for your model and add this to th
  *
  * @var class-string<FormRequest>
  */
-public string $formRequest = DefaultFormRequest::class;
+public string $formRequest = ModelRequest::class;
 ```
 
 - Add rules to the `rules()` method in the `ModelRequest`.

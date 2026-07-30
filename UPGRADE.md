@@ -8,7 +8,7 @@
 
 ### Type Hints
 
-Native parameter, return, and property types have been added throughout the package. PHP enforces that an overriding method's signature stays compatible with its parent, so if you have extended any of the classes or traits below and overridden one of these methods (or declared one of these properties), you **must** update your signature to match, otherwise PHP will throw a fatal error.
+Native parameter, return, and property types have been added throughout the package. PHP enforces that an overriding method's signature stays compatible with the one it inherits, so if you have extended any of the classes below and overridden one of these methods (or redeclared one of these properties), you **must** update your signature to match, otherwise PHP will throw a fatal error.
 
 The docblock-only changes (e.g. `array` → `array<string, mixed>`, `Builder` → `Builder<Model>`) are not enforced at runtime, but adopting them keeps your project passing static analysis.
 
@@ -17,26 +17,27 @@ The docblock-only changes (e.g. `array` → `array<string, mixed>`, `Builder` �
 If your controller extends `Weap\Junction\Http\Controllers\Controller`, update any properties and methods you have overridden:
 
 ```php
-// Properties — these are now typed (and $resource / $saveFillable are now public)
-public $model;                          →  public string $model;
-public $usePolicy = false;              →  public bool $usePolicy = false;
-public $formRequest = /* ... */;        →  public string $formRequest = /* ... */;
-protected $resource = /* ... */;        →  public string $resource = /* ... */;
-protected $saveFillable = false;        →  public bool $saveFillable = false;
+// Properties — these are now typed (and $resource / $saveFillable / $forceSimplePagination are now public)
+public $model;                                  →  public string $model;
+public $usePolicy = false;                      →  public bool $usePolicy = false;
+public $formRequest = /* ... */;                →  public string $formRequest = /* ... */;
+protected $resource = /* ... */;                →  public string $resource = /* ... */;
+protected $saveFillable = false;                →  public bool $saveFillable = false;
+protected bool $forceSimplePagination = false;  →  public bool $forceSimplePagination = false;
 
 // Methods — return types added
 public function relations()             →  public function relations(): array
 public function searchable()            →  public function searchable(): array
 public function rules()                 →  public function rules(): array        // now @deprecated (unused)
-public function messages()              →  public function messages(): array
+public function messages()              →  public function messages(): array     // now @deprecated (unused)
 
 // Constructor — the $model parameter is now typed
 public function __construct($model = null)  →  public function __construct(?string $model = null)
 ```
 
-`$resource` and `$saveFillable` were widened from `protected` to `public`. If your controller redeclares either as `protected`, change it to `public` — PHP does not allow narrowing a property's visibility in a subclass, so leaving it `protected` will throw a fatal error.
+`$resource`, `$saveFillable` and `$forceSimplePagination` were widened from `protected` to `public`. If your controller redeclares any of them as `protected`, change it to `public` — PHP does not allow narrowing a property's visibility in a subclass, so leaving it `protected` will throw a fatal error.
 
-Most controllers set the `$model` property rather than override the constructor, so this usually needs no action. If you *do* override `__construct()`, keep the parameter compatible (an untyped `$model` still works) and pass a model **class-string**. Passing anything other than a string or `null` now throws a `TypeError`.
+Most controllers set the `$model` property rather than override the constructor, so this usually needs no action. If you *do* override `__construct()`, keep the parameter compatible (an untyped `$model` still works) and pass a model **class-string**. Passing a value that is neither `null` nor coercible to a string now throws a `TypeError`.
 
 #### Controller traits (hook methods)
 
@@ -49,7 +50,7 @@ public function beforeIndex(Builder &$query)         →  public function before
 public function afterIndex(Items &$items)            →  public function afterIndex(Items $items): void
 
 // HasShow
-public function show($id)                            →  public function show(int|string|Model $id): JsonResource
+public function show($id)                            →  public function show(int|string|Model $id): BaseResource
 public function beforeShow(Builder &$query)          →  public function beforeShow(Builder $query): void
 public function afterShow(Item &$item)               →  public function afterShow(Item $item): void
 
@@ -71,32 +72,78 @@ public function afterDestroy(Model $model)           →  public function afterD
 
 > **Behavioural change:** the `$query` / `$items` parameters on `beforeIndex`, `afterIndex`, `beforeShow`, and `afterShow` are **no longer passed by reference** (the `&` was removed). You can still mutate the builder/response object in place (it is an object), but reassigning the variable to a new instance inside the hook will no longer take effect. If you relied on `$query = ...;` inside one of these hooks, mutate the existing instance instead.
 
+#### Custom actions
+
+The `HasAction` trait is also composed into `Controller`. Your `actionSomeName()` methods are unaffected, but if you override any of the trait's own methods — most commonly `getActions()`, to restrict which actions are exposed — update the signature:
+
+```php
+public function action()                   →  public function action(): mixed
+protected function getActionMethod($name)  →  protected function getActionMethod(string $name): ?string
+protected function getActions()            →  protected function getActions(): Collection
+protected function getActionMethods()      →  protected function getActionMethods(): Collection
+```
+
+`getActionMethod()` is now declared `?string`. Its runtime behaviour is unchanged — it always returned a string — but its old docblock incorrectly claimed `Illuminate\Support\Stringable`. If you wrote code against that docblock and called `Stringable` methods on the result, it was already broken.
+
 #### Model trait
 
-If your model uses `HasDefaultAppends` and overrides `defaultAppends()`:
+If your model uses `HasDefaultAppends` and overrides `defaultAppends()`, no change is required — a method defined on your own class replaces the trait's without a compatibility check. Adding the return type is still recommended for consistency:
 
 ```php
 public static function defaultAppends()  →  public static function defaultAppends(): array
 ```
 
-#### Resources
+#### Form requests
 
-If you extend `Weap\Junction\Http\Controllers\Resources\BaseResource` and override any of these methods:
+If your form request extends `Weap\Junction\Http\Controllers\Requests\DefaultFormRequest` (as the README suggests) and overrides either of these hooks, add the `void` return type:
 
 ```php
-public function toArray($request)        →  public function toArray(Request $request): array
-public function pluckFields(/* ... */)   →  public function pluckFields(?array $pluckAttributes = null, ?array $pluckAccessors = null, ?array $pluckRelations = null): static
-protected function availableAttributes() →  protected function availableAttributes(): ?array
-protected function availableAccessors()  →  protected function availableAccessors(): ?array
-protected function availableRelations()  →  protected function availableRelations(): ?array
+protected function failedValidation(Validator $validator)  →  protected function failedValidation(Validator $validator): void
+protected function passedValidation()                      →  protected function passedValidation(): void
 ```
 
-`pluckFields()` now returns `static` instead of `$this` (a docblock change only, no code change required, but note it if you type-hint the return value).
+Your `rules()` and `messages()` methods are unaffected — `DefaultFormRequest` does not declare them.
 
 #### Custom filters
 
-If you have written a custom filter extending `Weap\Junction\Http\Controllers\Filters\Filter`, the abstract `apply()` signature is unchanged at the PHP level (it was already `apply(Controller $controller, Builder|Relation $query): void`). Only the docblock generics were tightened to `Builder<Model>|Relation<Model, Model, mixed>`; no code change is required.
+Two internal helpers on the built-in filters gained types, which only matters if you extended one of those classes and overrode them:
+
+```php
+// Filters\Relations
+protected static function getAccessorRelations(string $modelClass, array $accessors)  →  /* ... */: array
+
+// Filters\Wheres
+protected static function applyWhere($query, /* ... */)  →  protected static function applyWhere(Builder|Relation $query, /* ... */)
+```
+
+#### Validators
+
+`Validators\Appends::validate()` and `Validators\Relations::validate()` now declare `: array`. These are called internally by the filters; update the return type if you extended either class.
 
 #### Response objects
 
-The fluent methods on `Response`, `Item`, and `Items` now return `static` instead of `self`/`$this`. This is backwards compatible for callers, but if you extended these classes and overrode `modify()`, update the return type to `static`.
+The methods on `Response`, `Item`, and `Items` now return `static` instead of `self`/`$this`. This is backwards compatible for callers, but if you extended these classes and overrode any of them, update the return type to `static`:
+
+```php
+// Response
+abstract public function modify(Closure $param): self  →  abstract public function modify(Closure $param): static
+
+// Item
+public static function model(Model $model)             →  public static function model(Model $model): static
+public function modify(Closure $param): self           →  public function modify(Closure $param): static
+
+// Items
+public static function query(Builder $query): Items    →  public static function query(Builder $query): static
+public function simplePagination(bool $s): Items       →  public function simplePagination(bool $simplePagination): static
+public function enforceOrderByModelKey(/* ... */): Items  →  public function enforceOrderByModelKey(bool $enforceOrderByModelKey, ?string $direction = 'asc'): static
+public function get(): self                            →  public function get(): static
+public function modify(Closure $param): self           →  public function modify(Closure $param): static
+```
+
+> **Behavioural change:** `Item::model()` and `Items::query()` now instantiate `new static()` instead of `new self()`. If you extended `Item` or `Items`, these factories now return an instance of *your* subclass rather than the base class. This is what the docblocks always claimed; previously they silently returned the base class.
+
+`Items::page()` also takes a typed `int $perPage` now. It is `protected` and only called internally, so this only affects you if you overrode it.
+
+#### Route helper
+
+`Junction::resource()` (already `@deprecated` in favour of `Route::junctionResource()`) now declares `resource(string $uri, string $controller, array $only = [/* ... */]): void`. Callers passing anything other than a string URI, a string controller class, and an array of route names will now get a `TypeError`.

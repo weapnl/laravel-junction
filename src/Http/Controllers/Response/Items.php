@@ -42,11 +42,11 @@ class Items extends Response
 
     /**
      * @param Builder<Model> $query
-     * @return self
+     * @return static
      */
-    public static function query(Builder $query): self
+    public static function query(Builder $query): static
     {
-        $items = new self();
+        $items = new static();
 
         $items->query = $query;
 
