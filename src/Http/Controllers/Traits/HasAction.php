@@ -26,7 +26,7 @@ trait HasAction
             ],
         ]);
 
-        $actionMethod = $this->getActionMethod((string) request()->action);
+        $actionMethod = $this->getActionMethod((string) request()->input('action'));
         $requiresModel = $this->actionRequiresModel($actionMethod);
 
         if ($requiresModel) {
@@ -37,8 +37,8 @@ trait HasAction
 
         $model = null;
 
-        if (request()->id) {
-            $model = $this->model::find(request()->id);
+        if ($id = request()->input('id')) {
+            $model = $this->model::find($id);
 
             if (! $model) {
                 abort(404, 'Record not found.');
@@ -78,7 +78,7 @@ trait HasAction
     }
 
     /**
-     * @return Collection<int, string>
+     * @return Collection<int, non-falsy-string>
      */
     protected function getActionMethods(): Collection
     {

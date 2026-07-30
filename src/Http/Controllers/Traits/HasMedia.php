@@ -20,12 +20,11 @@ trait HasMedia
      */
     public function attachMedia(Model $model, array $validAttributes): array
     {
-        if (! class_exists(Media::class) || ! config('media-library.media_model')) {
+        if (! $model instanceof \Spatie\MediaLibrary\HasMedia || ! is_a(config('media-library.media_model'), Media::class, true)) {
             return [];
         }
 
         $mediaTemporaryUploadModel = Junction::getMediaTemporaryUploadModel();
-        $mediaTemporaryUploadMorphClass = (new $mediaTemporaryUploadModel())->getMorphClass();
 
         $mediaFiles = [];
 
@@ -52,11 +51,12 @@ trait HasMedia
                     /** @var Media $media */
                     $media = config('media-library.media_model')::findOrFail($uploadedFile->mediaId);
 
-                    abort_if($media->model_type !== $mediaTemporaryUploadMorphClass || Auth::id() !== $media->model->created_by_user_id, 404);
+                    $oldMediaTemporaryUpload = $media->model;
+
+                    abort_if(! $oldMediaTemporaryUpload instanceof $mediaTemporaryUploadModel || Auth::id() !== $oldMediaTemporaryUpload->created_by_user_id, 404);
 
                     $media = $this->beforeMediaUpload($media, $model, $collectionName);
 
-                    $oldMediaTemporaryUpload = $media->model;
                     $media = $media->move($model, $collectionName);
 
                     $mediaFiles[] = $media;
@@ -74,7 +74,7 @@ trait HasMedia
     }
 
     /**
-     * @param array<string, mixed> $array
+     * @param array<array-key, mixed> $array
      * @return bool
      */
     private function isValidMediaArray(array $array): bool

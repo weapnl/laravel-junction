@@ -45,8 +45,8 @@ class BaseResource extends JsonResource
         if ($paginator = $items->paginator()) {
             $resourceCollection->additional([
                 'total' => $paginator instanceof LengthAwarePaginator ? $paginator->total() : null,
-                'page' => $paginator?->currentPage(),
-                'has_next_page' => $paginator?->hasMorePages(),
+                'page' => $paginator->currentPage(),
+                'has_next_page' => $paginator->hasMorePages(),
             ]);
         }
 

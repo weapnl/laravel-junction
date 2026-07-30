@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+/**
+ * @property int|null $created_by_user_id
+ */
 class MediaTemporaryUpload extends Model implements HasMedia
 {
     use InteractsWithMedia;

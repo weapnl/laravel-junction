@@ -16,7 +16,7 @@ class Count extends Filter
      */
     public static function apply(Controller $controller, Builder|Relation $query): void
     {
-        $relations = request()?->input('count');
+        $relations = request()->input('count');
 
         if (! $relations || ! is_array($relations)) {
             return;

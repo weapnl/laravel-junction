@@ -4,6 +4,7 @@ namespace Weap\Junction;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\PendingResourceRegistration;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -60,7 +61,7 @@ class JunctionServiceProvider extends ServiceProvider
                 $only = array_diff($only, (array) $options['except']);
             }
 
-            $registrar = new ResourceRegistrar($this);
+            $registrar = new ResourceRegistrar(app(Router::class));
 
             return new PendingResourceRegistration(
                 $registrar,
