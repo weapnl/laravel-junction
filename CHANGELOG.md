@@ -14,6 +14,10 @@
 - Type declarations were added to overridable methods and properties. If you extend `Controller`, its CRUD traits (`HasIndex`, `HasShow`, `HasStore`, `HasUpdate`, `HasDestroy`, `HasAction`), `DefaultFormRequest`, `BaseResource`, overridden signatures and redeclared properties may need updating — and the `beforeIndex`, `afterIndex`, `beforeShow` and `afterShow` hooks no longer receive their argument by reference. See the [upgrade guide](UPGRADE.md) for the full list of changed signatures.
 - `Controller::$resource`, `Controller::$saveFillable` and `Controller::$forceSimplePagination` were widened from `protected` to `public`. Redeclaring them as `protected` in a subclass is a fatal error.
 
+## v0.6.2
+- Changed laravel-pint GitHub action to use version from composer instead of always using the latest.
+- Added support for dot-notation in the `count` filter (e.g. `count[]=orders.products`), which counts the relation on the last relation in the path. That relation is eager loaded, keeping the relation closures defined in the controller intact.
+
 ## v0.6.1
 - Fixed a bug where filtering through a self-referential relation (search, where, whereIn, whereNotIn) generated invalid SQL, because the related model's aliased table name (`table as alias`) was used as a column prefix instead of the alias.
 
