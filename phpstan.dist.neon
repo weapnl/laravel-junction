@@ -14,4 +14,4 @@ parameters:
 
     ignoreErrors:
         - identifier: trait.unused
-          path: src/Http/Controllers/Traits/HasDefaultAppends.php
+          path: src/Models/Concerns/HasDefaultAppends.php

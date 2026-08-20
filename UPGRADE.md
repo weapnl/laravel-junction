@@ -6,6 +6,91 @@
 
 - Laravel 12 or higher
 
+### Moved and renamed classes
+
+Several classes were relocated to give the package a cleaner structure, and one enum lost its redundant `Enum` suffix. The class logic is unchanged — only the namespaces moved. Update any `use` statements (and `extends`/`class-string` references) that point at the old locations:
+
+```php
+// Controller traits moved from `Traits` to `Concerns`
+Weap\Junction\Http\Controllers\Traits\HasAction         →  Weap\Junction\Http\Controllers\Concerns\HasAction
+Weap\Junction\Http\Controllers\Traits\HasIndex          →  Weap\Junction\Http\Controllers\Concerns\HasIndex
+Weap\Junction\Http\Controllers\Traits\HasShow           →  Weap\Junction\Http\Controllers\Concerns\HasShow
+Weap\Junction\Http\Controllers\Traits\HasStore          →  Weap\Junction\Http\Controllers\Concerns\HasStore
+Weap\Junction\Http\Controllers\Traits\HasUpdate         →  Weap\Junction\Http\Controllers\Concerns\HasUpdate
+Weap\Junction\Http\Controllers\Traits\HasDestroy        →  Weap\Junction\Http\Controllers\Concerns\HasDestroy
+Weap\Junction\Http\Controllers\Traits\HasMedia          →  Weap\Junction\Http\Controllers\Concerns\HasMedia
+
+// Form request and resource lifted out of `Http\Controllers` into the standard `Http` layer
+Weap\Junction\Http\Controllers\Requests\DefaultFormRequest  →  Weap\Junction\Http\Requests\DefaultFormRequest
+Weap\Junction\Http\Controllers\Resources\BaseResource       →  Weap\Junction\Http\Resources\BaseResource
+
+// Model trait moved next to models
+Weap\Junction\Http\Controllers\Traits\HasDefaultAppends  →  Weap\Junction\Models\Concerns\HasDefaultAppends
+
+// Supporting classes moved out of `Http\Controllers` and `Http\Utilities`
+Weap\Junction\Http\Controllers\Helpers\Database  →  Weap\Junction\Support\Database
+Weap\Junction\Http\Controllers\Helpers\Table     →  Weap\Junction\Support\Table
+Weap\Junction\Http\Utilities\MediaFile           →  Weap\Junction\Support\MediaFile
+
+// Enum moved and renamed (dropped the redundant `Enum` suffix)
+Weap\Junction\Http\Controllers\Enums\DatabaseTransactionTypeEnum  →  Weap\Junction\Enums\DatabaseTransactionType
+```
+
+### Publish tags renamed
+
+Both publish tags are now prefixed with `junction-`, so they no longer collide with the tags of other packages. Update any deploy script or documentation that referenced the old names:
+
+```bash
+php artisan vendor:publish --tag=migrations   →  php artisan vendor:publish --tag=junction-migrations
+php artisan vendor:publish --tag=config       →  php artisan vendor:publish --tag=junction-config
+```
+
+Publishing the config file is now optional: the package merges its own defaults in recursively, so `config/junction.php` only has to contain the values you want to override. An existing published file keeps working as-is, and you may trim it down to just your overrides.
+
+Because the defaults now come from the merge rather than from fallbacks spread through the code, `config/junction.php` is the single source of truth for them. If you cache your configuration, run `php artisan config:clear` (or re-run `php artisan config:cache`) after upgrading, so that options added in this release resolve to their defaults instead of `null`.
+
+### `DatabaseTransactionType` is now string-backed
+
+`Weap\Junction\Enums\DatabaseTransactionType` has string values matching the `junction.use_db_transactions.*` config keys:
+
+```php
+enum DatabaseTransactionType: string
+{
+    case Store = 'store';
+    case Update = 'update';
+    case Destroy = 'destroy';
+    case Action = 'action';
+}
+```
+
+This only affects you if you referenced the enum directly. Comparisons on cases keep working unchanged; the cases now additionally expose `->value` and `::from()`/`::tryFrom()`.
+
+### Transaction helpers take a `Closure`
+
+The four helpers on `Weap\Junction\Support\Database` now accept a `Closure` rather than any `callable`:
+
+```php
+public static function storeInTransactionIfEnabled(callable $callback): mixed
+    →  public static function storeInTransactionIfEnabled(Closure $callback): mixed
+```
+
+The same applies to `updateInTransactionIfEnabled()`, `destroyInTransactionIfEnabled()` and `actionInTransactionIfEnabled()`. If you called these with a string function name, an `[$object, 'method']` array or an invokable object, wrap it in a closure:
+
+```php
+Database::storeInTransactionIfEnabled([$this, 'persist']);  →  Database::storeInTransactionIfEnabled(fn () => $this->persist());
+```
+
+`DB::transaction()` already required a `Closure`, so any other callable type only worked while the matching `junction.use_db_transactions.*` option was disabled — and threw a `TypeError` as soon as it was enabled. These methods also return the callback's own return type now instead of `mixed`.
+
+### Removed methods
+
+The following methods were removed. If you overrode any of them, the override is now dead code and can be deleted:
+
+- `Controller::rules()` was unused by the package. Define your validation rules on your own `FormRequest` (`rules()`), as shown in the README.
+- `Controller::messages()` the unused companion to `rules()`. Define validation messages on your own `FormRequest` instead.
+- `Weap\Junction\Support\Table::getRelationTableName()` was `@deprecated` because it returned the wrong table name for `morphTo` relations. Resolve the relation with `Table::getRelation()` and read the table name from there.
+- `Weap\Junction\Junction::resource()` was `@deprecated` because it is replaced by `Illuminate\Support\Facades\Route::junctionResource()`.
+
 ### Type Hints
 
 Native parameter, return, and property types have been added throughout the package. PHP enforces that an overriding method's signature stays compatible with the one it inherits, so if you have extended any of the classes below and overridden one of these methods (or redeclared one of these properties), you **must** update your signature to match, otherwise PHP will throw a fatal error.
@@ -28,8 +113,6 @@ protected bool $forceSimplePagination = false;  →  public bool $forceSimplePag
 // Methods — return types added
 public function relations()             →  public function relations(): array
 public function searchable()            →  public function searchable(): array
-public function rules()                 →  public function rules(): array        // now @deprecated (unused)
-public function messages()              →  public function messages(): array     // now @deprecated (unused)
 
 // Constructor — the $model parameter is now typed
 public function __construct($model = null)  →  public function __construct(?string $model = null)
@@ -95,7 +178,7 @@ public static function defaultAppends()  →  public static function defaultAppe
 
 #### Form requests
 
-If your form request extends `Weap\Junction\Http\Controllers\Requests\DefaultFormRequest` (as the README suggests) and overrides either of these hooks, add the `void` return type:
+If your form request extends `Weap\Junction\Http\Requests\DefaultFormRequest` (as the README suggests) and overrides either of these hooks, add the `void` return type:
 
 ```php
 protected function failedValidation(Validator $validator)  →  protected function failedValidation(Validator $validator): void
@@ -140,7 +223,3 @@ public function modify(Closure $param): self           →  public function modi
 ```
 
 `Items::page()` also takes a typed `int $perPage` now. It is `protected` and only called internally, so this only affects you if you overrode it.
-
-#### Route helper
-
-`Junction::resource()` (already `@deprecated` in favour of `Route::junctionResource()`) now declares `resource(string $uri, string $controller, array $only = [/* ... */]): void`. Callers passing anything other than a string URI, a string controller class, and an array of route names will now get a `TypeError`.

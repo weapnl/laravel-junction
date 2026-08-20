@@ -7,15 +7,15 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Controller as BaseController;
-use Weap\Junction\Http\Controllers\Requests\DefaultFormRequest;
-use Weap\Junction\Http\Controllers\Resources\BaseResource;
-use Weap\Junction\Http\Controllers\Traits\HasAction;
-use Weap\Junction\Http\Controllers\Traits\HasDestroy;
-use Weap\Junction\Http\Controllers\Traits\HasIndex;
-use Weap\Junction\Http\Controllers\Traits\HasMedia;
-use Weap\Junction\Http\Controllers\Traits\HasShow;
-use Weap\Junction\Http\Controllers\Traits\HasStore;
-use Weap\Junction\Http\Controllers\Traits\HasUpdate;
+use Weap\Junction\Http\Controllers\Concerns\HasAction;
+use Weap\Junction\Http\Controllers\Concerns\HasDestroy;
+use Weap\Junction\Http\Controllers\Concerns\HasIndex;
+use Weap\Junction\Http\Controllers\Concerns\HasMedia;
+use Weap\Junction\Http\Controllers\Concerns\HasShow;
+use Weap\Junction\Http\Controllers\Concerns\HasStore;
+use Weap\Junction\Http\Controllers\Concerns\HasUpdate;
+use Weap\Junction\Http\Requests\DefaultFormRequest;
+use Weap\Junction\Http\Resources\BaseResource;
 
 class Controller extends BaseController
 {
@@ -105,30 +105,6 @@ class Controller extends BaseController
      * @return array<int, string>
      */
     public function searchable(): array
-    {
-        return [];
-    }
-
-    /**
-     * Define validation rules for the store and update methods.
-     *
-     * @return array<string, mixed>
-     *
-     * @deprecated Unused method
-     */
-    public function rules(): array
-    {
-        return [];
-    }
-
-    /**
-     * Define validation rule messages for the store and update methods.
-     *
-     * @return array<string, string>
-     *
-     * @deprecated Unused method
-     */
-    public function messages(): array
     {
         return [];
     }

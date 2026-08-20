@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Traits;
+namespace Weap\Junction\Http\Controllers\Concerns;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -58,7 +58,7 @@ trait HasIndex
         $items = Items::query($query)
             ->simplePagination($simplePagination)
             ->enforceOrderByModelKey(
-                (bool) config('junction.route.index.enforce_order_by_model_key', false),
+                config()->boolean('junction.route.index.enforce_order_by_model_key'),
                 config('junction.route.index.enforce_order_by_model_key_direction'),
             )
             ->get();
