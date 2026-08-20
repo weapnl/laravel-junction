@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.6.2
 - Changed laravel-pint GitHub action to use version from composer instead of always using the latest.
 - Added support for dot-notation in the `count` filter (e.g. `count[]=orders.products`), which counts the relation on the last relation in the path. That relation is eager loaded, keeping the relation closures defined in the controller intact.
 
