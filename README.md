@@ -168,7 +168,7 @@ Filters are applied to the query. Filters are defined using array keys. Availabl
 | `where_in`       | `where_in[0][column]=id&where_in[0][values][0]=1&where_in[0][values][1]=2`                         | Apply where in clause. (Where id is 1 or 2)                                                   |
 | `where_not_in`   | `where_not_in[0][column]=id&where_not_in[0][values][0]=1&where_not_in[0][values][1]=2`             | Apply where not in clause. (Where id is not 1 or 2)                                           |
 
-A column in `wheres`, `where_in`, `where_not_in` and `search_columns` can use dot-notation to filter on a relation (`orders.number`). Every segment before the column must be a relation of the model before it: a method that declares a relation as return type, or a relation added with `resolveRelationUsing()`. Otherwise the request gets a `422` response with an error for that parameter. The `searchable` columns of the controller are not checked.
+A column in `wheres`, `where_in`, `where_not_in` and `search_columns` can use dot-notation to filter on a relation (`orders.number`). Every segment before the column must be a relation of the model before it: a method that declares a relation as return type, or a relation added with `resolveRelationUsing()`. A path can not continue past a `morphTo` relation, because its model is only known per record. Otherwise the request gets a `422` response with an error for that parameter. The `searchable` columns of the controller are not checked.
 
 #### Modifiers
 Modifiers are applied after the query has run. Available modifiers:
@@ -287,7 +287,7 @@ protected function name(): Attribute
 ### Pluck
 The `pluck` modifier is validated before the query runs, the same way as appends. A request with a field that is not allowed gets a `422` response with a `pluck` error:
 - Leading segments that are relations must be allowed by the resource of their parent model. The model behind a `morphTo` relation is only known per record, so the segments after a `morphTo` are not validated; the response still applies the resource of each related model to them.
-- The first segment that is not a relation is the field. A relation without a declared return type is not a field, so a path through one is refused. When the field is an accessor, it must be allowed as an append. Otherwise it is a column, which must be in `availableAttributes()` with the exact same name when the resource defines that list, and can not be hidden (`$hidden`, or missing from `$visible` when that is set). The primary key is the exception: it can be plucked even when it is hidden.
+- The first segment that is not a relation is the field. A relation without a declared return type is not a field, so a path through one is refused. When the field is an accessor, it must be allowed as an append. Otherwise it is a column, which must be in `availableAttributes()` with the exact same name when the resource defines that list, and can not be hidden (`$hidden`, or missing from `$visible` when that is set). The primary key is the exception: it can always be requested, even when it is hidden or not in `availableAttributes()`, and is returned as described under [Resources](#resources).
 - Segments after the field are ignored; the whole value of the field is returned.
 - A path of only relations (`pluck[]=orders`) returns the whole relation, through its resource, when the relation is loaded with `with`.
 

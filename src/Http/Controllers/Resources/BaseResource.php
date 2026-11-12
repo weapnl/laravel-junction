@@ -233,11 +233,11 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given field may be plucked from the model of this resource.
      *
-     * The field must be a plain name. An accessor must be allowed by `allowsAccessor()`. A relation, or any other method
-     * of the model, is not a field. Any other field is a column, which must be in `availableAttributes()` with the exact
-     * same name when that returns a list, and can not be hidden unless it is the primary key: the response returns the
-     * primary key whenever fields are plucked, even when it is hidden. Whether a column exists is only known for a loaded
-     * record.
+     * The field must be a plain name. The primary key is always allowed, so clients can always request it; the response
+     * only returns it when `availableAttributes()` returns `null` or lists it. An accessor must be allowed by
+     * `allowsAccessor()`. A relation, or any other method of the model, is not a field. Any other field is a column, which
+     * can not be hidden and must be in `availableAttributes()` with the exact same name when that returns a list. Whether
+     * a column exists is only known for a loaded record.
      *
      * @param string $field
      * @return bool
@@ -248,15 +248,15 @@ class BaseResource extends JsonResource
             return false;
         }
 
+        if ($field === $this->resource->getKeyName()) {
+            return true;
+        }
+
         if (static::isAccessor($this->resource, $field)) {
             return $this->allowsAccessor($field);
         }
 
-        if ($this->resource->isRelation($field)) {
-            return false;
-        }
-
-        if ($field !== $this->resource->getKeyName() && $this->isHidden($field)) {
+        if ($this->resource->isRelation($field) || $this->isHidden($field)) {
             return false;
         }
 
@@ -345,7 +345,8 @@ class BaseResource extends JsonResource
      */
     protected static function isPlainName(string $field): bool
     {
-        return preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $field) === 1;
+        // `\z`, because `$` also matches before a trailing newline.
+        return preg_match('/^[A-Za-z_][A-Za-z0-9_]*\z/', $field) === 1;
     }
 
     /**
