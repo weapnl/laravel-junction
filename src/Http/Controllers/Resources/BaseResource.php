@@ -229,10 +229,10 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given field may be plucked from the model of this resource.
      *
-     * The primary key is always allowed, because the response always includes it. An accessor must be allowed by
-     * `allowsAccessor()`. A relation, or any other method of the model, is not a field. Any other field is a column,
-     * which can not be hidden and must be in `availableAttributes()` when that returns a list. Whether a column exists is
-     * only known for a loaded record.
+     * An accessor must be allowed by `allowsAccessor()`. A relation, or any other method of the model, is not a field.
+     * Any other field is a column, which must be in `availableAttributes()` when that returns a list, and can not be
+     * hidden unless it is the primary key: the response returns the primary key whenever fields are plucked, even when it
+     * is hidden. Whether a column exists is only known for a loaded record.
      *
      * @param string $field
      * @return bool
@@ -243,15 +243,15 @@ class BaseResource extends JsonResource
             return false;
         }
 
-        if ($field === $this->resource->getKeyName()) {
-            return true;
-        }
-
         if (static::isAccessor($this->resource, $field)) {
             return $this->allowsAccessor($field);
         }
 
-        if ($this->resource->isRelation($field) || $this->isHidden($field)) {
+        if ($this->resource->isRelation($field)) {
+            return false;
+        }
+
+        if ($field !== $this->resource->getKeyName() && $this->isHidden($field)) {
             return false;
         }
 

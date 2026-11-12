@@ -285,7 +285,7 @@ protected function name(): Attribute
 ### Pluck
 The `pluck` modifier is validated before the query runs, the same way as appends. A request with a field that is not allowed gets a `422` response with a `pluck` error:
 - Leading segments that are relations must be allowed by the resource of their parent model.
-- The first segment that is not a relation is the field. It can not be a hidden field (`$hidden`, or missing from `$visible` when that is set). When it is an accessor, it must be allowed as an append. Otherwise it is a column, which must be in `availableAttributes()` when the resource defines that list.
+- The first segment that is not a relation is the field. A relation without a declared return type is not a field, so a path through one is refused. When the field is an accessor, it must be allowed as an append. Otherwise it is a column, which must be in `availableAttributes()` when the resource defines that list, and can not be hidden (`$hidden`, or missing from `$visible` when that is set). The primary key is the exception: it can be plucked even when it is hidden.
 - Segments after the field are ignored; the whole value of the field is returned.
 
 ### Search
@@ -304,7 +304,7 @@ public $searchable = [
 To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Controllers\Resources`.
 
 This allows you to specify which attributes, accessors and relations will be returned. To do this, override the corresponding method:
-- `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is always included.
+- `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is only returned when it is in this list. With `null`, the primary key is returned with every `pluck`, even when it is hidden.
 - `availableAccessors`. Return an array of strings, specifying which accessors will be returned.
 - `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource. Use `null` as the value to allow the relation and let the resolver below find its resource.
 
