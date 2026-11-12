@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Enumerable;
 use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Controller;
+use Weap\Junction\Http\Controllers\Resources\BaseResource;
 use Weap\Junction\Http\Controllers\Response\Response;
 
 class HiddenFields extends Modifier
@@ -56,6 +57,8 @@ class HiddenFields extends Modifier
 
     /**
      * Only a loaded relation or an accessor is read, so a request can not make the model call one of its other methods.
+     * Reading an accessor can store its value in the model's attributes under the requested name, so the name must be a
+     * plain name of an accessor that is not hidden.
      *
      * @param Model $model
      * @param string $field
@@ -65,6 +68,10 @@ class HiddenFields extends Modifier
     {
         if ($model->relationLoaded($field)) {
             return $model->getRelation($field);
+        }
+
+        if (! BaseResource::isPlainName($field) || BaseResource::isHiddenOn($model, $field)) {
+            return null;
         }
 
         if ($model->hasGetMutator($field) || $model->hasAttributeGetMutator($field)) {

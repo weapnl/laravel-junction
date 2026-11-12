@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Weap\Junction\Http\Controllers\Response\Items;
 use Weap\Junction\Junction;
@@ -155,19 +154,24 @@ class BaseResource extends JsonResource
                 ->toArray()
             : null;
 
-        // If no pluck attributes or available attributes are given, return all attributes
+        // If no pluck attributes or available attributes are given, return all attributes that are not hidden
         if ($pluckAttributes === null && $attributes === null) {
-            return $this->resource->only(array_keys(Arr::except($this->resource->getAttributes(), $this->resource->getHidden())));
+            return $this->resource->only(
+                collect(array_keys($this->resource->getAttributes()))->reject(fn ($attribute) => $this->isHidden($attribute))->all(),
+            );
         }
         if ($pluckAttributes !== null) {
             // Always add the primary key
             $pluckAttributes[$this->resource->getKeyName()] = null;
 
-            // Only get available attributes (if present). Accessors are already restricted by `allowsAccessor()`.
+            // Only get available attributes (if present). Accessors are already restricted by `allowsAccessor()`; the primary
+            // key is not, because it is added above without that check, so it is only returned when it is available.
             $attributes = $attributes !== null
                 ? [
                     ...collect($attributes)->filter(fn ($field) => array_key_exists($field, $pluckAttributes))->all(),
-                    ...collect(array_keys($pluckAttributes))->filter(fn ($field) => static::isAccessor($this->resource, $field))->all(),
+                    ...collect(array_keys($pluckAttributes))
+                        ->filter(fn ($field) => $field !== $this->resource->getKeyName() && static::isAccessor($this->resource, $field))
+                        ->all(),
                 ]
                 : array_keys($pluckAttributes);
         }
@@ -327,11 +331,23 @@ class BaseResource extends JsonResource
      */
     protected function isHidden(string $field): bool
     {
-        if (static::containsField($this->resource->getHidden(), $field)) {
+        return static::isHiddenOn($this->resource, $field);
+    }
+
+    /**
+     * Determine whether the given field is hidden on the model: in `$hidden`, or missing from `$visible` when that is set.
+     *
+     * @param Model $model
+     * @param string $field
+     * @return bool
+     */
+    public static function isHiddenOn(Model $model, string $field): bool
+    {
+        if (static::containsField($model->getHidden(), $field)) {
             return true;
         }
 
-        $visible = $this->resource->getVisible();
+        $visible = $model->getVisible();
 
         return $visible !== [] && ! static::containsField($visible, $field);
     }
@@ -343,7 +359,7 @@ class BaseResource extends JsonResource
      * @param string $field
      * @return bool
      */
-    protected static function isPlainName(string $field): bool
+    public static function isPlainName(string $field): bool
     {
         // `\z`, because `$` also matches before a trailing newline.
         return preg_match('/^[A-Za-z_][A-Za-z0-9_]*\z/', $field) === 1;
