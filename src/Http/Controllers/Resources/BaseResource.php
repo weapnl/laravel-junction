@@ -164,13 +164,13 @@ class BaseResource extends JsonResource
             // Always add the primary key
             $pluckAttributes[$this->resource->getKeyName()] = null;
 
-            // Only get available attributes (if present). Accessors are already restricted by `allowsAccessor()`; the primary
-            // key is not, because it is added above without that check, so it is only returned when it is available.
+            // Only get available attributes (if present). Accessors are already restricted by `allowsAccessor()`. A column
+            // with an accessor, such as the primary key, is still a column, so only the list above can return it.
             $attributes = $attributes !== null
                 ? [
                     ...collect($attributes)->filter(fn ($field) => array_key_exists($field, $pluckAttributes))->all(),
                     ...collect(array_keys($pluckAttributes))
-                        ->filter(fn ($field) => $field !== $this->resource->getKeyName() && static::isAccessor($this->resource, $field))
+                        ->filter(fn ($field) => ! $this->isColumn($field) && static::isAccessor($this->resource, $field))
                         ->all(),
                 ]
                 : array_keys($pluckAttributes);
@@ -205,9 +205,33 @@ class BaseResource extends JsonResource
         $accessors = collect($this->pluckAccessors)
             ->filter(fn ($nested, $accessor) => ! is_array($nested) && ! $this->resource->isRelation($accessor))
             ->filter(fn ($_, $accessor) => $this->allowsAccessor($accessor))
+            ->reject(fn ($_, $accessor) => $this->isColumn($accessor) && ! $this->isAvailableAttribute($accessor))
             ->keys();
 
         return $this->resource->only($accessors->toArray());
+    }
+
+    /**
+     * Whether a name is a column is only known for a loaded record. Names are compared the way PHP finds the accessor
+     * method, so another spelling of a column with an accessor is also recognised as that column.
+     *
+     * @param string $field
+     * @return bool
+     */
+    protected function isColumn(string $field): bool
+    {
+        return static::containsField(array_keys($this->resource->getAttributes()), $field);
+    }
+
+    /**
+     * @param string $field
+     * @return bool
+     */
+    protected function isAvailableAttribute(string $field): bool
+    {
+        $availableAttributes = $this->availableAttributes();
+
+        return $availableAttributes === null || in_array($field, $availableAttributes, true);
     }
 
     /**
@@ -264,10 +288,8 @@ class BaseResource extends JsonResource
             return false;
         }
 
-        $availableAttributes = $this->availableAttributes();
-
         // The response looks columns up by their exact name, so a different spelling would be allowed but never returned.
-        return $availableAttributes === null || in_array($field, $availableAttributes, true);
+        return $this->isAvailableAttribute($field);
     }
 
     /**

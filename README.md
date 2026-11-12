@@ -311,7 +311,9 @@ This allows you to specify which attributes, accessors and relations will be ret
 - `availableAccessors`. Return an array of strings, specifying which accessors will be returned.
 - `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource. Use `null` as the value to allow the relation and let the resolver below find its resource.
 
-Return `null` in any of these methods to allow `ALL` attributes/accessors/relations to be returned. For attributes, `null` means every attribute that is not hidden (`$hidden`, or missing from `$visible` when that is set). For accessors, `null` means every accessor of the model, never a column.
+Return `null` in any of these methods to allow `ALL` attributes/accessors/relations to be returned. For attributes, `null` means every attribute that is not hidden (`$hidden`, or missing from `$visible` when that is set). This includes attributes the query adds, such as `orders_count` from the `count` filter, so a model with `$visible` must list those too. For accessors, `null` means every accessor of the model, never a column.
+
+A column that has an accessor (for example the primary key, or an `email()` accessor that formats the `email` column) is still a column: when `availableAttributes()` returns a list, the column is only returned when it is in that list, also through `appends`.
 
 Related models are returned through their own resource, so its restrictions also apply when the model is nested. With `availableRelations()` returning `null`, or mapping the relation to `null`, the resource of a related model is found by the resolver below, or is the base resource when the resolver returns `null`:
 
@@ -324,7 +326,7 @@ Junction::resolveResourcesUsing(function (Model $model): ?string {
 });
 ```
 
-The `available*()` methods and the resolver are also called before the query runs, with a resource or model that is empty, to validate `appends` and `pluck`. They must not depend on the record or on the requested fields.
+The `available*()` methods and the resolver are also called before the query runs, with a resource or model that is empty, to validate `appends` and `pluck`. They must not depend on the record or on the requested fields. For the same reason, a field that is only made visible at runtime (with `makeVisible()`) can not be plucked or appended.
 
 Example:
 ```php

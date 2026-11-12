@@ -57,8 +57,9 @@ class HiddenFields extends Modifier
 
     /**
      * Only a loaded relation or an accessor is read, so a request can not make the model call one of its other methods.
-     * Reading an accessor can store its value in the model's attributes under the requested name, so the name must be a
-     * plain name of an accessor that is not hidden.
+     * Reading an `Attribute` accessor that has a setter can store its value in the model's attributes under the requested
+     * name, where the response would return it, so such an accessor is not read. The name must also be a plain name of an
+     * accessor that is not hidden.
      *
      * @param Model $model
      * @param string $field
@@ -70,7 +71,7 @@ class HiddenFields extends Modifier
             return $model->getRelation($field);
         }
 
-        if (! BaseResource::isPlainName($field) || BaseResource::isHiddenOn($model, $field)) {
+        if (! BaseResource::isPlainName($field) || BaseResource::isHiddenOn($model, $field) || $model->hasAttributeSetMutator($field)) {
             return null;
         }
 
