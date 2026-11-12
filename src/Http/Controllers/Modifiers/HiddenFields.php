@@ -37,14 +37,14 @@ class HiddenFields extends Modifier
             $traversed = Str::of($field)->explode('.');
 
             if ($traversed->count() > 1) {
-                $relation = $traversed->shift();
+                $value = self::value($model, $traversed->shift());
 
-                if ($model->$relation instanceof Enumerable) {
-                    $model->$relation->each(function ($model) use ($traversed) {
+                if ($value instanceof Enumerable) {
+                    $value->each(function ($model) use ($traversed) {
                         self::traverse($model, [$traversed->join('.')]);
                     });
-                } elseif ($model->$relation instanceof Model) {
-                    self::traverse($model->$relation, [$traversed->join('.')]);
+                } elseif ($value instanceof Model) {
+                    self::traverse($value, [$traversed->join('.')]);
                 }
             } elseif ($model instanceof Enumerable) {
                 $model->each->makeHidden($field);
@@ -52,5 +52,25 @@ class HiddenFields extends Modifier
                 $model->makeHidden($field);
             }
         }
+    }
+
+    /**
+     * Only a loaded relation or an accessor is read, so a request can not make the model call one of its other methods.
+     *
+     * @param Model $model
+     * @param string $field
+     * @return mixed
+     */
+    protected static function value(Model $model, string $field): mixed
+    {
+        if ($model->relationLoaded($field)) {
+            return $model->getRelation($field);
+        }
+
+        if ($model->hasGetMutator($field) || $model->hasAttributeGetMutator($field)) {
+            return $model->getAttribute($field);
+        }
+
+        return null;
     }
 }

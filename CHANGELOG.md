@@ -6,6 +6,10 @@
 - **Breaking:** related models are returned through the resource of their own model. Use `Junction::resolveResourcesUsing()` to map a model to its resource; without a resolver, the base resource is used.
 - **Breaking:** relations are only recognised in `appends` and `pluck` paths when their method declares a relation as return type.
 - Fixed a bug where an append naming a model method (e.g. `save`) called that method on an empty model while looking for relations to eager load.
+- **Breaking:** an accessor that is hidden (`$hidden`, or missing from `$visible`) can not be appended or plucked, and is no longer returned through `HasDefaultAppends`. Field names are compared ignoring case and underscores, the way PHP finds the accessor method.
+- **Breaking:** a requested relation (`with` and `count`) must match an allowed relation segment by segment; before, any prefix of an allowed relation's name was accepted (`save` for `savedSearches`). With `relations()` returning `['*']`, each segment must be a method that declares a relation as return type, and a path can not continue past a `morphTo` relation.
+- Fixed a bug where `with`, `count` and `hidden_fields` could make a model call one of its methods because the request named it.
+- A resource listing an accessor in `availableAttributes()` but not in a non-null `availableAccessors()` can no longer return that accessor through `pluck`. A hidden column listed in `availableAttributes()` is still returned without `pluck`, but plucking it is refused.
 - Added `BaseResource::allowsAccessor()`, `BaseResource::allowsPluckField()`, `BaseResource::resourceForRelation()` and `Controller::getResourceClass()`.
 
 ## v0.6.2

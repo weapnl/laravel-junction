@@ -9,7 +9,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Response\Items;
 use Weap\Junction\Junction;
 
@@ -210,15 +209,15 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given accessor may be appended to the model of this resource.
      *
-     * The name must be an accessor of the model, never a column. When `availableAccessors()` returns a list, the name must
-     * also be in it.
+     * The name must be an accessor of the model, never a column, and can not be hidden. When `availableAccessors()`
+     * returns a list, the name must also be in it.
      *
      * @param string $accessor
      * @return bool
      */
     public function allowsAccessor(string $accessor): bool
     {
-        if (! $this->resource instanceof Model || ! static::isAccessor($this->resource, $accessor)) {
+        if (! $this->resource instanceof Model || ! static::isAccessor($this->resource, $accessor) || $this->isHidden($accessor)) {
             return false;
         }
 
@@ -230,8 +229,8 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given field may be plucked from the model of this resource.
      *
-     * Hidden fields are never allowed. An accessor must be allowed by `allowsAccessor()`. Any other field is a column, which
-     * must be in `availableAttributes()` when that returns a list. Whether a column exists is only known for a loaded record.
+     * An accessor must be allowed by `allowsAccessor()`. Any other field is a column, which can not be hidden and must be
+     * in `availableAttributes()` when that returns a list. Whether a column exists is only known for a loaded record.
      *
      * @param string $field
      * @return bool
@@ -242,18 +241,12 @@ class BaseResource extends JsonResource
             return false;
         }
 
-        if (static::containsField($this->resource->getHidden(), $field)) {
-            return false;
-        }
-
-        $visible = $this->resource->getVisible();
-
-        if ($visible !== [] && ! static::containsField($visible, $field)) {
-            return false;
-        }
-
         if (static::isAccessor($this->resource, $field)) {
             return $this->allowsAccessor($field);
+        }
+
+        if ($this->isHidden($field)) {
+            return false;
         }
 
         $availableAttributes = $this->availableAttributes();
@@ -289,7 +282,7 @@ class BaseResource extends JsonResource
             return true;
         }
 
-        if (! static::isAccessor($this->resource, $field) && ! array_key_exists($field, $this->resource->getAttributes())) {
+        if (! array_key_exists($field, $this->resource->getAttributes()) && ! static::isAccessor($this->resource, $field)) {
             return false;
         }
 
@@ -307,7 +300,23 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * Compare field names regardless of casing, because requests may use camelCase or snake_case.
+     * @param string $field
+     * @return bool
+     */
+    protected function isHidden(string $field): bool
+    {
+        if (static::containsField($this->resource->getHidden(), $field)) {
+            return true;
+        }
+
+        $visible = $this->resource->getVisible();
+
+        return $visible !== [] && ! static::containsField($visible, $field);
+    }
+
+    /**
+     * Compare field names the way PHP finds the accessor method of a name: ignoring case and underscores. Requests may use
+     * camelCase or snake_case, and any other spelling of a name reaches the same method.
      *
      * @param array $fields
      * @param string $field
@@ -315,9 +324,24 @@ class BaseResource extends JsonResource
      */
     protected static function containsField(array $fields, string $field): bool
     {
-        $field = Str::snake($field);
+        $field = static::normalizeField($field);
 
-        return collect($fields)->contains(fn ($candidate) => is_string($candidate) && Str::snake($candidate) === $field);
+        foreach ($fields as $candidate) {
+            if (is_string($candidate) && static::normalizeField($candidate) === $field) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $field
+     * @return string
+     */
+    protected static function normalizeField(string $field): string
+    {
+        return strtolower(str_replace('_', '', $field));
     }
 
     /**

@@ -198,6 +198,8 @@ Simple pagination almost the same as the pagination above. But the simple pagina
 To limit the relations which can be loaded using the `with` filter, you can override the `relations` method on your controller.
 This method should return an array containing relations (dot-notation is supported). To add filters to the relation query, you can use the key as relation name and a closure as the value.
 
+A requested relation must be one of these relations, or a relation on the path of one: `user.orders` also allows `user`, but not `use` or `user.ord`. When `relations()` returns `['*']`, every relation can be loaded, but each segment must then be a method that declares a relation as return type, and a path can not continue past a `morphTo` relation. The same applies to the `count` filter.
+
 **Note**: When using dot-notation, if a closure is given for one of the higher-level relations in your controller, that closure will be applied to the query. For example with relations implemented like below, loading the relation `user.activities`, will apply the `isAdmin` scope to the user query.
 ```php
 public function relations()
@@ -230,7 +232,7 @@ Appends are validated before the query runs. A request with an append that is no
 - The last segment must be an accessor (`getFooAttribute()` or a method returning `Attribute`) of the model it lands on, never a column. When the resource of that model defines `availableAccessors()`, the accessor must also be in that list.
 - An append can not continue past an accessor (`identity.files.url`), not even when the accessor returns models.
 
-Relations are only recognised in appends and pluck paths when their method declares a relation as return type (e.g. `public function orders(): HasMany`). Methods are never called just because a request names them.
+Relations are only recognised in appends and pluck paths when their method declares a relation as return type (e.g. `public function orders(): HasMany`). An accessor that is hidden (`$hidden`, or missing from `$visible` when that is set) can not be appended. Names are compared the way PHP finds methods, ignoring case and underscores, so every spelling of a hidden or allowed name is treated the same.
 
 In some cases you may want an accessor to return a value of one of its relations, which would normally cause a lazy load when the accessor is executed. To eager load the relation, you could add it to the request using the `with` filter, which means the frontend is responsible for proper eager loading.
 To shift this responsibility to the backend, you can use the `Junction::makeAttribute()` function to make an accessor instead of `Attribute::make()`:
