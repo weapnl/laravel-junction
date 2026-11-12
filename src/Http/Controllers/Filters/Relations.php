@@ -55,7 +55,7 @@ class Relations extends Filter
      */
     protected static function addWith(Builder|Relation $query, string $relation, array|Closure|int $nestedRelations, array $relationFilters): void
     {
-        $relationFilters = array_filter(Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation) => Str::startsWith($filterRelation, $relation) ? [Str::after($filterRelation, $relation) => $closure] : [$filterRelation => null]));
+        $relationFilters = array_filter(Arr::mapWithKeys($relationFilters, fn ($closure, $filterRelation) => $filterRelation === $relation || Str::startsWith($filterRelation, $relation . '.') ? [Str::after($filterRelation, $relation) => $closure] : [$filterRelation => null]));
 
         $query->with($relation, function (Builder|Relation $query) use ($nestedRelations, $relation, $relationFilters) {
             $nestedRelations = is_array($nestedRelations) ? $nestedRelations : [$nestedRelations];

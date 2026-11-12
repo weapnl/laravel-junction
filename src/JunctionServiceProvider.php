@@ -96,7 +96,7 @@ class JunctionServiceProvider extends ServiceProvider
 
                 $fieldRelation = Str::beforeLast($field, '.');
 
-                if (! Arr::first($relations ?? [], fn ($relation) => Str::startsWith($relation, $fieldRelation))) {
+                if (! Arr::first($relations ?? [], fn ($relation) => $relation === $fieldRelation || Str::startsWith($relation, $fieldRelation . '.'))) {
                     $relations ??= [];
                     $relations[] = $fieldRelation;
                 }
