@@ -160,7 +160,7 @@ Filters are applied to the query. Filters are defined using array keys. Availabl
 | `limit`          | `limit=10`                                                                                         | Limit the maximum amount of results.                                                          |
 | `orders`         | `orders[][column]=name,orders[][direction]=asc`                                                    | Columns to order on.                                                                          |
 | `with`           | `with=[orders,comments]`                                                                           | Relations to load.                                                                            |
-| `count`          | `count[]=orders&count[]=orders.products`                                                           | Relations to count. Dot-notation is supported; the count is applied to the last relation in the path, which is eager loaded (relation closures defined in the controller are applied as well). |
+| `count`          | `count[]=orders&count[]=orders.products`                                                           | Relations to count. Dot-notation is supported; the count is applied to the last relation in the path, which is eager loaded (relation closures defined in the controller are applied as well). Only the values are used; keys are ignored. |
 | `scopes`         | `scopes[0][name]=hasName&scopes[0][params][0]=John`                                                | Scopes to apply with the given parameters.                                                    |
 | `search_value`   | `search_value=john`                                                                                | Search for the given value.                                                                   |
 | `search_columns` | `search_columns[]=id&search_columns[]=name`                                                        | The columns to search in. (optional: defaults to the searchable variable on your controller.) |
@@ -168,14 +168,16 @@ Filters are applied to the query. Filters are defined using array keys. Availabl
 | `where_in`       | `where_in[0][column]=id&where_in[0][values][0]=1&where_in[0][values][1]=2`                         | Apply where in clause. (Where id is 1 or 2)                                                   |
 | `where_not_in`   | `where_not_in[0][column]=id&where_not_in[0][values][0]=1&where_not_in[0][values][1]=2`             | Apply where not in clause. (Where id is not 1 or 2)                                           |
 
+A column in `wheres`, `where_in`, `where_not_in` and `search_columns` can use dot-notation to filter on a relation (`orders.number`). Every segment before the column must be a relation of the model before it: a method that declares a relation as return type, or a relation added with `resolveRelationUsing()`. In `wheres`, `where_in` and `where_not_in`, a path can not continue past a `morphTo` relation. In `search_columns` it can: Laravel searches each related model type separately, and the rest of the path is checked on each of those models. Otherwise the request gets a `422` response with an error for that parameter. The `searchable` columns of the controller are not checked.
+
 #### Modifiers
 Modifiers are applied after the query has run. Available modifiers:
 
 | Key             | Example                                      | Description                                                                                               |
 |-----------------|----------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| `appends`       | `appends[]=fullname&appends[]=identity.age`  | Add appends to each model in the result.                                                                  |
+| `appends`       | `appends[]=fullname&appends[]=identity.age`  | Add appends to each model in the result. See [Accessors](#accessors) for which appends are allowed.       |
 | `hidden_fields` | `hidden_fields[]=id&hidden_fields[]=address` | Hide the given fields for each model in the result.                                                       |
-| `pluck`         | `pluck[]=id&pluck[]=address.house_number`    | Only return the given fields for each model in the result. (Only available for `index` and `show` routes) |
+| `pluck`         | `pluck[]=id&pluck[]=address.house_number`    | Only return the given fields for each model in the result. (Only available for `index` and `show` routes) See [Pluck](#pluck) for which fields are allowed. |
 
 #### Pagination
 Pagination is applied on database-level (after applying all filters). The following parameters can be used to setup pagination:
@@ -197,6 +199,8 @@ Simple pagination almost the same as the pagination above. But the simple pagina
 ### Relations
 To limit the relations which can be loaded using the `with` filter, you can override the `relations` method on your controller.
 This method should return an array containing relations (dot-notation is supported). To add filters to the relation query, you can use the key as relation name and a closure as the value.
+
+A requested relation must be one of these relations, or a relation on the path of one: `user.orders` also allows `user`, but not `use` or `user.ord`. When `relations()` returns `['*']`, every relation can be loaded, but each segment must then be a method that declares a relation as return type, or a relation added with `resolveRelationUsing()`, and a path can not continue past a `morphTo` relation. The same applies to the `count` filter.
 
 **Note**: When using dot-notation, if a closure is given for one of the higher-level relations in your controller, that closure will be applied to the query. For example with relations implemented like below, loading the relation `user.activities`, will apply the `isAdmin` scope to the user query.
 ```php
@@ -224,6 +228,13 @@ This example will add or replace the `activities` relation on any controller. No
 
 ### Accessors
 To append accessors to models in the response, you can use the `appends` modifier. This modifier allows dot-notation for relations. These relations will be eager loaded (relation closures defined in the controller are applied as well).
+
+Appends are validated before the query runs. A request with an append that is not allowed gets a `422` response with an `appends` error:
+- Every segment before the last must be a relation that the resource of its parent model allows (see [Resources](#resources)). A `morphTo` relation can not be used in an append path, because its model is only known per record.
+- The last segment must be an accessor (`getFooAttribute()` or a method returning `Attribute`) of the model it lands on, never a column. When the resource of that model defines `availableAccessors()`, the accessor must also be in that list.
+- An append can not continue past an accessor (`identity.files.url`), not even when the accessor returns models.
+
+Relations are only recognised in appends and pluck paths when their method declares a relation as return type (e.g. `public function orders(): HasMany`), or when they are added with `resolveRelationUsing()`. An accessor that is hidden (`$hidden`, or missing from `$visible` when that is set) can not be appended. An append or pluck field may only contain letters, digits and underscores, and can not start with a digit. Accessor names are compared the way PHP finds methods, ignoring case and underscores, so camelCase and snake_case spellings of an accessor are treated the same, both for `$hidden` and for `availableAccessors()`.
 
 In some cases you may want an accessor to return a value of one of its relations, which would normally cause a lazy load when the accessor is executed. To eager load the relation, you could add it to the request using the `with` filter, which means the frontend is responsible for proper eager loading.
 To shift this responsibility to the backend, you can use the `Junction::makeAttribute()` function to make an accessor instead of `Attribute::make()`:
@@ -273,6 +284,13 @@ protected function name(): Attribute
 }
 ```
 
+### Pluck
+The `pluck` modifier is validated before the query runs, the same way as appends. A request with a field that is not allowed gets a `422` response with a `pluck` error:
+- Leading segments that are relations must be allowed by the resource of their parent model. The model behind a `morphTo` relation is only known per record, so the segments after a `morphTo` are not validated; the response still applies the resource of each related model to them.
+- The first segment that is not a relation is the field. A relation without a declared return type, or any other method of the model (such as a `status()` method next to a `status` column), is not a field, so it is refused. When the field is an accessor, it must be allowed as an append. Otherwise it is a column, which must be in `availableAttributes()` with the exact same name when the resource defines that list, and can not be hidden (`$hidden`, or missing from `$visible` when that is set). The primary key is the exception: it can always be requested, even when it is hidden or not in `availableAttributes()`, and is returned as described under [Resources](#resources).
+- Segments after the field are ignored; the whole value of the field is returned.
+- A path of only relations (`pluck[]=orders`) returns the whole relation, through its resource, when the relation is loaded with `with`.
+
 ### Search
 This package supports search functionality for given models and relations.
 On your controller, add a searchable property like defined below.
@@ -289,11 +307,26 @@ public $searchable = [
 To use resources, set the `resource` variable in your controller. Your resource must extend `\Weap\Junction\Http\Controllers\Resources`.
 
 This allows you to specify which attributes, accessors and relations will be returned. To do this, override the corresponding method:
-- `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is always included.
+- `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is only returned when it is in this list. With `null`, the primary key is returned with every `pluck`, even when it is hidden.
 - `availableAccessors`. Return an array of strings, specifying which accessors will be returned.
-- `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource.
+- `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource. Use `null` as the value to allow the relation and let the resolver below find its resource.
 
-Return `null` in any of these methods to allow `ALL` attributes/accessors/relations to be returned.
+Return `null` in any of these methods to allow `ALL` attributes/accessors/relations to be returned. For attributes, `null` means every attribute that is not hidden (`$hidden`, or missing from `$visible` when that is set). This includes attributes the query adds, such as `orders_count` from the `count` filter, so a model with `$visible` must list those too. For accessors, `null` means every accessor of the model, never a column.
+
+A column that has an accessor (for example the primary key, or an `email()` accessor that formats the `email` column) is still a column: when `availableAttributes()` returns a list, the column is only returned when it is in that list, also through `appends`.
+
+Related models are returned through their own resource, so its restrictions also apply when the model is nested. With `availableRelations()` returning `null`, or mapping the relation to `null`, the resource of a related model is found by the resolver below, or is the base resource when the resolver returns `null`:
+
+```php
+// In a service provider
+Junction::resolveResourcesUsing(function (Model $model): ?string {
+    $resource = str_replace('\\Models\\', '\\Http\\Resources\\', $model::class) . 'Resource';
+
+    return class_exists($resource) ? $resource : null;
+});
+```
+
+The `available*()` methods and the resolver are also called before the query runs, with a resource or model that is empty, to validate `appends` and `pluck`. They must not depend on the record or on the requested fields. For the same reason, a field that is only made visible at runtime (with `makeVisible()`) can not be plucked or appended.
 
 Example:
 ```php
@@ -326,6 +359,7 @@ class UserResource extends BaseResource
     {
         return [
             'orders' => OrderResource::class,
+            'addresses' => null, // Resolved by `Junction::resolveResourcesUsing()`
         ];
     }
 }

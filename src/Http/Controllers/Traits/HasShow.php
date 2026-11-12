@@ -17,6 +17,8 @@ use Weap\Junction\Http\Controllers\Modifiers\Appends;
 use Weap\Junction\Http\Controllers\Modifiers\HiddenFields;
 use Weap\Junction\Http\Controllers\Resources\BaseResource;
 use Weap\Junction\Http\Controllers\Response\Item;
+use Weap\Junction\Http\Controllers\Validators\Appends as AppendsValidator;
+use Weap\Junction\Http\Controllers\Validators\Pluck as PluckValidator;
 
 trait HasShow
 {
@@ -35,6 +37,9 @@ trait HasShow
         $query = $this->model::query();
 
         $this->beforeShow($query);
+
+        AppendsValidator::validate($this, Arr::wrap(request()?->getAccessors()));
+        PluckValidator::validate($this, Arr::wrap(request()?->getPluckFields()));
 
         Relations::apply($this, $query);
         Scopes::apply($this, $query);

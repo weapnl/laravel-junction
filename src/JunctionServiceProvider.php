@@ -84,9 +84,10 @@ class JunctionServiceProvider extends ServiceProvider
             $relations = $this->input('with');
 
             // Accessors and counts using dot notation require their relation to be loaded as well.
+            // Only the values are field names. Merging string keys would let a `count` entry replace an append.
             $fields = array_merge(
-                $this->getAccessors() ?? [],
-                $this->input('count') ?? [],
+                array_values(Arr::wrap($this->getAccessors())),
+                array_values(Arr::wrap($this->input('count'))),
             );
 
             foreach ($fields as $field) {
@@ -96,7 +97,7 @@ class JunctionServiceProvider extends ServiceProvider
 
                 $fieldRelation = Str::beforeLast($field, '.');
 
-                if (! Arr::first($relations ?? [], fn ($relation) => Str::startsWith($relation, $fieldRelation))) {
+                if (! Arr::first($relations ?? [], fn ($relation) => $relation === $fieldRelation || Str::startsWith($relation, $fieldRelation . '.'))) {
                     $relations ??= [];
                     $relations[] = $fieldRelation;
                 }
