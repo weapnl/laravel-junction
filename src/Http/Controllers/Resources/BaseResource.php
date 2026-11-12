@@ -229,8 +229,10 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given field may be plucked from the model of this resource.
      *
-     * An accessor must be allowed by `allowsAccessor()`. Any other field is a column, which can not be hidden and must be
-     * in `availableAttributes()` when that returns a list. Whether a column exists is only known for a loaded record.
+     * The primary key is always allowed, because the response always includes it. An accessor must be allowed by
+     * `allowsAccessor()`. A relation, or any other method of the model, is not a field. Any other field is a column,
+     * which can not be hidden and must be in `availableAttributes()` when that returns a list. Whether a column exists is
+     * only known for a loaded record.
      *
      * @param string $field
      * @return bool
@@ -241,11 +243,15 @@ class BaseResource extends JsonResource
             return false;
         }
 
+        if ($field === $this->resource->getKeyName()) {
+            return true;
+        }
+
         if (static::isAccessor($this->resource, $field)) {
             return $this->allowsAccessor($field);
         }
 
-        if ($this->isHidden($field)) {
+        if ($this->resource->isRelation($field) || $this->isHidden($field)) {
             return false;
         }
 
@@ -257,6 +263,10 @@ class BaseResource extends JsonResource
     /**
      * Get the resource class for the given relation, or null if the relation is not allowed.
      *
+     * A relation that `availableRelations()` maps to a resource class uses that class. A relation it maps to `null`, or
+     * every relation when it returns `null`, uses the resource that `Junction::resourceFor()` resolves for the related
+     * model.
+     *
      * @param string $relation
      * @param Model|null $related The related model, used to resolve its own resource.
      * @return class-string<BaseResource>|null
@@ -266,7 +276,13 @@ class BaseResource extends JsonResource
         $availableRelations = $this->availableRelations();
 
         if ($availableRelations !== null) {
-            return $availableRelations[$relation] ?? null;
+            if (! array_key_exists($relation, $availableRelations)) {
+                return null;
+            }
+
+            if ($availableRelations[$relation] !== null) {
+                return $availableRelations[$relation];
+            }
         }
 
         return $related ? Junction::resourceFor($related) : self::class;

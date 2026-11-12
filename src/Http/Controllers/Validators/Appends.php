@@ -27,9 +27,11 @@ class Appends
 
         $invalidAppends = $appends->reject(fn ($append) => is_string($append) && static::isAllowed($controller, $append));
 
-        throw_if($invalidAppends->isNotEmpty(), ValidationException::withMessages([
-            'appends' => 'Invalid appends: ' . $invalidAppends->filter(fn ($append) => is_string($append))->join(', '),
-        ]));
+        if ($invalidAppends->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'appends' => 'Invalid appends: ' . $invalidAppends->filter(fn ($append) => is_string($append))->join(', '),
+            ]);
+        }
 
         return $appends->toArray();
     }

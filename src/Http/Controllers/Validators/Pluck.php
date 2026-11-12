@@ -11,8 +11,9 @@ class Pluck
 {
     /**
      * Every leading segment that is a relation must be allowed by the resource of its parent. The first segment that is
-     * not a relation is the field, which the resource of its model must allow. Segments after the field are ignored by the
-     * response, which returns the whole value of the field.
+     * not a relation is the field, which the resource of its model must allow; a relation without a declared return type is
+     * not a field, so a path through one is refused. Segments after the field are ignored by the response, which returns
+     * the whole value of the field.
      *
      * @param Controller $controller
      * @param array $fields
@@ -30,9 +31,11 @@ class Pluck
 
         $invalidFields = $fields->reject(fn ($field) => is_string($field) && static::isAllowed($controller, $field));
 
-        throw_if($invalidFields->isNotEmpty(), ValidationException::withMessages([
-            'pluck' => 'Invalid pluck fields: ' . $invalidFields->filter(fn ($field) => is_string($field))->join(', '),
-        ]));
+        if ($invalidFields->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'pluck' => 'Invalid pluck fields: ' . $invalidFields->filter(fn ($field) => is_string($field))->join(', '),
+            ]);
+        }
 
         return $fields->toArray();
     }

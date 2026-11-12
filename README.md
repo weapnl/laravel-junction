@@ -306,11 +306,11 @@ To use resources, set the `resource` variable in your controller. Your resource 
 This allows you to specify which attributes, accessors and relations will be returned. To do this, override the corresponding method:
 - `availableAttributes`. Return an array of strings, specifying which attributes will be returned. The primary key is always included.
 - `availableAccessors`. Return an array of strings, specifying which accessors will be returned.
-- `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource.
+- `availableRelations`. Return an array of key/value pairs, where the key is the name of the relation, and the value is another resource. Use `null` as the value to allow the relation and let the resolver below find its resource.
 
 Return `null` in any of these methods to allow `ALL` attributes/accessors/relations to be returned. For accessors, `null` means every accessor of the model, never a column.
 
-Related models are returned through their own resource, so its restrictions also apply when the model is nested. With `availableRelations()` returning `null`, the resource of a related model is found by the resolver below, or is the base resource when the resolver returns `null`:
+Related models are returned through their own resource, so its restrictions also apply when the model is nested. With `availableRelations()` returning `null`, or mapping the relation to `null`, the resource of a related model is found by the resolver below, or is the base resource when the resolver returns `null`:
 
 ```php
 // In a service provider
@@ -354,6 +354,7 @@ class UserResource extends BaseResource
     {
         return [
             'orders' => OrderResource::class,
+            'addresses' => null, // Resolved by `Junction::resolveResourcesUsing()`
         ];
     }
 }
