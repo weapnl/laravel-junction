@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use PDO;
 use Weap\Junction\Http\Controllers\Controller;
 use Weap\Junction\Http\Controllers\Helpers\Table;
@@ -24,10 +25,20 @@ class Search extends Filter
         $model = app($controller->model);
 
         $searchValue = request()->input('search_value');
-        $columns = empty(request()->input('search_columns')) ? $controller->searchable() : request()->input('search_columns');
+        $requestColumns = request()->input('search_columns');
+        $columns = empty($requestColumns) ? $controller->searchable() : $requestColumns;
 
         if (empty($searchValue) || empty($columns)) {
             return;
+        }
+
+        // The controller's searchable columns are trusted; only columns from the request must be checked.
+        if (! empty($requestColumns)) {
+            foreach ((array) $requestColumns as $column) {
+                if (is_string($column) && str_contains($column, '.')) {
+                    static::validateRelationPath($query, Str::beforeLast($column, '.'), 'search_columns');
+                }
+            }
         }
 
         $searchValue = $controller->mutateSearchValue($searchValue);

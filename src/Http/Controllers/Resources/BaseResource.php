@@ -120,8 +120,8 @@ class BaseResource extends JsonResource
 
                 // Run pluck for each resource in the collection
                 $resourceCollection->resource->each->pluckFields(
-                    $this->pluckAttributes[$field] ?? null,
-                    $this->pluckAccessors[$field] ?? null,
+                    is_array($this->pluckAttributes[$field] ?? null) ? $this->pluckAttributes[$field] : null,
+                    is_array($this->pluckAccessors[$field] ?? null) ? $this->pluckAccessors[$field] : null,
                     is_array($this->pluckRelations[$field] ?? null) ? $this->pluckRelations[$field] : null,
                 );
 
@@ -131,8 +131,8 @@ class BaseResource extends JsonResource
             $resource = new $resourceClass($this->resource->$field);
 
             $resource->pluckFields(
-                $this->pluckAttributes[$field] ?? null,
-                $this->pluckAccessors[$field] ?? null,
+                is_array($this->pluckAttributes[$field] ?? null) ? $this->pluckAttributes[$field] : null,
+                is_array($this->pluckAccessors[$field] ?? null) ? $this->pluckAccessors[$field] : null,
                 is_array($this->pluckRelations[$field] ?? null) ? $this->pluckRelations[$field] : null,
             );
 
@@ -209,15 +209,19 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given accessor may be appended to the model of this resource.
      *
-     * The name must be an accessor of the model, never a column, and can not be hidden. When `availableAccessors()`
-     * returns a list, the name must also be in it.
+     * The name must be a plain name, an accessor of the model, never a column, and can not be hidden. When
+     * `availableAccessors()` returns a list, the name must also be in it.
      *
      * @param string $accessor
      * @return bool
      */
     public function allowsAccessor(string $accessor): bool
     {
-        if (! $this->resource instanceof Model || ! static::isAccessor($this->resource, $accessor) || $this->isHidden($accessor)) {
+        if (! $this->resource instanceof Model || ! static::isPlainName($accessor)) {
+            return false;
+        }
+
+        if (! static::isAccessor($this->resource, $accessor) || $this->isHidden($accessor)) {
             return false;
         }
 
@@ -229,17 +233,18 @@ class BaseResource extends JsonResource
     /**
      * Determine whether the given field may be plucked from the model of this resource.
      *
-     * An accessor must be allowed by `allowsAccessor()`. A relation, or any other method of the model, is not a field.
-     * Any other field is a column, which must be in `availableAttributes()` when that returns a list, and can not be
-     * hidden unless it is the primary key: the response returns the primary key whenever fields are plucked, even when it
-     * is hidden. Whether a column exists is only known for a loaded record.
+     * The field must be a plain name. An accessor must be allowed by `allowsAccessor()`. A relation, or any other method
+     * of the model, is not a field. Any other field is a column, which must be in `availableAttributes()` with the exact
+     * same name when that returns a list, and can not be hidden unless it is the primary key: the response returns the
+     * primary key whenever fields are plucked, even when it is hidden. Whether a column exists is only known for a loaded
+     * record.
      *
      * @param string $field
      * @return bool
      */
     public function allowsPluckField(string $field): bool
     {
-        if (! $this->resource instanceof Model) {
+        if (! $this->resource instanceof Model || ! static::isPlainName($field)) {
             return false;
         }
 
@@ -257,7 +262,8 @@ class BaseResource extends JsonResource
 
         $availableAttributes = $this->availableAttributes();
 
-        return $availableAttributes === null || static::containsField($availableAttributes, $field);
+        // The response looks columns up by their exact name, so a different spelling would be allowed but never returned.
+        return $availableAttributes === null || in_array($field, $availableAttributes, true);
     }
 
     /**
@@ -331,8 +337,20 @@ class BaseResource extends JsonResource
     }
 
     /**
-     * Compare field names the way PHP finds the accessor method of a name: ignoring case and underscores. Requests may use
-     * camelCase or snake_case, and any other spelling of a name reaches the same method.
+     * Laravel also treats `-` and spaces as word separators when it looks up the accessor of a name, so a name with any
+     * other character than letters, digits and underscores could reach an accessor without matching its `$hidden` entry.
+     *
+     * @param string $field
+     * @return bool
+     */
+    protected static function isPlainName(string $field): bool
+    {
+        return preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $field) === 1;
+    }
+
+    /**
+     * Compare field names the way PHP finds the accessor method of a plain name: ignoring case and underscores. Requests
+     * may use camelCase or snake_case, and any other spelling of a plain name reaches the same method.
      *
      * @param array $fields
      * @param string $field

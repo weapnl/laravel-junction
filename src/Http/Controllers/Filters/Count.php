@@ -21,12 +21,9 @@ class Count extends Filter
             return;
         }
 
-        foreach (RelationsValidator::validate($controller, $relations) as $relation => $constraint) {
-            static::traverse(
-                $query,
-                is_string($relation) ? $relation : $constraint,
-                is_string($relation) ? $constraint : null,
-            );
+        // Request input can not hold a constraint closure, so only the values are relations; a key is never used.
+        foreach (RelationsValidator::validate($controller, array_values($relations)) as $relation) {
+            static::traverse($query, $relation);
         }
     }
 
