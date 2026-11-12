@@ -2,13 +2,16 @@
 
 namespace Weap\Junction\Http\Controllers\Resources;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Response\Items;
+use Weap\Junction\Junction;
 
 class BaseResource extends JsonResource
 {
@@ -93,17 +96,20 @@ class BaseResource extends JsonResource
      */
     protected function relationsToArray(Request $request): array
     {
-        $relations = $this->availableRelations();
-
         // If no pluck relations are given, return nothing
         if ($this->pluckRelations === null) {
             return [];
         }
 
-        // Only get available relations (if present)
-        $relations = $relations !== null
-            ? collect($relations)->filter(fn ($resource, $field) => array_key_exists($field, $this->pluckRelations))
-            : collect($this->pluckRelations)->mapWithKeys(fn ($_, $relation) => [$relation => self::class]);
+        $relations = collect($this->pluckRelations)
+            ->filter(fn ($_, $field) => $this->resource->relationLoaded($field) || $this->resource->isRelation($field))
+            ->mapWithKeys(function ($_, $field) {
+                $value = $this->resource->$field;
+                $related = $value instanceof Collection ? $value->first() : $value;
+
+                return [$field => $this->resourceForRelation($field, $related instanceof Model ? $related : null)];
+            })
+            ->filter();
 
         return $relations->map(function ($resourceClass, $field) use ($request) {
             if ($this->resource->$field === null) {
@@ -144,7 +150,10 @@ class BaseResource extends JsonResource
         $attributes = $this->availableAttributes();
 
         $pluckAttributes = $this->pluckAttributes !== null
-            ? collect($this->pluckAttributes)->filter(fn ($_, $attribute) => ! $this->resource->isRelation($attribute))->toArray()
+            ? collect($this->pluckAttributes)
+                ->filter(fn ($_, $attribute) => ! $this->resource->isRelation($attribute))
+                ->filter(fn ($_, $attribute) => $this->isPluckableField($attribute))
+                ->toArray()
             : null;
 
         // If no pluck attributes or available attributes are given, return all attributes
@@ -155,9 +164,12 @@ class BaseResource extends JsonResource
             // Always add the primary key
             $pluckAttributes[$this->resource->getKeyName()] = null;
 
-            // Only get available attributes (if present)
+            // Only get available attributes (if present). Accessors are already restricted by `allowsAccessor()`.
             $attributes = $attributes !== null
-                ? collect($attributes)->filter(fn ($field) => array_key_exists($field, $pluckAttributes))->toArray()
+                ? [
+                    ...collect($attributes)->filter(fn ($field) => array_key_exists($field, $pluckAttributes))->all(),
+                    ...collect(array_keys($pluckAttributes))->filter(fn ($field) => static::isAccessor($this->resource, $field))->all(),
+                ]
                 : array_keys($pluckAttributes);
         }
 
@@ -181,23 +193,131 @@ class BaseResource extends JsonResource
                 });
         }
 
-        $accessors = $this->availableAccessors();
-
-        $pluckAccessors = $this->pluckAccessors !== null
-            ? collect($this->pluckAccessors)->filter(fn ($_, $accessor) => ! $this->resource->isRelation($accessor))->toArray()
-            : null;
-
         // If no pluck accessors are given, return nothing
-        if ($pluckAccessors === null) {
+        if ($this->pluckAccessors === null) {
             return [];
         }
 
-        // Only get available accessors (if present)
-        $accessors = $accessors !== null
-            ? collect($accessors)->filter(fn ($field) => array_key_exists($field, $pluckAccessors))
-            : collect(array_keys($pluckAccessors));
+        // A nested array means the requested path continues past the accessor, which appends do not allow.
+        $accessors = collect($this->pluckAccessors)
+            ->filter(fn ($nested, $accessor) => ! is_array($nested) && ! $this->resource->isRelation($accessor))
+            ->filter(fn ($_, $accessor) => $this->allowsAccessor($accessor))
+            ->keys();
 
         return $this->resource->only($accessors->toArray());
+    }
+
+    /**
+     * Determine whether the given accessor may be appended to the model of this resource.
+     *
+     * The name must be an accessor of the model, never a column. When `availableAccessors()` returns a list, the name must
+     * also be in it.
+     *
+     * @param string $accessor
+     * @return bool
+     */
+    public function allowsAccessor(string $accessor): bool
+    {
+        if (! $this->resource instanceof Model || ! static::isAccessor($this->resource, $accessor)) {
+            return false;
+        }
+
+        $availableAccessors = $this->availableAccessors();
+
+        return $availableAccessors === null || static::containsField($availableAccessors, $accessor);
+    }
+
+    /**
+     * Determine whether the given field may be plucked from the model of this resource.
+     *
+     * Hidden fields are never allowed. An accessor must be allowed by `allowsAccessor()`. Any other field is a column, which
+     * must be in `availableAttributes()` when that returns a list. Whether a column exists is only known for a loaded record.
+     *
+     * @param string $field
+     * @return bool
+     */
+    public function allowsPluckField(string $field): bool
+    {
+        if (! $this->resource instanceof Model) {
+            return false;
+        }
+
+        if (static::containsField($this->resource->getHidden(), $field)) {
+            return false;
+        }
+
+        $visible = $this->resource->getVisible();
+
+        if ($visible !== [] && ! static::containsField($visible, $field)) {
+            return false;
+        }
+
+        if (static::isAccessor($this->resource, $field)) {
+            return $this->allowsAccessor($field);
+        }
+
+        $availableAttributes = $this->availableAttributes();
+
+        return $availableAttributes === null || static::containsField($availableAttributes, $field);
+    }
+
+    /**
+     * Get the resource class for the given relation, or null if the relation is not allowed.
+     *
+     * @param string $relation
+     * @param Model|null $related The related model, used to resolve its own resource.
+     * @return class-string<BaseResource>|null
+     */
+    public function resourceForRelation(string $relation, ?Model $related = null): ?string
+    {
+        $availableRelations = $this->availableRelations();
+
+        if ($availableRelations !== null) {
+            return $availableRelations[$relation] ?? null;
+        }
+
+        return $related ? Junction::resourceFor($related) : self::class;
+    }
+
+    /**
+     * @param string $field
+     * @return bool
+     */
+    protected function isPluckableField(string $field): bool
+    {
+        if ($field === $this->resource->getKeyName()) {
+            return true;
+        }
+
+        if (! static::isAccessor($this->resource, $field) && ! array_key_exists($field, $this->resource->getAttributes())) {
+            return false;
+        }
+
+        return $this->allowsPluckField($field);
+    }
+
+    /**
+     * @param Model $model
+     * @param string $field
+     * @return bool
+     */
+    protected static function isAccessor(Model $model, string $field): bool
+    {
+        return $model->hasGetMutator($field) || $model->hasAttributeGetMutator($field);
+    }
+
+    /**
+     * Compare field names regardless of casing, because requests may use camelCase or snake_case.
+     *
+     * @param array $fields
+     * @param string $field
+     * @return bool
+     */
+    protected static function containsField(array $fields, string $field): bool
+    {
+        $field = Str::snake($field);
+
+        return collect($fields)->contains(fn ($candidate) => is_string($candidate) && Str::snake($candidate) === $field);
     }
 
     /**

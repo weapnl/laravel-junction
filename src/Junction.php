@@ -2,12 +2,40 @@
 
 namespace Weap\Junction;
 
+use Closure;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
+use Weap\Junction\Http\Controllers\Resources\BaseResource;
 use Weap\Junction\Models\MediaTemporaryUpload;
 
 class Junction
 {
+    /**
+     * @var (Closure(Model): (class-string<BaseResource>|null))|null
+     */
+    protected static ?Closure $resourceResolver = null;
+
+    /**
+     * Set the closure that returns the resource class for a related model. Return null to use the default resource.
+     *
+     * @param (Closure(Model): (class-string<BaseResource>|null))|null $resolver
+     * @return void
+     */
+    public static function resolveResourcesUsing(?Closure $resolver): void
+    {
+        static::$resourceResolver = $resolver;
+    }
+
+    /**
+     * @param Model $model
+     * @return class-string<BaseResource>
+     */
+    public static function resourceFor(Model $model): string
+    {
+        return (static::$resourceResolver ? (static::$resourceResolver)($model) : null) ?? BaseResource::class;
+    }
+
     /**
      * @return class-string<MediaTemporaryUpload>
      */

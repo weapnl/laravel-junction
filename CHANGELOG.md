@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- **Breaking:** `appends` are validated at every level of a dotted path, before the query runs. Each relation in the path must be allowed by the resource of its parent model, and the last segment must be an accessor of the model it lands on (never a column) that its resource allows. Appends through a `morphTo` relation or past an accessor are refused with a 422.
+- **Breaking:** `pluck` is validated the same way. Hidden fields are refused, and an accessor must be allowed as an append; `availableAttributes()` only limits the columns that can be plucked. The response applies the same rules, so `pluck` and `appends` can no longer return hidden columns or accessors a resource does not allow.
+- **Breaking:** related models are returned through the resource of their own model. Use `Junction::resolveResourcesUsing()` to map a model to its resource; without a resolver, the base resource is used.
+- **Breaking:** relations are only recognised in `appends` and `pluck` paths when their method declares a relation as return type.
+- Fixed a bug where an append naming a model method (e.g. `save`) called that method on an empty model while looking for relations to eager load.
+- Added `BaseResource::allowsAccessor()`, `BaseResource::allowsPluckField()`, `BaseResource::resourceForRelation()` and `Controller::getResourceClass()`.
 
 ## v0.6.2
 - Changed laravel-pint GitHub action to use version from composer instead of always using the latest.

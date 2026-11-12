@@ -12,6 +12,7 @@ use ReflectionMethod;
 use Weap\Junction\AttributeRelationCache;
 use Weap\Junction\Extensions\RelationExtension;
 use Weap\Junction\Http\Controllers\Controller;
+use Weap\Junction\Http\Controllers\Helpers\RelationFinder;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
 
 class Relations extends Filter
@@ -89,7 +90,15 @@ class Relations extends Filter
         foreach ($accessors as $accessor => $nestedAccessors) {
             $accessor = Str::camel($accessor);
 
-            if (! method_exists($modelClass, $accessor)) {
+            if ($relation = RelationFinder::find(new $modelClass(), $accessor)) {
+                $relations[$accessor] ??= [];
+                $relations[$accessor] += static::getAccessorRelations($relation->getModel()::class, is_array($nestedAccessors) ? $nestedAccessors : []);
+
+                continue;
+            }
+
+            // Only methods declared to return an Attribute are called, to read the relations of `Junction::makeAttribute()`.
+            if (! (new $modelClass())->hasAttributeMutator($accessor)) {
                 continue;
             }
 
@@ -97,13 +106,6 @@ class Relations extends Filter
             $attribute = ((new ReflectionMethod($modelClass, $accessor))->isPublic())
                 ? (new $modelClass())->$accessor()
                 : $modelClass::$accessor();
-
-            if ($attribute instanceof Relation) {
-                $relations[$accessor] ??= [];
-                $relations[$accessor] += static::getAccessorRelations($attribute->getModel()::class, $nestedAccessors);
-
-                continue;
-            }
 
             if ($attribute instanceof Attribute && ($with = app(AttributeRelationCache::class)->get($modelClass, $accessor))) {
                 foreach ($with as $key => $relation) {
