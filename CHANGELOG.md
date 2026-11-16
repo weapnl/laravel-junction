@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.7.0
 - **Breaking:** requires Laravel 10.10.1 or later. The code already used framework features that Laravel 8, 9 and 10.10.0 and older do not have.
 - **Breaking:** `appends` are validated at every level of a dotted path, before the query runs. Each relation in the path must be allowed by the resource of its parent model, and the last segment must be an accessor of the model it lands on (never a column) that its resource allows. Appends through a `morphTo` relation or past an accessor are refused with a 422.
 - **Breaking:** `pluck` is validated the same way. Hidden fields, relations without a declared return type and other model methods (a `status()` method next to a `status` column) are refused, and an accessor must be allowed as an append; `availableAttributes()` only limits the columns that can be plucked, and must list a column with the exact name the request uses. The primary key can always be requested, even when it is hidden or not listed in `availableAttributes()`; it is returned when `availableAttributes()` returns `null` or lists it. A loaded value without a method on the model, such as `pivot`, is treated like a column: it can not be hidden, and must be in `availableAttributes()` when the resource defines that list. The response applies the same rules, so `pluck` and `appends` can no longer return hidden columns or accessors a resource does not allow.
