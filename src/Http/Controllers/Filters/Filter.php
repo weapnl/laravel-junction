@@ -41,9 +41,8 @@ abstract class Filter
 
     /**
      * A filter compares a column with a value the client chooses, and the rows it returns tell whether the guess was
-     * right, so a hidden column could be read one guess at a time. The primary key is not treated as a secret: it is
-     * always allowed in `pluck`, and `page_for_id` looks records up by it. The column must also be a plain name: Laravel
-     * reads `->` as a key inside a JSON column, which `$hidden` does not cover.
+     * right, so a hidden column could be read one guess at a time. The column must also be a plain name: Laravel reads
+     * `->` as a key inside a JSON column, which `$hidden` does not cover.
      *
      * @param Model $model The model whose table holds the column.
      * @param string $column
@@ -54,11 +53,28 @@ abstract class Filter
      */
     protected static function validateColumn(Model $model, string $column, string $parameter): void
     {
-        if (! static::isColumnName($column) || ($column !== $model->getKeyName() && BaseResource::isHiddenOn($model, $column))) {
+        if (! static::isColumnName($column) || static::isHiddenColumn($model, $column)) {
             throw ValidationException::withMessages([
                 $parameter => "Invalid column: {$column}",
             ]);
         }
+    }
+
+    /**
+     * The primary key is often left out of `$visible` while clients still filter on it, so for the key only `$hidden`
+     * counts: a model that hides its key, such as a session or token table, keeps it secret.
+     *
+     * @param Model $model
+     * @param string $column
+     * @return bool
+     */
+    protected static function isHiddenColumn(Model $model, string $column): bool
+    {
+        if ($column === $model->getKeyName()) {
+            return in_array($column, $model->getHidden(), true);
+        }
+
+        return BaseResource::isHiddenOn($model, $column);
     }
 
     /**

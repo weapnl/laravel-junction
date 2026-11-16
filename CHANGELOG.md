@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- **Breaking:** the column in `wheres`, `where_in`, `where_not_in`, `search_columns` and `orders` may only contain letters, digits and underscores, and can not be hidden on the model whose table holds it, unless it is the primary key; otherwise the request gets a 422. An `orders` column may still be qualified with the table of the model (`users.created_at`), but not with another table. Before, filtering on a hidden column revealed its value one guess at a time, and `->` reached keys inside a JSON column.
+- **Breaking:** the column in `wheres`, `where_in`, `where_not_in`, `search_columns` and `orders` may only contain letters, digits and underscores, and can not be hidden on the model whose table holds it (the primary key only when it is in `$hidden`); otherwise the request gets a 422. An `orders` column may still be qualified with the table of the model (`users.created_at`), but not with another table. Before, filtering on a hidden column revealed its value one guess at a time, and `->` reached keys inside a JSON column.
 
 ## v0.7.0
 - **Breaking:** requires Laravel 10.10.1 or later. The code already used framework features that Laravel 8, 9 and 10.10.0 and older do not have.
