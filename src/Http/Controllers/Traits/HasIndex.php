@@ -19,6 +19,8 @@ use Weap\Junction\Http\Controllers\Filters\Wheres;
 use Weap\Junction\Http\Controllers\Modifiers\Appends;
 use Weap\Junction\Http\Controllers\Modifiers\HiddenFields;
 use Weap\Junction\Http\Controllers\Response\Items;
+use Weap\Junction\Http\Controllers\Validators\Appends as AppendsValidator;
+use Weap\Junction\Http\Controllers\Validators\Pluck as PluckValidator;
 
 trait HasIndex
 {
@@ -43,6 +45,9 @@ trait HasIndex
         $query = $this->model::query();
 
         $this->beforeIndex($query);
+
+        AppendsValidator::validate($this, Arr::wrap(request()?->getAccessors()));
+        PluckValidator::validate($this, Arr::wrap(request()?->getPluckFields()));
 
         Relations::apply($this, $query);
         Scopes::apply($this, $query);

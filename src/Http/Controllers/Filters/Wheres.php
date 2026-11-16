@@ -58,6 +58,7 @@ class Wheres extends Filter
 
         $actualColumn = array_pop($columnParts);
         $relationPath = implode('.', $columnParts);
+        static::validateRelationPath($query, $relationPath, 'wheres');
         $relation = Table::getRelation($query->getModel()::class, $columnParts);
 
         $query->whereHas($relationPath, function (Builder $innerQuery) use ($actualColumn, $operator, $value, $relation) {

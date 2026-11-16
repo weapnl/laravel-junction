@@ -24,7 +24,8 @@ class Search extends Filter
         $model = app($controller->model);
 
         $searchValue = request()->input('search_value');
-        $columns = empty(request()->input('search_columns')) ? $controller->searchable() : request()->input('search_columns');
+        $requestColumns = request()->input('search_columns');
+        $columns = empty($requestColumns) ? $controller->searchable() : $requestColumns;
 
         if (empty($searchValue) || empty($columns)) {
             return;
@@ -32,21 +33,29 @@ class Search extends Filter
 
         $searchValue = $controller->mutateSearchValue($searchValue);
 
-        $query->where(function (Builder $query) use ($searchValue, $model, $columns) {
+        // The controller's searchable columns are trusted; only columns from the request must be checked.
+        $validateRelations = ! empty($requestColumns);
+
+        $query->where(function (Builder $query) use ($searchValue, $model, $columns, $validateRelations) {
             $columns = Arr::undot(array_flip($columns));
 
-            self::searchColumnQuery($query, $columns, $model->getTable(), $searchValue);
+            self::searchColumnQuery($query, $columns, $model->getTable(), $searchValue, $validateRelations);
         });
     }
 
     /**
+     * Each relation is checked on the model of the query it is used on, just before its method is called. Behind a
+     * `morphTo` relation, Laravel runs the nested query once for each related model type, so the rest of the path is
+     * checked on each of those models.
+     *
      * @param Builder $query
      * @param array $columns
      * @param string $tableName
      * @param string $searchValue
+     * @param bool $validateRelations Whether every relation must be a declared relation, for columns from the request.
      * @return void
      */
-    public static function searchColumnQuery(Builder $query, array $columns, string $tableName, string $searchValue): void
+    public static function searchColumnQuery(Builder $query, array $columns, string $tableName, string $searchValue, bool $validateRelations = false): void
     {
         $connection = DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
         $likeOperator = $connection === 'pgsql' ? 'ILIKE' : 'LIKE';
@@ -55,13 +64,17 @@ class Search extends Filter
             if (! is_array($relationColumns)) {
                 $query->orWhere($tableName . '.' . $relationName, $likeOperator, '%' . $searchValue . '%');
             } else {
+                if ($validateRelations) {
+                    static::validateRelationPath($query, (string) $relationName, 'search_columns');
+                }
+
                 $relation = Table::getRelation($query->getModel()::class, [$relationName]);
 
-                $query->orWhereHas($relationName, function (Builder $query) use ($relationColumns, $relation, $searchValue) {
+                $query->orWhereHas($relationName, function (Builder $query) use ($relationColumns, $relation, $searchValue, $validateRelations) {
                     $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $query->getModel()->getTable();
 
-                    $query->where(function (Builder $query) use ($relationColumns, $tableName, $searchValue) {
-                        self::searchColumnQuery($query, $relationColumns, $tableName, $searchValue);
+                    $query->where(function (Builder $query) use ($relationColumns, $tableName, $searchValue, $validateRelations) {
+                        self::searchColumnQuery($query, $relationColumns, $tableName, $searchValue, $validateRelations);
                     });
                 });
             }

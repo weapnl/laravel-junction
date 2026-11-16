@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Weap\Junction\Extensions\RelationExtension;
 use Weap\Junction\Http\Controllers\Controller;
+use Weap\Junction\Http\Controllers\Helpers\RelationFinder;
 
 class Relations
 {
@@ -30,14 +31,21 @@ class Relations
 
         $availableRelations = app(RelationExtension::class)->call($controller->relations() ?? [], $controller);
 
-        if ($availableRelations == ['*']) {
-            return $relations->all();
-        }
+        $model = new $controller->model();
 
-        $invalidRelations = $relations->filter(function ($callback, $relation) use ($availableRelations) {
+        $invalidRelations = $relations->filter(function ($callback, $relation) use ($availableRelations, $model) {
             $key = is_string($callback) ? $callback : $relation;
 
-            return ! Arr::first($availableRelations, static fn ($relation, $value) => Str::startsWith(is_string($relation) ? $relation : $value, $key));
+            if (! is_string($key)) {
+                return true;
+            }
+
+            // Any relation is allowed, but eager loading calls the method of every name, so it must be a declared relation.
+            if ($availableRelations == ['*']) {
+                return ! RelationFinder::isRelationPath($model, $key);
+            }
+
+            return ! Arr::first($availableRelations, static fn ($relation, $value) => static::includesPath(is_string($relation) ? $relation : $value, $key));
         });
 
         throw_if($invalidRelations->isNotEmpty(), ValidationException::withMessages([
@@ -45,5 +53,17 @@ class Relations
         ]));
 
         return $relations->all();
+    }
+
+    /**
+     * A relation that is allowed also allows each relation on its path, e.g. `user.orders` allows `user`.
+     *
+     * @param string $availableRelation
+     * @param string $relation
+     * @return bool
+     */
+    protected static function includesPath(string $availableRelation, string $relation): bool
+    {
+        return $availableRelation === $relation || Str::startsWith($availableRelation, $relation . '.');
     }
 }

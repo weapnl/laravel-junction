@@ -53,6 +53,7 @@ class WhereNotIn extends Filter
         // Treatment for columns in a relationship
         $actualColumn = array_pop($relationParts);
         $relationPath = implode('.', $relationParts);
+        static::validateRelationPath($query, $relationPath, 'where_not_in');
         $relation = Table::getRelation($query->getModel()::class, $relationParts);
 
         $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $relation) {
