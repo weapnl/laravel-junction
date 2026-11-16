@@ -41,8 +41,9 @@ abstract class Filter
 
     /**
      * A filter compares a column with a value the client chooses, and the rows it returns tell whether the guess was
-     * right, so a hidden column could be read one guess at a time. The column must also be a plain name: Laravel reads
-     * `->` as a key inside a JSON column, which `$hidden` does not cover.
+     * right, so a hidden column could be read one guess at a time. The primary key is not treated as a secret: it is
+     * always allowed in `pluck`, and `page_for_id` looks records up by it. The column must also be a plain name: Laravel
+     * reads `->` as a key inside a JSON column, which `$hidden` does not cover.
      *
      * @param Model $model The model whose table holds the column.
      * @param string $column
@@ -53,11 +54,23 @@ abstract class Filter
      */
     protected static function validateColumn(Model $model, string $column, string $parameter): void
     {
-        if (! BaseResource::isPlainName($column) || BaseResource::isHiddenOn($model, $column)) {
+        if (! static::isColumnName($column) || ($column !== $model->getKeyName() && BaseResource::isHiddenOn($model, $column))) {
             throw ValidationException::withMessages([
                 $parameter => "Invalid column: {$column}",
             ]);
         }
+    }
+
+    /**
+     * Unlike an accessor name, a column may start with a digit (`2fa_enabled`): Laravel quotes the column in the query.
+     *
+     * @param string $column
+     * @return bool
+     */
+    protected static function isColumnName(string $column): bool
+    {
+        // `\z`, because `$` also matches before a trailing newline.
+        return preg_match('/^[A-Za-z0-9_]+\z/', $column) === 1;
     }
 
     /**
