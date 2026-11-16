@@ -170,6 +170,8 @@ Filters are applied to the query. Filters are defined using array keys. Availabl
 
 A column in `wheres`, `where_in`, `where_not_in` and `search_columns` can use dot-notation to filter on a relation (`orders.number`). Every segment before the column must be a relation of the model before it: a method that declares a relation as return type, or a relation added with `resolveRelationUsing()`. In `wheres`, `where_in` and `where_not_in`, a path can not continue past a `morphTo` relation. In `search_columns` it can: Laravel searches each related model type separately, and the rest of the path is checked on each of those models. Otherwise the request gets a `422` response with an error for that parameter. The `searchable` columns of the controller are not checked.
 
+The column itself, in these filters and in `orders`, may only contain letters, digits and underscores, and can not start with a digit, so a key inside a JSON column (`options->color`) can not be used. It can not be hidden (`$hidden`, or missing from `$visible` when that is set) on the model whose table holds it: the related model, or the pivot model for a `belongsToMany` relation. The rows a filter or an order returns would otherwise tell a client whether its guess at a hidden value was right. Behind a `morphTo` relation, the column is checked on each related model type.
+
 #### Modifiers
 Modifiers are applied after the query has run. Available modifiers:
 

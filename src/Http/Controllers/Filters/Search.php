@@ -34,17 +34,17 @@ class Search extends Filter
         $searchValue = $controller->mutateSearchValue($searchValue);
 
         // The controller's searchable columns are trusted; only columns from the request must be checked.
-        $validateRelations = ! empty($requestColumns);
+        $fromRequest = ! empty($requestColumns);
 
-        $query->where(function (Builder $query) use ($searchValue, $model, $columns, $validateRelations) {
+        $query->where(function (Builder $query) use ($searchValue, $model, $columns, $fromRequest) {
             $columns = Arr::undot(array_flip($columns));
 
-            self::searchColumnQuery($query, $columns, $model->getTable(), $searchValue, $validateRelations);
+            self::searchColumnQuery($query, $columns, $model->getTable(), $searchValue, $fromRequest);
         });
     }
 
     /**
-     * Each relation is checked on the model of the query it is used on, just before its method is called. Behind a
+     * Each relation and column is checked on the model of the query it is used on, just before it is used. Behind a
      * `morphTo` relation, Laravel runs the nested query once for each related model type, so the rest of the path is
      * checked on each of those models.
      *
@@ -52,32 +52,42 @@ class Search extends Filter
      * @param array $columns
      * @param string $tableName
      * @param string $searchValue
-     * @param bool $validateRelations Whether every relation must be a declared relation, for columns from the request.
+     * @param bool $fromRequest Whether the columns come from the request, so every relation must be a declared relation and
+     *                          every column a plain name that is not hidden.
+     * @param Model|null $columnModel The model whose table holds the columns; the model of the query when not given.
      * @return void
      */
-    public static function searchColumnQuery(Builder $query, array $columns, string $tableName, string $searchValue, bool $validateRelations = false): void
+    public static function searchColumnQuery(Builder $query, array $columns, string $tableName, string $searchValue, bool $fromRequest = false, ?Model $columnModel = null): void
     {
         $connection = DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
         $likeOperator = $connection === 'pgsql' ? 'ILIKE' : 'LIKE';
+        $columnModel ??= $query->getModel();
 
         foreach ($columns as $relationName => $relationColumns) {
             if (! is_array($relationColumns)) {
-                $query->orWhere($tableName . '.' . $relationName, $likeOperator, '%' . $searchValue . '%');
-            } else {
-                if ($validateRelations) {
-                    static::validateRelationPath($query, (string) $relationName, 'search_columns');
+                if ($fromRequest) {
+                    static::validateColumn($columnModel, (string) $relationName, 'search_columns');
                 }
 
-                $relation = Table::getRelation($query->getModel()::class, [$relationName]);
+                $query->orWhere($tableName . '.' . $relationName, $likeOperator, '%' . $searchValue . '%');
 
-                $query->orWhereHas($relationName, function (Builder $query) use ($relationColumns, $relation, $searchValue, $validateRelations) {
-                    $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $query->getModel()->getTable();
-
-                    $query->where(function (Builder $query) use ($relationColumns, $tableName, $searchValue, $validateRelations) {
-                        self::searchColumnQuery($query, $relationColumns, $tableName, $searchValue, $validateRelations);
-                    });
-                });
+                continue;
             }
+
+            if ($fromRequest) {
+                static::validateRelationPath($query, (string) $relationName, 'search_columns');
+            }
+
+            $relation = Table::getRelation($query->getModel()::class, [$relationName]);
+
+            $query->orWhereHas($relationName, function (Builder $query) use ($relationColumns, $relation, $searchValue, $fromRequest) {
+                $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $query->getModel()->getTable();
+                $columnModel = static::columnModel($relation, $query);
+
+                $query->where(function (Builder $query) use ($relationColumns, $tableName, $searchValue, $fromRequest, $columnModel) {
+                    self::searchColumnQuery($query, $relationColumns, $tableName, $searchValue, $fromRequest, $columnModel);
+                });
+            });
         }
     }
 }

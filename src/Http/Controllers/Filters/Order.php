@@ -29,6 +29,8 @@ class Order extends Filter
                 throw new RuntimeException('A "order" array must contain a column and a direction.');
             }
 
+            // The order of the rows would reveal a hidden column just like a filter on it.
+            static::validateColumn($query->getModel(), (string) $column, 'orders');
             $query->orderBy($column, $direction);
         }
     }

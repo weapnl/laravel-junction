@@ -45,6 +45,7 @@ class WhereIn extends Filter
 
         // Directly on the main model (no relation)
         if (count($relationParts) === 1) {
+            static::validateColumn($query->getModel(), $column, 'where_in');
             $query->whereIn($query->getModel()->getTable() . '.' . $column, $values);
 
             return;
@@ -56,7 +57,10 @@ class WhereIn extends Filter
         static::validateRelationPath($query, $relationPath, 'where_in');
         $relation = Table::getRelation($query->getModel()::class, $relationParts);
 
+        // Checked inside the closure, because behind a `morphTo` it runs once for each related model type.
         $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $relation) {
+            static::validateColumn(static::columnModel($relation, $subQuery), $actualColumn, 'where_in');
+
             $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $subQuery->getModel()->getTable();
             $fullColumn = $tableName . '.' . $actualColumn;
 
