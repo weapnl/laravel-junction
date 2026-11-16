@@ -263,9 +263,9 @@ class BaseResource extends JsonResource
      *
      * The field must be a plain name. The primary key is always allowed, so clients can always request it; the response
      * only returns it when `availableAttributes()` returns `null` or lists it. An accessor must be allowed by
-     * `allowsAccessor()`. A relation, or any other method of the model, is not a field. Any other field is a column, which
-     * can not be hidden and must be in `availableAttributes()` with the exact same name when that returns a list. Whether
-     * a column exists is only known for a loaded record.
+     * `allowsAccessor()`. A relation, or any other method of the model, is not a field. Any other field is a column or a
+     * loaded value without a method (such as `pivot`), which can not be hidden and must be in `availableAttributes()` with
+     * the exact same name when that returns a list. Whether such a field exists is only known for a loaded record.
      *
      * @param string $field
      * @return bool
@@ -330,11 +330,28 @@ class BaseResource extends JsonResource
             return true;
         }
 
-        if (! array_key_exists($field, $this->resource->getAttributes()) && ! static::isAccessor($this->resource, $field)) {
+        if (
+            ! array_key_exists($field, $this->resource->getAttributes())
+            && ! static::isAccessor($this->resource, $field)
+            && ! $this->isLoadedValueWithoutMethod($field)
+        ) {
             return false;
         }
 
         return $this->allowsPluckField($field);
+    }
+
+    /**
+     * Determine whether the field is a value set with `setRelation()` that has no method on the model, such as the
+     * `pivot` of a `belongsToMany` relation. A relation (a method, or one added with `resolveRelationUsing()`) is refused
+     * by `allowsPluckField()` and returned through its resource instead.
+     *
+     * @param string $field
+     * @return bool
+     */
+    protected function isLoadedValueWithoutMethod(string $field): bool
+    {
+        return $this->resource->relationLoaded($field) && ! method_exists($this->resource, $field);
     }
 
     /**

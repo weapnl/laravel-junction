@@ -88,6 +88,9 @@ class RelationFinder
             default => [],
         };
 
+        // A relation may be nullable (`BelongsTo|MorphTo|null`), but a method that only returns `null` is not a relation.
+        $types = array_filter($types, fn ($type) => ! $type instanceof ReflectionNamedType || $type->getName() !== 'null');
+
         if ($types === []) {
             return false;
         }

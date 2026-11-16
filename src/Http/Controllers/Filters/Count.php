@@ -30,14 +30,11 @@ class Count extends Filter
     /**
      * @param Builder|Relation $query
      * @param string $relation
-     * @param callable|null $constraint
      */
-    protected static function traverse(Builder|Relation $query, string $relation, ?callable $constraint = null): void
+    protected static function traverse(Builder|Relation $query, string $relation): void
     {
         $relationParts = explode('.', $relation);
-        $countRelation = array_pop($relationParts);
-
-        $count = $constraint ? [$countRelation => $constraint] : [$countRelation];
+        $count = [array_pop($relationParts)];
 
         // If there's no relation path (single relation name), apply the count on the query itself and exit early.
         if (! $relationParts) {

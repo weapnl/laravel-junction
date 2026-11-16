@@ -290,6 +290,7 @@ The `pluck` modifier is validated before the query runs, the same way as appends
 - The first segment that is not a relation is the field. A relation without a declared return type, or any other method of the model (such as a `status()` method next to a `status` column), is not a field, so it is refused. When the field is an accessor, it must be allowed as an append. Otherwise it is a column, which must be in `availableAttributes()` with the exact same name when the resource defines that list, and can not be hidden (`$hidden`, or missing from `$visible` when that is set). The primary key is the exception: it can always be requested, even when it is hidden or not in `availableAttributes()`, and is returned as described under [Resources](#resources).
 - Segments after the field are ignored; the whole value of the field is returned.
 - A path of only relations (`pluck[]=orders`) returns the whole relation, through its resource, when the relation is loaded with `with`.
+- A loaded value that has no method on the model, such as the `pivot` of a `belongsToMany` relation (`with[]=roles&pluck[]=roles.pivot`), is treated like a column: it can not be hidden, and must be in `availableAttributes()` when the resource defines that list.
 
 ### Search
 This package supports search functionality for given models and relations.
@@ -322,9 +323,11 @@ Related models are returned through their own resource, so its restrictions also
 Junction::resolveResourcesUsing(function (Model $model): ?string {
     $resource = str_replace('\\Models\\', '\\Http\\Resources\\', $model::class) . 'Resource';
 
-    return class_exists($resource) ? $resource : null;
+    return class_exists($resource) && is_a($resource, BaseResource::class, true) ? $resource : null;
 });
 ```
+
+A class returned by the resolver that does not extend `BaseResource` is ignored, and the base resource is used instead. Such a class gives no protection: the base resource returns every attribute that is not hidden, even when the class limits the fields in its own `toArray()`.
 
 The `available*()` methods and the resolver are also called before the query runs, with a resource or model that is empty, to validate `appends` and `pluck`. They must not depend on the record or on the requested fields. For the same reason, a field that is only made visible at runtime (with `makeVisible()`) can not be plucked or appended.
 
