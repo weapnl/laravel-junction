@@ -1,12 +1,12 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Traits;
+namespace Weap\Junction\Http\Controllers\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
-use Weap\Junction\Http\Controllers\Helpers\Database;
+use Weap\Junction\Support\Database;
 
 trait HasDestroy
 {

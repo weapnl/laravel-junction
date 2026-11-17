@@ -10,7 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use PDO;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\Table;
+use Weap\Junction\Support\Table;
 
 class Search extends Filter
 {

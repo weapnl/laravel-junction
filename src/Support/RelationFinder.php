@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Helpers;
+namespace Weap\Junction\Support;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;

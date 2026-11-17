@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Enumerable;
 use Illuminate\Support\Str;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Resources\BaseResource;
 use Weap\Junction\Http\Controllers\Response\Response;
+use Weap\Junction\Http\Resources\BaseResource;
 
 class HiddenFields extends Modifier
 {

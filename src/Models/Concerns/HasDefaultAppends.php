@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Traits;
+namespace Weap\Junction\Models\Concerns;
 
 trait HasDefaultAppends
 {

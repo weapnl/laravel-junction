@@ -13,8 +13,8 @@ use ReflectionMethod;
 use Weap\Junction\AttributeRelationCache;
 use Weap\Junction\Extensions\RelationExtension;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\RelationFinder;
 use Weap\Junction\Http\Controllers\Validators\Relations as RelationsValidator;
+use Weap\Junction\Support\RelationFinder;
 
 class Relations extends Filter
 {

@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Validation\ValidationException;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\RelationFinder;
-use Weap\Junction\Http\Controllers\Resources\BaseResource;
+use Weap\Junction\Http\Resources\BaseResource;
+use Weap\Junction\Support\RelationFinder;
 
 abstract class Filter
 {

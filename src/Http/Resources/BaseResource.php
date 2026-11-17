@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Resources;
+namespace Weap\Junction\Http\Resources;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;

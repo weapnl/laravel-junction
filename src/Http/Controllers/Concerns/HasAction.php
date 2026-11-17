@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Traits;
+namespace Weap\Junction\Http\Controllers\Concerns;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use ReflectionMethod;
 use Throwable;
-use Weap\Junction\Http\Controllers\Helpers\Database;
+use Weap\Junction\Support\Database;
 
 trait HasAction
 {
