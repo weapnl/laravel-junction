@@ -84,6 +84,14 @@ class Controller extends BaseController
     }
 
     /**
+     * @return class-string<BaseResource>
+     */
+    public function getResourceClass(): string
+    {
+        return $this->resource;
+    }
+
+    /**
      * Define the relations which can be loaded in a request using "dot" notation.
      *
      * Each entry is either:

@@ -52,6 +52,7 @@ class Wheres extends Filter
 
         // If there's no relation (single column name), apply the where condition and exit early.
         if (count($columnParts) === 1) {
+            static::validateColumn($query->getModel(), $column, 'wheres');
             static::applyWhere($query, $query->getModel()->getTable() . '.' . $column, $operator, $value);
 
             return;
@@ -59,9 +60,13 @@ class Wheres extends Filter
 
         $actualColumn = array_pop($columnParts);
         $relationPath = implode('.', $columnParts);
+        static::validateRelationPath($query, $relationPath, 'wheres');
         $relation = Table::getRelation($query->getModel()::class, $columnParts);
 
+        // Checked inside the closure, because behind a `morphTo` it runs once for each related model type.
         $query->whereHas($relationPath, function (Builder $innerQuery) use ($actualColumn, $operator, $value, $relation) {
+            static::validateColumn(static::columnModel($relation, $innerQuery), $actualColumn, 'wheres');
+
             $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $innerQuery->getModel()->getTable();
             $fullColumn = $tableName . '.' . $actualColumn;
 

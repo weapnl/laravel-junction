@@ -22,27 +22,21 @@ class Count extends Filter
             return;
         }
 
-        foreach (RelationsValidator::validate($controller, $relations) as $relation => $constraint) {
-            static::traverse(
-                $query,
-                is_string($relation) ? $relation : $constraint,
-                is_string($relation) ? $constraint : null,
-            );
+        // Request input can not hold a constraint closure, so only the values are relations; a key is never used.
+        foreach (RelationsValidator::validate($controller, array_values($relations)) as $relation) {
+            static::traverse($query, $relation);
         }
     }
 
     /**
      * @param Builder<Model>|Relation<Model, Model, mixed> $query
      * @param string $relation
-     * @param callable|null $constraint
      * @return void
      */
-    protected static function traverse(Builder|Relation $query, string $relation, ?callable $constraint = null): void
+    protected static function traverse(Builder|Relation $query, string $relation): void
     {
         $relationParts = explode('.', $relation);
-        $countRelation = array_pop($relationParts);
-
-        $count = $constraint ? [$countRelation => $constraint] : [$countRelation];
+        $count = [array_pop($relationParts)];
 
         // If there's no relation path (single relation name), apply the count on the query itself and exit early.
         if (! $relationParts) {
@@ -60,7 +54,7 @@ class Count extends Filter
      *
      * @param Builder<Model>|Relation<Model, Model, mixed> $query
      * @param array<int, string> $relationParts
-     * @param array<int|string, callable|string> $count
+     * @param array<int, string> $count
      * @return void
      */
     protected static function applyCount(Builder|Relation $query, array $relationParts, array $count): void

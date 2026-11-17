@@ -2,6 +2,8 @@
 
 ## From v0 to v1
 
+This guide covers the changes from v0.7.1 to v1. v0.7.0 and v0.7.1 have breaking changes of their own (stricter validation of `appends`, `pluck`, `with`, `count` and filter columns), so when upgrading from an older version, go through those in the [changelog](CHANGELOG.md) first.
+
 ### Requirements
 
 - Laravel 12 or higher

@@ -46,6 +46,7 @@ class WhereNotIn extends Filter
 
         // Directly on the main model (no relation)
         if (count($relationParts) === 1) {
+            static::validateColumn($query->getModel(), $column, 'where_not_in');
             $query->whereNotIn($query->getModel()->getTable() . '.' . $column, $values);
 
             return;
@@ -54,9 +55,13 @@ class WhereNotIn extends Filter
         // Treatment for columns in a relationship
         $actualColumn = array_pop($relationParts);
         $relationPath = implode('.', $relationParts);
+        static::validateRelationPath($query, $relationPath, 'where_not_in');
         $relation = Table::getRelation($query->getModel()::class, $relationParts);
 
+        // Checked inside the closure, because behind a `morphTo` it runs once for each related model type.
         $query->whereHas($relationPath, function (Builder $subQuery) use ($actualColumn, $values, $relation) {
+            static::validateColumn(static::columnModel($relation, $subQuery), $actualColumn, 'where_not_in');
+
             $tableName = $relation instanceof BelongsToMany ? $relation->getTable() : $subQuery->getModel()->getTable();
             $fullColumn = $tableName . '.' . $actualColumn;
 
