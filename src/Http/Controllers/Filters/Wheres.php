@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use RuntimeException;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\Table;
+use Weap\Junction\Support\Table;
 
 class Wheres extends Filter
 {

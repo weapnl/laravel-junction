@@ -9,13 +9,20 @@ use Illuminate\Support\Str;
 class ResourceRegistrar extends BaseResourceRegistrar
 {
     /**
+     * The default actions for a Junction resourceful controller.
+     *
+     * @var list<string>
+     */
+    public const DEFAULT_METHODS = [
+        'index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action',
+    ];
+
+    /**
      * The default actions for a resourceful controller.
      *
      * @var string[]
      */
-    protected $resourceDefaults = [
-        'index', 'indexPost', 'store', 'show', 'showPost', 'update', 'destroy', 'action',
-    ];
+    protected $resourceDefaults = self::DEFAULT_METHODS;
 
     /**
      * Add the index method for a resourceful route.

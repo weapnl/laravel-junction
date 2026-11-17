@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Weap\Junction\Extensions\RelationExtension;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\RelationFinder;
+use Weap\Junction\Support\RelationFinder;
 
 class Relations
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Weap\Junction\Http\Controllers\Requests;
+namespace Weap\Junction\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Weap\Junction\Http\Utilities\MediaFile;
 use Weap\Junction\Junction;
+use Weap\Junction\Support\MediaFile;
 
 class DefaultFormRequest extends FormRequest
 {

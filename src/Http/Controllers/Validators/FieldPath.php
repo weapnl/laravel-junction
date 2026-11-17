@@ -4,8 +4,8 @@ namespace Weap\Junction\Http\Controllers\Validators;
 
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Weap\Junction\Http\Controllers\Controller;
-use Weap\Junction\Http\Controllers\Helpers\RelationFinder;
-use Weap\Junction\Http\Controllers\Resources\BaseResource;
+use Weap\Junction\Http\Resources\BaseResource;
+use Weap\Junction\Support\RelationFinder;
 
 class FieldPath
 {

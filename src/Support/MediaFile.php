@@ -1,6 +1,6 @@
 <?php
 
-namespace Weap\Junction\Http\Utilities;
+namespace Weap\Junction\Support;
 
 use Symfony\Component\HttpFoundation\File\File;
 
